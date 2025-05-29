@@ -1,4 +1,3 @@
-<!-- Hamburger button for mobile (Navigation Rail Toggle) -->
 <button type="button"
     class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 z-50"
     id="sidebar-toggle-btn"
@@ -10,57 +9,66 @@
         </path>
     </svg>
 </button>
-
-<!-- Navigation Rail (Responsive Sidebar) -->
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center">
+        <svg class="animate-spin h-8 w-8 text-blue-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        <span class="text-gray-700 dark:text-gray-200">Loading...</span>
+    </div>
+</div>
 <nav id="sidebar-nav"
-    class="fixed top-0 left-0 z-40 h-screen w-20 bg-gray-50 dark:bg-gray-800 flex flex-col items-center py-4 transition-all duration-300 sm:w-64 sm:items-stretch"
+    class="fixed top-0 left-0 z-40 h-screen w-24 bg-gray-50 dark:bg-gray-800 flex flex-col items-center py-4 transition-all duration-300 sm:w-72 sm:items-stretch"
     aria-label="Sidebar">
     <!-- Logo -->
     <a href="" class="flex flex-col items-center sm:flex-row sm:items-center px-2.5 mb-5">
         <img src="https://flowbite.com/docs/images/logo.svg" class="h-6 sm:mr-3 sm:h-7" alt="Flowbite Logo" />
         <span class="hidden sm:inline self-center text-xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
     </a>
-    <!-- Navigation Links -->
     <ul class="flex flex-col gap-2 font-medium w-full">
-        <!-- ...existing nav items... -->
         <li>
-            <a href='/home/dashboard/' class="flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href='/home/dashboard/' class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/>
                 </svg>
                 <span class="hidden sm:inline ml-3">Dashboard</span>
+                <span class="sidebar-tooltip group-hover:flex">Dashboard</span>
             </a>
         </li>
         <li>
-            <a href="/home/post/" class="flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href="/home/post/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M12 20h9"/>
                     <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/>
                 </svg>
                 <span class="hidden sm:inline ml-3">Post</span>
+                <span class="sidebar-tooltip group-hover:flex">Post</span>
             </a>
         </li>
         <li>
-            <a href="/home/pages/" class="flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href="/home/pages/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
                     <path d="M16 2v4H8V2"/>
                 </svg>
                 <span class="hidden sm:inline ml-3">Pages</span>
+                <span class="sidebar-tooltip group-hover:flex">Pages</span>
             </a>
         </li>
         <li>
-            <a href="/home/media/" class="flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href="/home/media/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <rect x="3" y="3" width="18" height="18" rx="2"/>
                     <circle cx="8.5" cy="8.5" r="1.5"/>
                     <path d="M21 15l-5-5L5 21"/>
                 </svg>
                 <span class="hidden sm:inline ml-3">Media</span>
+                <span class="sidebar-tooltip group-hover:flex">Media</span>
             </a>
         </li>
         <li>
-            <a href="/home/team/" class="flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href="/home/team/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
                     <path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
@@ -69,25 +77,25 @@
                     <path d="M8 3.13a4 4 0 0 0 0 7.75"/>
                 </svg>
                 <span class="hidden sm:inline ml-3">Team</span>
+                <span class="sidebar-tooltip group-hover:flex">Team</span>
             </a>
         </li>
     </ul>
-    <!-- Spacer -->
     <div class="flex-1"></div>
-    <!-- Sign In / Sign Up at the bottom -->
     <ul class="flex flex-col gap-2 font-medium w-full mb-4">
         <li>
-            <a href="/home/signin/" class="flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href="/home/signin/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
                     <polyline points="10 17 15 12 10 7"/>
                     <line x1="15" y1="12" x2="3" y2="12"/>
                 </svg>
                 <span class="hidden sm:inline ml-3">Sign In</span>
+                <span class="sidebar-tooltip group-hover:flex">Sign In</span>
             </a>
         </li>
         <li>
-            <a href="/home/signup/" class="flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href="/home/signup/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="9" cy="7" r="4"/>
                     <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
@@ -95,15 +103,38 @@
                     <path d="M22 11h-6"/>
                 </svg>
                 <span class="hidden sm:inline ml-3">Sign Up</span>
+                <span class="sidebar-tooltip group-hover:flex">Sign Up</span>
             </a>
         </li>
     </ul>
 </nav>
-
-<!-- Responsive behavior (show/hide nav rail on mobile) -->
 <style>
+    .sidebar-tooltip {
+    display: none;
+    position: absolute;
+    left: 110%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #222;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    z-index: 100;
+    pointer-events: none;
+}
+.group:hover .sidebar-float-label {
+    display: flex;
+    align-items: center;
+}
+.group:hover .sidebar-float-label {
+    display: display: flex;
+    align-items: center;
+}
 @media (max-width: 639px) {
     #sidebar-nav {
+        width: 96px; /* 24 * 4px = 96px for w-24 */
         transform: translateX(-100%);
         transition: transform 0.3s;
     }
@@ -111,13 +142,43 @@
         transform: translateX(0);
     }
 }
+@media (min-width: 640px) {
+    #sidebar-nav {
+        width: 18rem; /* 72 * 0.25rem = 18rem for sm:w-72 */
+    }
+}
 </style>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    if (window.matchMedia('(max-width: 639px)').matches) {
+        document.querySelectorAll('.sidebar-link').forEach(function(link) {
+            link.addEventListener('touchstart', function(e) {
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('show-label'));
+                link.classList.add('show-label');
+                setTimeout(() => link.classList.remove('show-label'), 1500);
+            });
+        });
+    }
+
     const nav = document.getElementById('sidebar-nav');
     const btn = document.getElementById('sidebar-toggle-btn');
-    btn.addEventListener('click', function () {
-        nav.classList.toggle('open');
+    if (btn) {
+        btn.addEventListener('click', function () {
+            nav.classList.toggle('open');
+        });
+    }
+
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    sidebarLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            if (e.button !== 0 || e.ctrlKey || e.metaKey) return;
+            e.preventDefault();
+            loadingOverlay.classList.remove('hidden');
+            setTimeout(() => {
+                window.location.href = link.getAttribute('href');
+            }, 1000); 
+        });
     });
 });
 </script>
