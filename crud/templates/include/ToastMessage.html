@@ -1,0 +1,14 @@
+<div id="toast-message" class="fixed top-6 right-6 z-50 hidden bg-green-500 text-white px-6 py-3 rounded shadow-lg transition-opacity duration-300">
+    <span id="toast-text">Login successful!</span>
+</div>
+<script>
+    function showToast(message) {
+        const toast = document.getElementById('toast-message');
+        const toastText = document.getElementById('toast-text');
+        toastText.textContent = message;
+        toast.classList.remove('hidden');
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 3000);
+    }
+</script>
