@@ -1,0 +1,23 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block 'title' %} Logout {% endblock 'title' %}
+
+{% block 'content' %}
+{% include "include/Sidebar.html" %}
+
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="bg-white rounded-lg shadow-lg p-10 max-w-md w-full text-center">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Are you sure you want to logout?</h2>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded mr-4 transition">
+                Yes, Logout
+            </button>
+            <a href="{% url 'dashboard' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded transition">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock 'content' %}
