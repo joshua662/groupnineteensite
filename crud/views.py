@@ -12,7 +12,7 @@ def Login(request):
             return redirect('dashboard')  # This must match the name in urls.py
         else:
             messages.error(request, 'Invalid username or password.')
-    return render(request, 'Home/Login.html')
+    return render(request, 'layout/Login.html')
 
 def Dashboard(request):
     return render(request, 'Home/Dashboard.html')
