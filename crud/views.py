@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib import messages
 
 def Login(request):
@@ -35,9 +35,7 @@ def Team(request):
 def SignIn(request):
     return render(request, 'Home/SignIn.html')
 
-def logout_confirm(request):
-    if request.method == 'POST':
-        logout(request)
-        messages.success(request, 'You have been logged out successfully.')
-        return redirect('login')
-    return render(request, 'login')
+def logout(request):
+    auth_logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('/login/')

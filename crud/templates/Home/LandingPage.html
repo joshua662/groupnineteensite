@@ -23,14 +23,29 @@
         <img src="{% static 'images/IconTab.png' %}" alt="ISATU Emblem" class="max-w-xl w-full h-auto">
     </div>
 </div>
-<a href="{% url 'logout' %}" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-    <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M19 8v6"/>
-        <path d="M22 11h-6"/>
-    </svg>
-    <span class="hidden sm:inline ml-3">Log Out</span>
-    <span class="sidebar-tooltip group-hover:flex">Log Out</span>
-</a>
+<style>
+.fade-out {
+    animation: fadeOut 0.7s forwards;
+}
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const getStartedBtn = document.querySelector('a[href="login/"]');
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.body.classList.add('fade-out');
+            setTimeout(function () {
+                window.location.href = getStartedBtn.getAttribute('href');
+            }, 700);
+        });
+    }
+});
+</script>
 {% endblock 'content' %}
