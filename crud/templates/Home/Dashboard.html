@@ -5,12 +5,30 @@
 
 {% block 'content' %}
 {% include "include/Sidebar.html" %}
-
-<div class="flex justify-center items-center min-h-screen">
-    <div class="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-lg shadow p-8">
-        <!-- Your dashboard content here -->
-        <h1 class="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-white">Welcome to the Dashboard</h1>
-        <p class="text-center text-gray-700 dark:text-gray-300">This is your main dashboard area. Add your widgets or content here.</p>
+<div class="p-2 sm:ml-64 mt-16 md:mt-14">
+    
+  <div class="flex justify-between items-center mb-6">
+    <div></div>
+    <form method="get" class="flex mb-0">
+      <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search by name..." class="border rounded-l px-3 py-1 w-64">
+      <button type="submit" class="bg-blue-500 text-white px-4 rounded-r">Search</button>
+    </form>
+  </div>
+  <div class="flex justify-center items-start min-h-screen">
+    <div class="flex gap-8">
+      <div class="bg-[#232b36] rounded-lg flex flex-col items-center justify-between w-40 h-35 shadow py-6" style="border: 1px solid #232b36;">
+        <span class="text-gray-400 text-3xl mb-2">Task Left</span>
+        <span class="text-gray-400 text-2xl">6</span>
+      </div>
+      <div class="bg-[#232b36] rounded-lg flex flex-col items-center justify-between w-40 h-35 shadow py-6" style="border: 1px solid #232b36;">
+        <span class="text-gray-400 text-3xl mb-2">Done</span>
+        <span class="text-gray-400 text-2xl">5</span>
+      </div>
+      <div class="bg-[#232b36] rounded-lg flex flex-col items-center justify-between w-40 h-35 shadow py-6" style="border: 1px solid #232b36;">
+        <span class="text-gray-400 text-3xl mb-2">In Progerss</span>
+        <span class="text-gray-400 text-2xl">4</span>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock 'content' %}
