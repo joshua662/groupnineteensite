@@ -1,32 +1,132 @@
 {% extends "layout/base.html" %}
 {% load static %}
 
-{% block 'title' %} Dashboard {% endblock 'title' %}
+{% block 'title' %} Home {% endblock 'title' %}
 
 {% block 'content' %}
 {% include "include/Sidebar.html" %}
-<div class="p-2 sm:ml-64 mt-16 md:mt-14">
-    
+<div class="p-2 sm:ml-56 mt-16 md:mt-14 bg-[#f8f9fd] min-h-screen">
+  <!-- Greeting -->
   <div class="flex justify-between items-center mb-6">
-    <div></div>
-    <form method="get" class="flex mb-0">
-      <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search by name..." class="border rounded-l px-3 py-1 w-64">
-      <button type="submit" class="bg-blue-500 text-white px-4 rounded-r">Search</button>
-    </form>
+    <h2 class="text-lg font-semibold leading-tight">Good Morning, Monica <span class="ml-2">👋</span></h2>
+    <div>
+      <button class="bg-white rounded-full p-2 shadow hover:shadow-md transition">
+        <i class="fas fa-bell text-gray-400"></i>
+      </button>
+    </div>
   </div>
-  <div class="flex justify-center items-start min-h-screen">
-    <div class="flex gap-8">
-      <div class="bg-[#232b36] rounded-lg flex flex-col items-center justify-between w-40 h-35 shadow py-6" style="border: 1px solid #232b36;">
-        <span class="text-gray-400 text-3xl mb-2">Task Left</span>
-        <span class="text-gray-400 text-2xl">6</span>
+
+  <!-- Progress Banner -->
+  <div class="bg-gradient-to-r from-[#5b6dfa] to-[#7c5dfa] rounded-2xl flex items-center justify-between px-8 py-6 mb-8 relative overflow-hidden min-h-[100px]">
+    <div>
+      <p class="text-white text-base font-medium mb-1">Your students are doing great <span class="font-bold text-xl">60%</span> students has completed the test.</p>
+    </div>
+    <img src="{% static 'images/classroom-illustration.png' %}" alt="Classroom" class="h-24 absolute right-8 top-1/2 -translate-y-1/2" style="z-index:1;">
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-8">
+    <!-- Submitted Tests Table -->
+    <div class="bg-white rounded-2xl shadow p-6 flex-1">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-base font-semibold">Submitted Tests</h3>
+        <span class="text-gray-400 text-xs">Class 6th</span>
       </div>
-      <div class="bg-[#232b36] rounded-lg flex flex-col items-center justify-between w-40 h-35 shadow py-6" style="border: 1px solid #232b36;">
-        <span class="text-gray-400 text-3xl mb-2">Done</span>
-        <span class="text-gray-400 text-2xl">5</span>
+      <table class="w-full text-left">
+        <thead>
+          <tr class="text-gray-500 text-xs border-b">
+            <th class="py-2 font-medium">Name</th>
+            <th class="py-2 font-medium">Date Of submission</th>
+            <th class="py-2 font-medium">Status</th>
+            <th class="py-2"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b hover:bg-gray-50 transition">
+            <td class="py-3 flex items-center gap-3">
+              <img src="{% static 'images/avatar1.png' %}" alt="Ang Smith" class="w-7 h-7 rounded-full border">
+              <span class="font-medium text-sm">Ang Smith</span>
+            </td>
+            <td class="py-3 text-sm">December 17, 2021</td>
+            <td class="py-3"><span class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs font-semibold">Active</span></td>
+            <td class="py-3 text-center"><a href="#" class="text-gray-400 hover:text-blue-500"><i class="fas fa-download"></i></a></td>
+          </tr>
+          <tr class="border-b hover:bg-gray-50 transition">
+            <td class="py-3 flex items-center gap-3">
+              <img src="{% static 'images/avatar2.png' %}" alt="Lucas Jones" class="w-7 h-7 rounded-full border">
+              <span class="font-medium text-sm">Lucas Jones</span>
+            </td>
+            <td class="py-3 text-sm">December 17, 2021</td>
+            <td class="py-3"><span class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs font-semibold">Active</span></td>
+            <td class="py-3 text-center"><a href="#" class="text-gray-400 hover:text-blue-500"><i class="fas fa-download"></i></a></td>
+          </tr>
+          <tr class="border-b hover:bg-gray-50 transition">
+            <td class="py-3 flex items-center gap-3">
+              <img src="{% static 'images/avatar3.png' %}" alt="Roy X. Hinde" class="w-7 h-7 rounded-full border">
+              <span class="font-medium text-sm">Roy X. Hinde</span>
+            </td>
+            <td class="py-3 text-sm">December 16, 2021</td>
+            <td class="py-3"><span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold">Opened</span></td>
+            <td class="py-3 text-center"><a href="#" class="text-gray-400 hover:text-blue-500"><i class="fas fa-download"></i></a></td>
+          </tr>
+          <tr class="border-b hover:bg-gray-50 transition">
+            <td class="py-3 flex items-center gap-3">
+              <img src="{% static 'images/avatar4.png' %}" alt="Sophie Wilson" class="w-7 h-7 rounded-full border">
+              <span class="font-medium text-sm">Sophie Wilson</span>
+            </td>
+            <td class="py-3 text-sm">December 15, 2021</td>
+            <td class="py-3"><span class="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs font-semibold">Completed</span></td>
+            <td class="py-3 text-center"><a href="#" class="text-gray-400 hover:text-blue-500"><i class="fas fa-download"></i></a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- User Card & Calendar -->
+    <div class="flex flex-col gap-6 w-full md:w-80">
+      <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+        <img src="{% static 'images/monica.png' %}" alt="Monica Howard" class="w-12 h-12 rounded-full mb-2">
+        <div class="text-center">
+          <h4 class="font-semibold text-base">Monica Howard</h4>
+          <span class="text-green-500 text-xs font-semibold flex items-center justify-center gap-1"><span class="inline-block w-2 h-2 bg-green-500 rounded-full"></span> online</span>
+          <div class="text-gray-400 text-xs mt-1">Maths teacher</div>
+        </div>
       </div>
-      <div class="bg-[#232b36] rounded-lg flex flex-col items-center justify-between w-40 h-35 shadow py-6" style="border: 1px solid #232b36;">
-        <span class="text-gray-400 text-3xl mb-2">In Progerss</span>
-        <span class="text-gray-400 text-2xl">4</span>
+      <div class="bg-white rounded-xl shadow p-6">
+        <div class="flex justify-between items-center mb-2">
+          <span class="font-semibold text-sm">December 2021</span>
+          <div>
+            <button class="text-gray-400 hover:text-blue-500 text-sm">&lt;</button>
+            <button class="text-gray-400 hover:text-blue-500 text-sm">&gt;</button>
+          </div>
+        </div>
+        <table class="w-full text-center text-xs">
+          <thead>
+            <tr class="text-gray-400">
+              <th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td></td><td></td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td>
+            </tr>
+            <tr>
+              <td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td>
+            </tr>
+            <tr>
+              <td>13</td><td>14</td><td>15</td><td>16</td><td>17</td>
+              <td class="relative">
+                <span class="inline-block w-6 h-6 bg-blue-600 text-white rounded-full leading-6 text-xs">18</span>
+              </td>
+              <td>19</td>
+            </tr>
+            <tr>
+              <td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td>
+            </tr>
+            <tr>
+              <td>27</td><td>28</td><td>29</td><td>30</td><td>31</td><td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

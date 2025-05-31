@@ -19,7 +19,7 @@
     </div>
 </div>
 <nav id="sidebar-nav"
-    class="fixed top-0 left-0 z-40 h-screen w-24 bg-gray-50 dark:bg-gray-800 flex flex-col items-center py-4 transition-all duration-300 sm:w-72 sm:items-stretch"
+    class="fixed top-0 left-0 z-40 h-screen w-16 bg-gray-50 dark:bg-gray-800 flex flex-col items-center py-4 transition-all duration-300 sm:w-48 sm:items-stretch"
     aria-label="Sidebar">
     <!-- Logo -->
     <a href="" class="flex flex-col items-center sm:flex-row sm:items-center px-2.5 mb-5">
@@ -32,7 +32,7 @@
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/>
                 </svg>
-                <span class="hidden sm:inline ml-3">Dashboard</span>
+                <span class="hidden sm:inline ml-3">Home</span>
                 <span class="sidebar-tooltip group-hover:flex">Dashboard</span>
             </a>
         </li>
@@ -42,7 +42,7 @@
                     <path d="M12 20h9"/>
                     <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/>
                 </svg>
-                <span class="hidden sm:inline ml-3">Post</span>
+                <span class="hidden sm:inline ml-3">Student List</span>
                 <span class="sidebar-tooltip group-hover:flex">Post</span>
             </a>
         </li>
@@ -110,43 +110,43 @@
 </nav>
 <style>
     .sidebar-tooltip {
-    display: none;
-    position: absolute;
-    left: 110%;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #222;
-    color: #fff;
-    padding: 4px 12px;
-    border-radius: 4px;
-    white-space: nowrap;
-    font-size: 0.875rem;
-    z-index: 100;
-    pointer-events: none;
-}
-.group:hover .sidebar-float-label {
-    display: flex;
-    align-items: center;
-}
-.group:hover .sidebar-float-label {
-    display: display: flex;
-    align-items: center;
-}
-@media (max-width: 639px) {
-    #sidebar-nav {
-        width: 96px; /* 24 * 4px = 96px for w-24 */
-        transform: translateX(-100%);
-        transition: transform 0.3s;
+        display: none;
+        position: absolute;
+        left: 110%;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #222;
+        color: #fff;
+        padding: 4px 12px;
+        border-radius: 4px;
+        white-space: nowrap;
+        font-size: 0.875rem;
+        z-index: 100;
+        pointer-events: none;
     }
-    #sidebar-nav.open {
-        transform: translateX(0);
+    .group:hover .sidebar-float-label {
+        display: flex;
+        align-items: center;
     }
-}
-@media (min-width: 640px) {
-    #sidebar-nav {
-        width: 18rem; /* 72 * 0.25rem = 18rem for sm:w-72 */
+    @media (max-width: 639px) {
+        #sidebar-nav {
+            left: 0;
+            right: auto;
+            width: 64px; /* smaller width for mobile */
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+        }
+        #sidebar-nav.open {
+            transform: translateX(0);
+        }
     }
-}
+    @media (min-width: 640px) {
+        #sidebar-nav {
+            left: 0;
+            right: auto;
+            width: 12rem; /* smaller width for desktop */
+        }
+    }
 </style>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

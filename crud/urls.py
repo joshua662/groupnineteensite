@@ -11,4 +11,5 @@ urlpatterns = [
     path('home/team/', views.Team),
     path('home/signin/', views.SignIn),
     path('logout/', views.logout),
+    path('user/add/', views.add_student, name='add_student'),
 ]
