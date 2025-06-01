@@ -24,8 +24,8 @@ def Dashboard(request):
 def Post(request):
     return render(request, 'Home/Post.html')
 
-def Pages(request):
-    return render(request, 'Home/Pages.html')
+def Task(request):
+    return render(request, 'Home/Task.html')
 
 def Media(request):
     return render(request, 'Home/Media.html')
@@ -44,7 +44,6 @@ def logout(request):
 def add_student(request):
     genders = Genders.objects.all()
     if request.method == 'POST':
-        # Get form data
         full_name = request.POST.get('full_name')
         gender_id = request.POST.get('gender')
         birth_date = request.POST.get('birth_date')
@@ -54,17 +53,26 @@ def add_student(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
-
-        # Example validation
         if password != confirm_password:
             from django.contrib import messages
             messages.error(request, "Passwords do not match.")
             return render(request, 'student/AddStudent.html', {'genders': genders})
 
-        # TODO: Save the student to the database here
-
-        from django.contrib import messages
-        messages.success(request, "Student added successfully!")
-        return redirect('add_student')
-
+        try:
+            gender_obj = Genders.objects.get(pk=gender_id)
+            Student.objects.create(
+                full_name=full_name,
+                gender=gender_obj,
+                birth_date=birth_date,
+                address=address,
+                email=email,
+                contact_number=contact_number,
+                username=username,
+                password=password  # In production, hash the password!
+            )
+            messages.success(request, "Student added successfully!")
+            return redirect('add_student')
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+            return render(request, 'student/AddStudent.html', {'genders': genders})
     return render(request, 'student/AddStudent.html', {'genders': genders})

@@ -6,10 +6,11 @@ urlpatterns = [
     path('login/', views.Login),
     path('home/dashboard/', views.Dashboard),
     path('home/post/', views.Post),
-    path('home/pages/', views.Pages),
+    path('home/task/', views.Task),
     path('home/media/', views.Media),
     path('home/team/', views.Team),
     path('home/signin/', views.SignIn),
     path('logout/', views.logout),
-    path('user/add/', views.add_student, name='add_student'),
+    path('user/add/', views.add_student),
 ]
+
