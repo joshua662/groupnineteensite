@@ -1,0 +1,30 @@
+{% extends "layout/base.html" %}
+{% block 'title' %}Register{% endblock 'title' %}
+{% block 'content' %}
+<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h2 class="text-2xl font-bold mb-4">Create Account</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+            <input type="text" name="username" placeholder="Username" class="w-full px-4 py-2 border rounded" required>
+        </div>
+        <div class="mb-4">
+            <input type="email" name="email" placeholder="Email" class="w-full px-4 py-2 border rounded" required>
+        </div>
+        <div class="mb-4">
+            <input type="password" name="password" placeholder="Password" class="w-full px-4 py-2 border rounded" required>
+        </div>
+        <div class="mb-4">
+            <select name="role" class="w-full px-4 py-2 border rounded" required>
+                <option value="">Select Role</option>
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+            </select>
+        </div>
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">Register</button>
+        {% if error %}
+            <div class="text-red-600 mt-2">{{ error }}</div>
+        {% endif %}
+    </form>
+</div>
+{% endblock 'content' %}

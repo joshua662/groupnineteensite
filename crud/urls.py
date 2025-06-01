@@ -2,9 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('landingpage', views.landing_page),  # Landing page at root
-    path('login/', views.Login),
-    path('home/dashboard/', views.Dashboard),
+    path("login/", views.login_view),
+    path("teacher/dashboard/", views.teacher_dashboard),
+    path("student/dashboard/", views.student_dashboard),
+    path('landingpage', views.landing_page), 
     path('home/post/', views.Post),
     path('home/task/', views.Task),
     path('home/media/', views.Media),
@@ -12,5 +13,6 @@ urlpatterns = [
     path('home/signin/', views.SignIn),
     path('logout/', views.logout),
     path('user/add/', views.add_student),
+    path("register/", views.register),
 ]
 

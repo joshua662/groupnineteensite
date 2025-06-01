@@ -1,19 +1,26 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout as auth_logout
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Genders  # or Genders if that's your model name
+from django.contrib.auth.models import User
+from .models import Genders, Profile 
 
-def Login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('dashboard')
+            if hasattr(user, "profile") and user.profile.role == "teacher":
+                return redirect("teacher_dashboard")
+            elif hasattr(user, "profile") and user.profile.role == "student":
+                return redirect("student_dashboard")
+            else:
+                return redirect("home")  # fallback
         else:
-            messages.error(request, 'Invalid username or password.')
-    return render(request, 'layout/Login.html')
+            return render(request, "layout/Login.html", {"error": "Invalid credentials"})
+    return render(request, "layout/Login.html")
 
 def landing_page(request):
     return render(request, 'Home/LandingPage.html')
@@ -54,7 +61,6 @@ def add_student(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
         if password != confirm_password:
-            from django.contrib import messages
             messages.error(request, "Passwords do not match.")
             return render(request, 'student/AddStudent.html', {'genders': genders})
 
@@ -68,7 +74,7 @@ def add_student(request):
                 email=email,
                 contact_number=contact_number,
                 username=username,
-                password=password  # In production, hash the password!
+                password=password
             )
             messages.success(request, "Student added successfully!")
             return redirect('add_student')
@@ -76,3 +82,26 @@ def add_student(request):
             messages.error(request, f"Error: {e}")
             return render(request, 'student/AddStudent.html', {'genders': genders})
     return render(request, 'student/AddStudent.html', {'genders': genders})
+
+@login_required
+def teacher_dashboard(request):
+    return render(request, "teacher/dashboard.html")
+
+@login_required
+def student_dashboard(request):
+    return render(request, "student/dashboard.html")
+
+def register(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        role = request.POST.get("role")
+        email = request.POST.get("email")
+        if User.objects.filter(username=username).exists():
+            return render(request, "layout/Register.html", {"error": "Username already exists"})
+        user = User.objects.create_user(username=username, password=password, email=email)
+        user.save()
+        user.profile.role = role
+        user.profile.save()
+        return redirect("login")
+    return render(request, "layout/Register.html")

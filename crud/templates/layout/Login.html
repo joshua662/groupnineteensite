@@ -92,33 +92,27 @@
                 <button type="submit" class="w-full bg-white hover:bg-gray-400 text-black font-medium py-3 rounded mb-6">Log In</button>
             </form>
 
-            <div class="flex items-center my-6">
-                <div class="flex-grow border-t border-gray-400"></div>
-                <span class="mx-4 text-gray-300 text-xs">Or continue with</span>
-                <div class="flex-grow border-t border-gray-400"></div>
-            </div>
+            {% if user.is_authenticated %}
+                {% if user.user_type == "teacher" %}
+                    <div class="mt-6 p-4 bg-green-100 rounded text-center text-green-800 font-semibold">
+                        Welcome, Teacher! You have access to teacher features.
+                        <br>
+                        <a href="{% url 'teacher_dashboard' %}" class="underline text-green-700">Go to Teacher Dashboard</a>
+                    </div>
+                {% elif user.user_type == "student" %}
+                    <div class="mt-6 p-4 bg-blue-100 rounded text-center text-blue-800 font-semibold">
+                        Welcome, Student! You have access to student features.
+                        <br>
+                        <a href="{% url 'student_dashboard' %}" class="underline text-blue-700">Go to Student Dashboard</a>
+                    </div>
+                {% endif %}
+            {% endif %}
 
-            <div class="grid grid-cols-3 gap-4 mb-4">
-                <div class="flex items-center justify-center">
-                    <a href="#" class="bg-white rounded-lg flex items-center justify-center w-16 h-10 shadow" style="border: 1px solid #e5e7eb;">
-                        <i class="fa-brands fa-google" style="color:#ea4335; font-size:1.5rem;"></i>
-                    </a>
-                </div>
-                <div class="flex items-center justify-center">
-                    <a href="#" class="bg-white rounded-lg flex items-center justify-center w-16 h-10 shadow" style="border: 1px solid #e5e7eb;">
-                        <i class="fa-brands fa-apple" style="color:#111; font-size:1.5rem;"></i>
-                    </a>
-                </div>
-                <div class="flex items-center justify-center">
-                    <a href="#" class="bg-white rounded-lg flex items-center justify-center w-16 h-10 shadow" style="border: 1px solid #e5e7eb;">
-                        <i class="fa-brands fa-facebook" style="color:#1877f3; font-size:1.5rem;"></i>
-                    </a>
-                </div>
-            </div>
+           
 
             <div class="mt-6 text-center">
                 <span class="text-white text-sm">Don't Have an account ? </span>
-                <a href="/home/signup/" class="text-white font-bold underline">Create Account!</a>
+                <a href="register/" class="text-white font-bold underline">Register!</a>
             </div>
         </div>
     </div>
