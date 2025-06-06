@@ -2,13 +2,25 @@
 {% block 'title' %}Teacher Dashboard{% endblock 'title' %}
 
 {% block 'content' %}
-<div class="max-w-3xl mx-auto mt-10 p-8 bg-white rounded shadow">
-    <h1 class="text-3xl font-bold mb-4 text-blue-800">Welcome to the Teacher Dashboard</h1>
-    <p class="mb-6 text-gray-700">Here you can manage students, view tasks, and access teacher resources.</p>
-    <ul class="list-disc ml-6 text-gray-600">
-        <li>View and edit student information</li>
-        <li>Assign and review tasks</li>
-        <li>Access teaching materials</li>
-    </ul>
+<div class="flex min-h-screen">
+    {% include "include/teacher_sidebar.html" %}
+    <main class="flex-1 p-8">
+        <h1 class="text-3xl font-bold mb-4 text-blue-800">Welcome to the Teacher Dashboard</h1>
+        <p class="mb-6 text-gray-700">Here you can manage students, view tasks, and access teacher resources.</p>
+        <ul class="list-disc ml-6 text-gray-600">
+            <li>View and edit student information</li>
+            <li>Assign and review tasks</li>
+            <li>Access teaching materials</li>
+        </ul>
+    </main>
 </div>
+{% if messages %}
+  <script src="{% static 'js/toast.js' %}"></script>
+  <script>
+    {% for message in messages %}
+      showToast("{{ message|escapejs }}");
+      break; // Only show the first message
+    {% endfor %}
+  </script>
+{% endif %}
 {% endblock 'content' %}

@@ -1,0 +1,11 @@
+{% extends "layout/base.html" %}
+{% block 'title' %}Profile & Settings{% endblock 'title' %}
+{% block 'content' %}
+<div class="flex min-h-screen">
+    {% include "include/student_sidebar.html" %}
+    <main class="flex-1 p-8">
+        <h1 class="text-2xl font-bold">Profile & Settings</h1>
+        <p>Manage your account preferences and notifications here.</p>
+    </main>
+</div>
+{% endblock 'content' %} 

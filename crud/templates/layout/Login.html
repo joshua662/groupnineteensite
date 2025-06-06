@@ -102,7 +102,7 @@
 
             <div class="mt-6 text-center">
                 <span class="text-white text-sm">Don't Have an account ? </span>
-                <a href="" class="text-white font-bold underline">Register!</a> 
+                <a href="{% url 'register' %}" class="text-white font-bold underline">Register!</a> 
             </div>
         </div>
     </div>
@@ -128,5 +128,15 @@
         document.getElementById('loadingOverlay').classList.add('active');
     });
 </script>
+
+<script src="{% static 'js/toast.js' %}"></script>
+{% if messages %}
+  <script>
+    {% for message in messages %}
+      showToast("{{ message|escapejs }}");
+      break; // Only show the first message
+    {% endfor %}
+  </script>
+{% endif %}
 
 {% endblock 'content' %}

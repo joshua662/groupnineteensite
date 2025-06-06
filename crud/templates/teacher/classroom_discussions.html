@@ -1,0 +1,11 @@
+{% extends "layout/base.html" %}
+{% block 'title' %}Classroom Discussions{% endblock 'title' %}
+{% block 'content' %}
+<div class="flex min-h-screen">
+    {% include "include/teacher_sidebar.html" %}
+    <main class="flex-1 p-8">
+        <h1 class="text-2xl font-bold">Classroom Discussions</h1>
+        <p>Communicate with students, answer queries, and share updates here.</p>
+    </main>
+</div>
+{% endblock 'content' %} 

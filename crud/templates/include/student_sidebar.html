@@ -1,0 +1,37 @@
+<aside class="w-72 bg-gray-800 p-6 flex flex-col gap-6 shadow-lg min-h-screen">
+    <h2 class="text-xl font-bold mb-2">Student Dashboard Sidebar</h2>
+    <nav>
+        <ol class="space-y-4">
+            <li class="flex items-start gap-3">
+                <span class="text-2xl"></span>
+                <div>
+                    <a href="{% url 'student_dashboard' %}" class="font-bold hover:underline">Dashboard</a>
+                </div>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="text-2xl"></span>
+                <div>
+                    <a href="{% url 'student_course_material' %}" class="font-bold hover:underline">Course Materials</a> 
+                </div>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="text-2xl"></span>
+                <div>
+                    <a href="{% url 'student_assignments_exams' %}" class="font-bold hover:underline">Assignments & Exams</a> 
+                </div>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="text-2xl"></span>
+                <div>
+                    <a href="{% url 'student_classroom_discussion' %}" class="font-bold hover:underline">Classroom Discussions</a> 
+                </div>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="text-2xl"></span>
+                <div>
+                    <a href="{% url 'student_profile_settings' %}" class="font-bold hover:underline">Profile & Settings</a>
+                </div>
+            </li>
+        </ol>
+    </nav>
+</aside> 

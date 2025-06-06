@@ -177,9 +177,42 @@ def register(request):
             profile.gender = gender_obj
             profile.save()
 
-            messages.success(request, "Registration successful! Please log in.")
-            return redirect("login")
+            if role == "student":
+                login(request, user)
+                messages.success(request, "Registration successful! You are now logged in.")
+                return redirect("student_dashboard")
+            elif role == "teacher":
+                login(request, user)
+                messages.success(request, "Registration successful! You are now logged in.")
+                return redirect("teacher_dashboard")
+            else:
+                messages.success(request, "Registration successful! Please log in.")
+                return redirect("login")
         except Exception as e:
             messages.error(request, f"Registration failed: {e}")
             return render(request, "layout/Register.html", {'genders':genders, 'username': username, 'email': email, 'role': role, 'full_name': full_name, 'birth_date': birth_date, 'address': address, 'contact_number': contact_number, 'gender_id': gender_id})
-    return render(request, "layout/Register.html", {'genders': genders}) 
+    return render(request, "layout/Register.html", {'genders': genders})
+
+def student_course_material(request):
+    return render(request, "student/course_material.html")
+
+def student_assignments_exams(request):
+    return render(request, "student/assignments_exams.html")
+
+def student_classroom_discussion(request):
+    return render(request, "student/classroom_discussion.html")
+
+def student_profile_settings(request):
+    return render(request, "student/profile_settings.html")
+
+def teacher_lesson_plan_course_materials(request):
+    return render(request, "teacher/lesson_plan_course_materials.html")
+
+def teacher_assignments_grading(request):
+    return render(request, "teacher/assignments_grading.html")
+
+def teacher_student_management(request):
+    return render(request, "teacher/student_management.html")
+
+def teacher_classroom_discussions(request):
+    return render(request, "teacher/classroom_discussions.html") 

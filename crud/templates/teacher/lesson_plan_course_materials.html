@@ -1,0 +1,11 @@
+{% extends "layout/base.html" %}
+{% block 'title' %}Lesson Plans & Course Materials{% endblock 'title' %}
+{% block 'content' %}
+<div class="flex min-h-screen">
+    {% include "include/teacher_sidebar.html" %}
+    <main class="flex-1 p-8">
+        <h1 class="text-2xl font-bold">Lesson Plans & Course Materials</h1>
+        <p>Upload and manage learning content here.</p>
+    </main>
+</div>
+{% endblock 'content' %} 
