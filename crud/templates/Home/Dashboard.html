@@ -16,6 +16,13 @@
     </div>
   </div>
 
+  <!-- Example POST Form -->
+  <form method="post" action="">
+    {% csrf_token %}
+    <input type="text" name="example_field" placeholder="Example Field" class="border rounded px-2 py-1 mb-2 block" required>
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
+  </form>
+
   <!-- Progress Banner -->
   <div class="bg-gradient-to-r from-[#5b6dfa] to-[#7c5dfa] rounded-2xl flex items-center justify-between px-8 py-6 mb-8 relative overflow-hidden min-h-[100px]">
     <div>

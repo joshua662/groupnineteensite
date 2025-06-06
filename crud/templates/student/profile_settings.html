@@ -1,11 +1,77 @@
 {% extends "layout/base.html" %}
-{% block 'title' %}Profile & Settings{% endblock 'title' %}
+{% block 'title' %}Profile Settings{% endblock 'title' %}
 {% block 'content' %}
-<div class="flex min-h-screen">
+<div class="flex min-h-screen bg-gray-100">
     {% include "include/student_sidebar.html" %}
     <main class="flex-1 p-8">
-        <h1 class="text-2xl font-bold">Profile & Settings</h1>
-        <p>Manage your account preferences and notifications here.</p>
+        <h1 class="text-2xl font-bold mb-4">Profile Settings</h1>
+        <p class="text-gray-600 mb-6">Manage account preference and notifications.</p>
+        
+        <div class="bg-white rounded-xl shadow p-6 mb-8 max-w-2xl">
+            <h2 class="text-lg font-semibold mb-4">Account Information</h2>
+            <div class="flex items-center gap-6 mb-4">
+                <img src="" class="w-20 h-20 rounded-full object-cover" alt="Profile" />
+                <div>
+                    <div class="font-medium text-lg">{{ user.profile.full_name|default:user.username }}</div>
+                    <div class="text-gray-500 text-sm">{{ user.email }}</div>
+                </div>
+            </div>
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">Full Name</label>
+                    <input type="text" name="full_name" value="{{ user.profile.full_name }}" class="border rounded px-3 py-2 w-full" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block font-medium mb-1">Email</label>
+                    <input type="email" name="email" value="{{ user.email }}" class="border rounded px-3 py-2 w-full" required>
+                </div>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Update Info</button>
+            </form>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow p-6 mb-8 max-w-2xl">
+            <h2 class="text-lg font-semibold mb-4">Preferences</h2>
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="dark_mode" name="dark_mode" class="mr-2">
+                    <label for="dark_mode" class="font-medium">Enable dark mode</label>
+                </div>
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="email_updates" name="email_updates" class="mr-2">
+                    <label for="email_updates" class="font-medium">Receive email updates</label>
+                </div>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save Preferences</button>
+            </form>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow p-6 mb-8 max-w-2xl">
+            <h2 class="text-lg font-semibold mb-4">Notification Settings</h2>
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="notif_assignments" name="notif_assignments" class="mr-2">
+                    <label for="notif_assignments" class="font-medium">Assignment deadlines</label>
+                </div>
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="notif_grades" name="notif_grades" class="mr-2">
+                    <label for="notif_grades" class="font-medium">Grades posted</label>
+                </div>
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="notif_announcements" name="notif_announcements" class="mr-2">
+                    <label for="notif_announcements" class="font-medium">Announcements</label>
+                </div>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save Notifications</button>
+            </form>
+        </div>
+    
+        <div class="max-w-2xl">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded w-full">Logout</button>
+            </form>
+        </div>
     </main>
 </div>
 {% endblock 'content' %} 

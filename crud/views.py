@@ -11,7 +11,7 @@ def login_view(request):
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
+            login(request, user)    
 
             user_role = user.profile.role if hasattr(user, 'profile') else 'unknown'
 

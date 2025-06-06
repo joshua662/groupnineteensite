@@ -21,7 +21,7 @@ urlpatterns = [
     path('home/media/', views.Media),
     path('home/team/', views.Team),
     path('home/signin/', views.SignIn),
-    path('logout/', views.logout),
+    path('logout/', views.logout, name='logout'),
     path('user/add/', views.add_student),
     path("register/", views.register, name="register"),
 ]

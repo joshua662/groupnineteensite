@@ -1,11 +1,80 @@
 {% extends "layout/base.html" %}
 {% block 'title' %}Assignments & Exams{% endblock 'title' %}
 {% block 'content' %}
-<div class="flex min-h-screen">
+<div class="flex min-h-screen bg-gray-100">
     {% include "include/student_sidebar.html" %}
     <main class="flex-1 p-8">
-        <h1 class="text-2xl font-bold">Assignments & Exams</h1>
-        <p>Submit your work and track deadlines here.</p>
+        <h1 class="text-2xl font-bold mb-4">Assignments & Exams</h1>
+        <p class="text-gray-600 mb-6">Submit work and track deadlines.</p>
+        <!-- Upcoming Assignments/Exams -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold mb-3">Upcoming Deadlines</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow p-4">
+                    <div class="font-medium text-blue-700 mb-1">English Essay</div>
+                    <div class="text-xs text-gray-500 mb-2">Due: 15 Dec 2022</div>
+                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <div class="font-medium text-blue-700 mb-1">Math Exam</div>
+                    <div class="text-xs text-gray-500 mb-2">Due: 18 Dec 2022</div>
+                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4">
+                    <div class="font-medium text-blue-700 mb-1">Science Project</div>
+                    <div class="text-xs text-gray-500 mb-2">Due: 20 Dec 2022</div>
+                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>
+                </div>
+            </div>
+        </div>
+        <!-- Assignment Submission Form -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold mb-3">Submit Assignment</h2>
+            <form method="post" action="" enctype="multipart/form-data" class="bg-white rounded-xl shadow p-6 flex flex-col gap-4 max-w-xl">
+                {% csrf_token %}
+                <label class="font-medium">Assignment Title</label>
+                <input type="text" name="assignment_title" placeholder="Enter assignment title" class="border rounded px-2 py-1" required>
+                <label class="font-medium">Upload File</label>
+                <input type="file" name="assignment_file" class="border rounded px-2 py-1" required>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded self-end">Submit</button>
+            </form>
+        </div>
+        <!-- Submission Tracker -->
+        <div>
+            <h2 class="text-lg font-semibold mb-3">Your Submissions</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white rounded-xl shadow">
+                    <thead>
+                        <tr class="text-left text-gray-600 text-sm">
+                            <th class="py-2 px-4">Assignment</th>
+                            <th class="py-2 px-4">Submitted On</th>
+                            <th class="py-2 px-4">Status</th>
+                            <th class="py-2 px-4">Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="py-2 px-4">English Essay</td>
+                            <td class="py-2 px-4">13 Dec 2022</td>
+                            <td class="py-2 px-4"><span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Submitted</span></td>
+                            <td class="py-2 px-4">A</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 px-4">Math Exam</td>
+                            <td class="py-2 px-4">-</td>
+                            <td class="py-2 px-4"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span></td>
+                            <td class="py-2 px-4">-</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 px-4">Science Project</td>
+                            <td class="py-2 px-4">-</td>
+                            <td class="py-2 px-4"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span></td>
+                            <td class="py-2 px-4">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
 </div>
 {% endblock 'content' %} 
