@@ -93,6 +93,12 @@ def logout_admin(request):
     messages.success(request, 'You have been logged out successfully.')
     return redirect('/login/')
 
+@login_required
+def logout(request):
+    auth_logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('/login/')
+
 
 def add_student(request):
     genders = Genders.objects.all()
