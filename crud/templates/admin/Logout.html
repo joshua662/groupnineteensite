@@ -1,0 +1,16 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block 'title' %}Logout{% endblock 'title' %}
+
+{% block 'content' %}
+{% include "include/Sidebar.html" %}
+
+<div class="flex flex-col items-center justify-center min-h-screen">
+    <div class="bg-white rounded-xl shadow p-8 max-w-md w-full text-center">
+        <h1 class="text-2xl font-bold mb-4 text-blue-800">Admin Logout</h1>
+        <p class="mb-6 text-gray-700">You are logged in as an admin. Use the button below to securely log out of your account.</p>
+        <a href="/logout/" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 font-semibold">Logout</a>
+    </div>
+</div>
+{% endblock 'content' %}

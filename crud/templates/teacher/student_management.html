@@ -4,8 +4,28 @@
 <div class="flex min-h-screen">
     {% include "include/teacher_sidebar.html" %}
     <main class="flex-1 p-8">
-        <h1 class="text-2xl font-bold">Student Management</h1>
-        <p>Track attendance, monitor performance, and provide feedback here.</p>
+        <h1 class="text-2xl font-bold mb-4 text-blue-800">Student Management</h1>
+        <p class="mb-6 text-gray-700">Track attendance, monitor performance and provide feedback</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+            <!-- Track Attendance Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-blue-700">Track Attendance</h2>
+                <p class="text-gray-600 text-center mb-4">Record and review student attendance for each class session.</p>
+                <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Attendance</a>
+            </div>
+            <!-- Monitor Performance Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-green-700">Monitor Performance</h2>
+                <p class="text-gray-600 text-center mb-4">Analyze grades, participation, and overall student progress.</p>
+                <a href="#" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Performance</a>
+            </div>
+            <!-- Provide Feedback Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-yellow-700">Provide Feedback</h2>
+                <p class="text-gray-600 text-center mb-4">Give personalized feedback to help students improve.</p>
+                <a href="#" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Feedback</a>
+            </div>
+        </div>
     </main>
 </div>
 {% endblock 'content' %} 

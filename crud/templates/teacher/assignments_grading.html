@@ -4,8 +4,28 @@
 <div class="flex min-h-screen">
     {% include "include/teacher_sidebar.html" %}
     <main class="flex-1 p-8">
-        <h1 class="text-2xl font-bold">Assignments & Grading</h1>
-        <p>Create, review, and assess student submissions here.</p>
+        <h1 class="text-2xl font-bold mb-4 text-blue-800">Assignments & Grading</h1>
+        <p class="mb-6 text-gray-700">Create, view and assess student submissions</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+            <!-- Create Assignment Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-blue-700">Create Assignment</h2>
+                <p class="text-gray-600 text-center mb-4">Design and assign new tasks or projects for your students.</p>
+                <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">New Assignment</a>
+            </div>
+            <!-- View Submissions Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-green-700">View Submissions</h2>
+                <p class="text-gray-600 text-center mb-4">Browse and review student assignment submissions.</p>
+                <a href="#" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">View Submissions</a>
+            </div>
+            <!-- Grade Assignments Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-yellow-700">Grade Assignments</h2>
+                <p class="text-gray-600 text-center mb-4">Assess and provide feedback on student work.</p>
+                <a href="#" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Start Grading</a>
+            </div>
+        </div>
     </main>
 </div>
 {% endblock 'content' %} 

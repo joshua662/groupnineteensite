@@ -4,8 +4,22 @@
 <div class="flex min-h-screen">
     {% include "include/teacher_sidebar.html" %}
     <main class="flex-1 p-8">
-        <h1 class="text-2xl font-bold">Lesson Plans & Course Materials</h1>
-        <p>Upload and manage learning content here.</p>
+        <h1 class="text-2xl font-bold mb-4 text-blue-800">Lesson Plans & Course Materials</h1>
+        <p class="mb-6 text-gray-700">Upload and manage the learning content of student</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <!-- Upload Content Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-blue-700">Upload Content</h2>
+                <p class="text-gray-600 text-center mb-4">Add new lesson plans, documents, and resources for your students.</p>
+                <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Upload Files</a>
+            </div>
+            <!-- Manage Materials Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-green-700">Manage Materials</h2>
+                <p class="text-gray-600 text-center mb-4">View, edit, or remove existing course materials and lesson plans.</p>
+                <a href="#" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Manage Content</a>
+            </div>
+        </div>
     </main>
 </div>
 {% endblock 'content' %} 

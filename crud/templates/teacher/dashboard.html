@@ -6,12 +6,27 @@
     {% include "include/teacher_sidebar.html" %}
     <main class="flex-1 p-8">
         <h1 class="text-3xl font-bold mb-4 text-blue-800">Welcome to the Teacher Dashboard</h1>
-        <p class="mb-6 text-gray-700">Here you can manage students, view tasks, and access teacher resources.</p>
-        <ul class="list-disc ml-6 text-gray-600">
-            <li>View and edit student information</li>
-            <li>Assign and review tasks</li>
-            <li>Access teaching materials</li>
-        </ul>
+        <p class="mb-6 text-gray-700">Class schedules, student progress and notifications</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+            <!-- Class Schedules Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-blue-700">Class Schedules</h2>
+                <p class="text-gray-600 text-center mb-4">View your upcoming classes and manage your teaching timetable.</p>
+                <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">View Schedule</a>
+            </div>
+            <!-- Student Progress Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-green-700">Student Progress</h2>
+                <p class="text-gray-600 text-center mb-4">Monitor student performance, grades, and attendance records.</p>
+                <a href="#" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">View Progress</a>
+            </div>
+            <!-- Notifications Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-yellow-700">Notifications</h2>
+                <p class="text-gray-600 text-center mb-4">Stay updated with important announcements and alerts.</p>
+                <a href="#" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">View Notifications</a>
+            </div>
+        </div>
     </main>
 </div>
 {% if messages %}

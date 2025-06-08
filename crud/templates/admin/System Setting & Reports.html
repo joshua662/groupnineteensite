@@ -1,0 +1,79 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block 'title' %} Task List {% endblock 'title' %}
+
+{% block 'content' %}
+{% include "include/Sidebar.html" %}
+
+<div class="flex justify-center items-center min-h-screen">
+    <div class="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-lg shadow p-8 mx-auto">
+        <h1 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
+            System Settings & Reports
+        </h1>
+        <p class="mb-8 text-center text-gray-700 dark:text-gray-300">Configure grading, attendance tracking and overall system policies</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Grading Settings Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center">
+                <span class="text-4xl mb-2 text-blue-600 dark:text-blue-400">
+                    <i class="fas fa-graduation-cap"></i>
+                </span>
+                <h2 class="text-lg font-semibold mb-1 text-gray-900 dark:text-white">Grading Settings</h2>
+                <p class="text-gray-700 dark:text-gray-300 mb-2 text-center">Set up grading scales, policies, and grade calculation methods.</p>
+                <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Configure Grading</a>
+            </div>
+            <!-- Attendance Tracking Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center">
+                <span class="text-4xl mb-2 text-green-600 dark:text-green-400">
+                    <i class="fas fa-calendar-check"></i>
+                </span>
+                <h2 class="text-lg font-semibold mb-1 text-gray-900 dark:text-white">Attendance Tracking</h2>
+                <p class="text-gray-700 dark:text-gray-300 mb-2 text-center">Manage attendance policies and review attendance records.</p>
+                <a href="#" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Attendance Settings</a>
+            </div>
+            <!-- System Policies Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center">
+                <span class="text-4xl mb-2 text-yellow-600 dark:text-yellow-400">
+                    <i class="fas fa-cogs"></i>
+                </span>
+                <h2 class="text-lg font-semibold mb-1 text-gray-900 dark:text-white">System Policies</h2>
+                <p class="text-gray-700 dark:text-gray-300 mb-2 text-center">Configure overall system rules, permissions, and automation.</p>
+                <a href="#" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">System Policies</a>
+            </div>
+        </div>
+        <!-- Recent Activity Table -->
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white text-center">Recent Activity</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm text-left mx-auto">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-gray-700 dark:text-gray-300">Time</th>
+                            <th class="px-4 py-2 text-gray-700 dark:text-gray-300">User</th>
+                            <th class="px-4 py-2 text-gray-700 dark:text-gray-300">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="px-4 py-2">10:15 AM</td>
+                            <td class="px-4 py-2">admin</td>
+                            <td class="px-4 py-2">Created new VM</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-2">10:20 AM</td>
+                            <td class="px-4 py-2">jane.doe</td>
+                            <td class="px-4 py-2">Scaled storage</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-2">10:30 AM</td>
+                            <td class="px-4 py-2">john.smith</td>
+                            <td class="px-4 py-2">Restarted service</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock 'content' %}

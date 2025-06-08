@@ -13,7 +13,11 @@ def login_view(request):
         if user is not None:
             login(request, user)    
 
-            user_role = user.profile.role if hasattr(user, 'profile') else 'unknown'
+            try:
+                profile = user.profile
+            except Profile.DoesNotExist:
+                profile = Profile.objects.create(user=user, role='admin' if user.is_superuser else 'student')
+            user_role = profile.role
 
             if user.is_superuser or user_role == "admin":
                 messages.success(request, f"Welcome, Admin {user.username}!")
@@ -36,50 +40,59 @@ def login_view(request):
 
 @login_required
 def teacher_dashboard(request):
-    if not hasattr(request.user, 'profile') or request.user.profile.role != 'teacher':
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=request.user, role='teacher')
+    if profile.role != 'teacher':
         messages.warning(request, "You do not have permission to access this page.")
         return redirect('login') 
     return render(request, "teacher/dashboard.html")
 
 @login_required
 def student_dashboard(request):
-    if not hasattr(request.user, 'profile') or request.user.profile.role != 'student':
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=request.user, role='student')
+    if profile.role != 'student':
         messages.warning(request, "You do not have permission to access this page.")
         return redirect('login') 
     return render(request, "student/dashboard.html")
 
 @login_required
-def home_dashboard(request):
-    if not request.user.is_superuser and (not hasattr(request.user, 'profile') or request.user.profile.role != 'admin'):
+def admin_dashboard(request):
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=request.user, role='admin' if request.user.is_superuser else 'student')
+    if not request.user.is_superuser and profile.role != 'admin':
         messages.warning(request, "You do not have permission to access this page.")
         return redirect('login')
     return render(request, "Home/Dashboard.html")
 
-def landing_page(request):
-    return render(request, 'layout/LandingPage.html')
+@login_required
+def class_teacher_management(request):
+    return render(request, 'admin/Class & Teacher Management.html')
 
-def Dashboard(request):
-    return render(request, 'Home/Dashboard.html')
+@login_required
+def user_account(request):
+    return render(request, 'admin/User Account.html')
 
-def Post(request):
-    return render(request, 'Home/Post.html')
+@login_required
+def resources_course_materials(request):
+    return render(request, 'admin/Resources & Course Materials.html')
 
-def Task(request):
-    return render(request, 'Home/Task.html')
+@login_required
+def system_setting_reports(request):
+    return render(request, 'admin/System Setting & Reports.html')
 
-def Media(request):
-    return render(request, 'Home/Media.html')
-
-def Team(request):
-    return render(request, 'Home/Team.html')
-
-def SignIn(request):
-    return render(request, 'Home/SignIn.html')
-
-def logout(request):
+@login_required
+def logout_admin(request):
     auth_logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('/login/')
+
 
 def add_student(request):
     genders = Genders.objects.all()
@@ -105,8 +118,10 @@ def add_student(request):
         try:
             user = User.objects.create_user(username=username, password=password, email=email)
 
-    
-            profile = user.profile 
+            try:
+                profile = user.profile
+            except Profile.DoesNotExist:
+                profile = Profile.objects.create(user=user, role='student')
 
             profile.role = 'student'
 
@@ -159,8 +174,10 @@ def register(request):
            
             user = User.objects.create_user(username=username, password=password, email=email)
 
-            
-            profile = user.profile
+            try:
+                profile = user.profile
+            except Profile.DoesNotExist:
+                profile = Profile.objects.create(user=user, role=role)
             profile.role = role
 
             gender_obj = None
@@ -215,4 +232,7 @@ def teacher_student_management(request):
     return render(request, "teacher/student_management.html")
 
 def teacher_classroom_discussions(request):
-    return render(request, "teacher/classroom_discussions.html") 
+    return render(request, "teacher/classroom_discussions.html")
+
+def landing_page(request):
+    return render(request, 'layout/LandingPage.html') 

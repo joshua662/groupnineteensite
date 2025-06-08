@@ -7,6 +7,31 @@
 {% include "include/Sidebar.html" %}
 
 <div class="p-2 sm:ml-64 mt-16 md:mt-14">
+    <!-- Description and Resource Management Cards -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold mb-2 text-blue-800">Resources & Course Materials</h1>
+        <p class="mb-6 text-gray-700">Provide access to learning resources for teachers and students</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
+            <!-- View Resources Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-blue-700">View Resources</h2>
+                <p class="text-gray-600 text-center mb-4">Browse available learning materials and resources.</p>
+                <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Resources</a>
+            </div>
+            <!-- Upload Materials Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-green-700">Upload Materials</h2>
+                <p class="text-gray-600 text-center mb-4">Add new documents, videos, and course content.</p>
+                <a href="#" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Upload</a>
+            </div>
+            <!-- Manage Access Card -->
+            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+                <h2 class="text-xl font-semibold mb-2 text-yellow-700">Manage Access</h2>
+                <p class="text-gray-600 text-center mb-4">Control who can view or edit specific resources.</p>
+                <a href="#" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Access Control</a>
+            </div>
+        </div>
+    </div>
     <!-- Top bar with Add Student button -->
     <div class="flex justify-between items-center mb-2 mt-6">
         <form method="get" class="mb-4 flex">
@@ -69,3 +94,6 @@
 </div>
 
 {% endblock 'content' %}
+def add_student(request):
+    genders = Gender.objects.all()
+    return render(request, 'student/AddStudent.html', {'genders': genders})
