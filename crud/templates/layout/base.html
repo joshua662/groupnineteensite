@@ -18,7 +18,7 @@
       <script>
         {% for message in messages %}
           showToast("{{ message|escapejs }}");
-          break; // Only show the first message
+          break; 
         {% endfor %}
       </script>
     {% endif %}
