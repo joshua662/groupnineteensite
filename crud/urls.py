@@ -11,10 +11,10 @@ urlpatterns = [
 
     # Admin URLs
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
-    path('class-teacher-management/', views.class_teacher_management, name='class_teacher_management'),
-    path('user-account/', views.user_account, name='user_account'),
-    path('resources-course-materials/', views.resources_course_materials, name='resources_course_materials'),
-    path('system-setting-reports/', views.system_setting_reports, name='system_setting_reports'),
+    path('admin/class-teacher-management/', views.class_teacher_management, name='class_teacher_management'),
+    path('admin/user-account/', views.user_account, name='user_account'),
+    path('admin/resources-course-materials/', views.resources_course_materials, name='resources_course_materials'),
+    path('admin/system-setting-reports/', views.system_setting_reports, name='system_setting_reports'),
 
     # Teacher URLs
     path("teacher/dashboard/", views.teacher_dashboard, name="teacher_dashboard"),

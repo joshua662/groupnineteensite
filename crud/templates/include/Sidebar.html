@@ -9,7 +9,7 @@
         </path>
     </svg>
 </button>
-<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+<div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center">
         <svg class="animate-spin h-8 w-8 text-blue-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -28,7 +28,7 @@
     </a>
     <ul class="flex flex-col gap-2 font-medium w-full">
         <li>
-            <a href='/home/dashboard/' class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href='/admin/dashboard/' class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/>
                 </svg>
@@ -37,7 +37,7 @@
             </a>
         </li>
         <li>
-            <a href="/home/post/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href="/admin/class-teacher-management/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M12 20h9"/>
                     <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/>
@@ -47,7 +47,7 @@
             </a>
         </li>
         <li>
-            <a href="/home/task/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href="/admin/user-account/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
                     <path d="M16 2v4H8V2"/>
@@ -57,7 +57,7 @@
             </a>
         </li>
         <li>
-            <a href="/home/media/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href="/admin/resources-course-materials/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <rect x="3" y="3" width="18" height="18" rx="2"/>
                     <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -68,7 +68,7 @@
             </a>
         </li>
         <li>
-            <a href="/home/team/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+            <a href="/admin/system-setting-reports/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
                     <path d="M7 21v-2a4 4 0 0 1 3-3.87"/>
@@ -83,28 +83,21 @@
     </ul>
     <div class="flex-1"></div>
     <ul class="flex flex-col gap-2 font-medium w-full mb-4">
+      
         <li>
-            <a href="/home/signin/" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                    <polyline points="10 17 15 12 10 7"/>
-                    <line x1="15" y1="12" x2="3" y2="12"/>
-                </svg>
-                <span class="hidden sm:inline ml-3">Sign In</span>
-                <span class="sidebar-tooltip group-hover:flex">Sign In</span>
-            </a>
-        </li>
-        <li>
-            <a href="layout/login.html" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M19 8v6"/>
-                    <path d="M22 11h-6"/>
-                </svg>
-                <span class="hidden sm:inline ml-3">Log Out</span>
-                <span class="sidebar-tooltip group-hover:flex">Log Out</span>
-            </a>
+            <form method="post" action="{% url 'logout' %}" style="width:100%;">
+                {% csrf_token %}
+                <button type="submit" class="sidebar-link flex flex-col items-center sm:flex-row sm:items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group w-full" style="background:none;border:none;">
+                    <svg class="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M17 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M19 8v6"/>
+                        <path d="M22 11h-6"/>
+                    </svg>
+                    <span class="hidden sm:inline ml-3">Log Out</span>
+                    <span class="sidebar-tooltip group-hover:flex">Log Out</span>
+                </button>
+            </form>
         </li>
     </ul>
 </nav>

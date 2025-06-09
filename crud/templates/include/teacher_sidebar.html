@@ -1,36 +1,35 @@
 <aside class="w-72 bg-gray-800 p-6 flex flex-col gap-6 shadow-lg min-h-screen">
     <h2 class="text-xl font-bold mb-2">Teacher Dashboard Sidebar</h2>
-    <p class="text-sm text-gray-400 mb-4">(Streamlining lesson delivery and student engagement)</p>
     <nav>
         <ol class="space-y-4">
             <li class="flex items-start gap-3">
-                <span class="text-2xl">📋</span>
+                <span class="text-2xl"></span>
                 <div>
-                    <a href="{% url 'teacher_dashboard' %}" class="font-bold hover:underline">Dashboard</a> – <span class="text-gray-300">Class schedules, student progress, and notifications.</span>
+                    <a href="{% url 'teacher_dashboard' %}" class="font-bold hover:underline">Dashboard</a>
                 </div>
             </li>
             <li class="flex items-start gap-3">
-                <span class="text-2xl">📑</span>
+                <span class="text-2xl"></span>
                 <div>
-                    <span class="font-bold">Lesson Plans & Course Materials</span> – <span class="text-gray-300">Upload and manage learning content.</span>
+                    <a href="{% url 'teacher_lesson_plan_course_material' %}" class="font-bold hover:underline">Course Materials</a> 
                 </div>
             </li>
             <li class="flex items-start gap-3">
-                <span class="text-2xl">📝</span>
+                <span class="text-2xl"></span>
                 <div>
-                    <span class="font-bold">Assignments & Grading</span> – <span class="text-gray-300">Create, review, and assess student submissions.</span>
+                    <a href="{% url 'teacher_assignments_grading' %}" class="font-bold hover:underline">Assignments & Exams</a> 
                 </div>
             </li>
             <li class="flex items-start gap-3">
-                <span class="text-2xl">👥</span>
+                <span class="text-2xl"></span>
                 <div>
-                    <span class="font-bold">Student Management</span> – <span class="text-gray-300">Track attendance, monitor performance, and provide feedback.</span>
+                    <a href="{% url 'teacher_student_management' %}" class="font-bold hover:underline">Classroom Discussions</a> 
                 </div>
             </li>
             <li class="flex items-start gap-3">
-                <span class="text-2xl">💬</span>
+                <span class="text-2xl"></span>
                 <div>
-                    <span class="font-bold">Classroom Discussions</span> – <span class="text-gray-300">Communicate with students, answer queries, and share updates.</span>
+                    <a href="{% url 'teacher_classroom_discussions' %}" class="font-bold hover:underline">Profile & Settings</a>
                 </div>
             </li>
         </ol>

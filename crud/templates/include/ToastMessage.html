@@ -1,4 +1,6 @@
-<div id="toast-message" class="fixed top-6 right-6 z-50 hidden bg-green-500 text-white px-6 py-3 rounded shadow-lg transition-opacity duration-300">
+{% load static %}
+<script src="{% static 'js/toast.js' %}">
+   <div id="toast-message" class="fixed top-6 right-6 z-50 hidden bg-green-500 text-white px-6 py-3 rounded shadow-lg transition-opacity duration-300">
     <span id="toast-text">Login successful!</span>
-</div>
-<script src="{% static 'js/toast.js' %}"></script>
+</div> 
+</script>

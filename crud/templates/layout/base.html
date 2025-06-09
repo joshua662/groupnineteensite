@@ -12,9 +12,15 @@
     <title>{% block 'title' %}{% endblock 'title' %}</title>
 </head>
 <body>
+    {% include "include/ToastMessage.html" %}
     {% block 'content' %}{% endblock 'content' %}
+    {% if messages %}
+      <script>
+        {% for message in messages %}
+          showToast("{{ message|escapejs }}");
+          break; // Only show the first message
+        {% endfor %}
+      </script>
+    {% endif %}
 </body>
-<form id="csrf-refresh-form" method="post" action="" style="display:none;">
-    {% csrf_token %}
-</form>
 </html>

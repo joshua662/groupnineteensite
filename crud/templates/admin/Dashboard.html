@@ -7,14 +7,14 @@
 {% include "include/Sidebar.html" %}
 <div class="p-2 sm:ml-56 mt-16 md:mt-14 bg-[#f8f9fd] min-h-screen">
   <!-- Greeting -->
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-lg font-semibold leading-tight">Good Morning, Monica <span class="ml-2">👋</span></h2>
-    <div>
-      <button class="bg-white rounded-full p-2 shadow hover:shadow-md transition">
-        <i class="fas fa-bell text-gray-400"></i>
-      </button>
-    </div>
-  </div>
+   <div class="bg-white rounded-xl shadow p-6 flex items-center mb-8">
+            <div class="flex-1">
+                <h2 class="text-xl font-semibold mb-1">Welcome back, {{ user.profile.full_name|default:user.username }}!</h2>
+                <p class="text-gray-500 text-sm mb-2">New French speaking classes are available.<br>Étudier en France for B1 and B2 levels. <a href="#" class="text-blue-600 font-medium">Learn more</a></p>
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg mt-2">Get Started</button>
+            </div>
+            <img src="https://img.icons8.com/fluency/96/000000/books.png" alt="Books" class="w-32 h-32" />
+        </div>
 
   <!-- Example POST Form -->
   <form method="post" action="">

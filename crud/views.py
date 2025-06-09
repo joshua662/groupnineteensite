@@ -21,7 +21,7 @@ def login_view(request):
 
             if user.is_superuser or user_role == "admin":
                 messages.success(request, f"Welcome, Admin {user.username}!")
-                return redirect("home_dashboard")
+                return redirect("admin_dashboard")
             elif user_role == "teacher":
                 messages.success(request, f"Welcome, Teacher {user.username}!")
                 return redirect("teacher_dashboard")
@@ -69,7 +69,7 @@ def admin_dashboard(request):
     if not request.user.is_superuser and profile.role != 'admin':
         messages.warning(request, "You do not have permission to access this page.")
         return redirect('login')
-    return render(request, "Home/Dashboard.html")
+    return render(request, "admin/Dashboard.html")
 
 @login_required
 def class_teacher_management(request):
