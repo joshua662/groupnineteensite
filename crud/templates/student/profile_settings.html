@@ -3,74 +3,122 @@
 {% block 'content' %}
 <div class="flex min-h-screen bg-gray-100">
     {% include "include/student_sidebar.html" %}
-    <main class="flex-1 p-8">
-        <h1 class="text-2xl font-bold mb-4">Profile Settings</h1>
-        <p class="text-gray-600 mb-6">Manage account preference and notifications.</p>
-        
-        <div class="bg-white rounded-xl shadow p-6 mb-8 max-w-2xl">
-            <h2 class="text-lg font-semibold mb-4">Account Information</h2>
-            <div class="flex items-center gap-6 mb-4">
-                <img src="" class="w-20 h-20 rounded-full object-cover" alt="Profile" />
+    <main class="flex-1 p-6">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <div class="flex items-center space-x-4">
+                <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                    JD
+                </div>
                 <div>
-                    <div class="font-medium text-lg">{{ user.profile.full_name|default:user.username }}</div>
-                    <div class="text-gray-500 text-sm">{{ user.email }}</div>
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        {{ student }}
+                    </h1>
+                    <p class="text-gray-600">{{ student.student_id }}</p>
                 </div>
             </div>
-            <form method="post" action="">
-                {% csrf_token %}
-                <div class="mb-4">
-                    <label class="block font-medium mb-1">Full Name</label>
-                    <input type="text" name="full_name" value="{{ user.profile.full_name }}" class="border rounded px-3 py-2 w-full" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block font-medium mb-1">Email</label>
-                    <input type="email" name="email" value="{{ user.email }}" class="border rounded px-3 py-2 w-full" required>
-                </div>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Update Info</button>
-            </form>
         </div>
-        
-        <div class="bg-white rounded-xl shadow p-6 mb-8 max-w-2xl">
-            <h2 class="text-lg font-semibold mb-4">Preferences</h2>
-            <form method="post" action="">
-                {% csrf_token %}
-                <div class="flex items-center mb-4">
-                    <input type="checkbox" id="dark_mode" name="dark_mode" class="mr-2">
-                    <label for="dark_mode" class="font-medium">Enable dark mode</label>
+
+        <!-- Profile Information -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            
+            <!-- Personal Information -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                    Personal Information
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Username</span>
+                        <span class="font-medium">{{ student.username }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">First Name</span>
+                        <span class="font-medium">{{ student.first_name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Middle Name</span>
+                        <span class="font-medium">{{ student.middle_name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Last Name</span>
+                        <span class="font-medium">{{ student.last_name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Suffix</span>
+                        <span class="font-medium">{{ student.suffix }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Gender</span>
+                        <span class="font-medium">{{ student.gender }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Birth Date</span>
+                        <span class="font-medium">{{ student.birth_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Age</span>
+                        <span class="font-medium">{{ student.age }}</span>
+                    </div>
                 </div>
-                <div class="flex items-center mb-4">
-                    <input type="checkbox" id="email_updates" name="email_updates" class="mr-2">
-                    <label for="email_updates" class="font-medium">Receive email updates</label>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                    Contact Information
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Email</span>
+                        <span class="font-medium break-all">{{ student.email }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Contact Number</span>
+                        <span class="font-medium">{{ student.contact_number }}</span>
+                    </div>
                 </div>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save Preferences</button>
-            </form>
+            </div>
+
+            <!-- Academic Information -->
+
+            <!-- Account Information -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                    Account Information
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Account Created</span>
+                        <span class="font-medium">{{ student.created_at }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Last Updated</span>
+                        <span class="font-medium">{{ student.updated_at }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <div class="bg-white rounded-xl shadow p-6 mb-8 max-w-2xl">
-            <h2 class="text-lg font-semibold mb-4">Notification Settings</h2>
-            <form method="post" action="">
-                {% csrf_token %}
-                <div class="flex items-center mb-4">
-                    <input type="checkbox" id="notif_assignments" name="notif_assignments" class="mr-2">
-                    <label for="notif_assignments" class="font-medium">Assignment deadlines</label>
-                </div>
-                <div class="flex items-center mb-4">
-                    <input type="checkbox" id="notif_grades" name="notif_grades" class="mr-2">
-                    <label for="notif_grades" class="font-medium">Grades posted</label>
-                </div>
-                <div class="flex items-center mb-4">
-                    <input type="checkbox" id="notif_announcements" name="notif_announcements" class="mr-2">
-                    <label for="notif_announcements" class="font-medium">Announcements</label>
-                </div>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save Notifications</button>
-            </form>
-        </div>
-    
-        <div class="max-w-2xl">
-            <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded w-full">Logout</button>
-            </form>
+
+        <!-- Actions -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                Account Actions
+            </h2>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="/student/edit_student/{{ student.student_id }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center transition-colors">
+                    Edit Profile
+                </a>
+                <a href="/student/student_changepass/{{ student.student_id }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-center transition-colors">
+                    Change Password
+                </a>
+                <form method="post" action="{% url 'student_logout' %}" class="flex-1">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded w-full transition-colors">
+                        Logout
+                    </button>
+                </form>
+            </div>
         </div>
     </main>
 </div>

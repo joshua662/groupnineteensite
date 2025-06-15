@@ -1,9 +1,6 @@
-function showToast(message) {
-    const toast = document.getElementById('toast-message');
-    const toastText = document.getElementById('toast-text');
-    toastText.textContent = message;
-    toast.classList.remove('hidden');
-    setTimeout(() => {
-        toast.classList.add('hidden');
-    }, 3000);
-} 
+setTimeout(() => {
+    const successToastMessage = document.getElementById('toast-success')
+    if(successToastMessage) {
+        successToastMessage.style.display = 'none'
+    }
+}, 3000)

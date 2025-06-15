@@ -10,21 +10,13 @@
         <div class="mb-8">
             <h2 class="text-lg font-semibold mb-3">Upcoming Deadlines</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for assigned_task in assigned_tasks %}
                 <div class="bg-white rounded-xl shadow p-4">
-                    <div class="font-medium text-blue-700 mb-1">English Essay</div>
-                    <div class="text-xs text-gray-500 mb-2">Due: 15 Dec 2022</div>
-                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>
+                    <div class="font-medium text-blue-700 mb-1">{{ assigned_task.task.title }}</div>
+                    <div class="text-xs text-gray-500 mb-2">Due:{{ assigned_task.task.deadline }}</div>
+                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">{{ assigned_task.status }}</span>
                 </div>
-                <div class="bg-white rounded-xl shadow p-4">
-                    <div class="font-medium text-blue-700 mb-1">Math Exam</div>
-                    <div class="text-xs text-gray-500 mb-2">Due: 18 Dec 2022</div>
-                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>
-                </div>
-                <div class="bg-white rounded-xl shadow p-4">
-                    <div class="font-medium text-blue-700 mb-1">Science Project</div>
-                    <div class="text-xs text-gray-500 mb-2">Due: 20 Dec 2022</div>
-                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>
-                </div>
+                {% endfor %}
             </div>
         </div>
         <!-- Assignment Submission Form -->
@@ -33,7 +25,12 @@
             <form method="post" action="" enctype="multipart/form-data" class="bg-white rounded-xl shadow p-6 flex flex-col gap-4 max-w-xl">
                 {% csrf_token %}
                 <label class="font-medium">Assignment Title</label>
-                <input type="text" name="assignment_title" placeholder="Enter assignment title" class="border rounded px-2 py-1" required>
+                <select name="assigned_task_id" class="border rounded px-2 py-1" required>
+                    <option value="">Select subject</option>
+                    {% for assigned_task in assigned_tasks %}
+                    <option value="{{ assigned_task.id }}">{{ assigned_task.task.title }}</option>
+                    {% endfor %}
+                </select>
                 <label class="font-medium">Upload File</label>
                 <input type="file" name="assignment_file" class="border rounded px-2 py-1" required>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded self-end">Submit</button>
@@ -49,7 +46,6 @@
                             <th class="py-2 px-4">Assignment</th>
                             <th class="py-2 px-4">Submitted On</th>
                             <th class="py-2 px-4">Status</th>
-                            <th class="py-2 px-4">Grade</th>
                         </tr>
                     </thead>
                     <tbody>

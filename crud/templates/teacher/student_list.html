@@ -1,0 +1,149 @@
+{% extends "layout/base.html" %}
+{% block 'title' %}Lesson Plans & Course Materials{% endblock 'title' %}
+{% block 'content' %}
+<div class="flex min-h-screen bg-gray-100">
+    {% include "include/teacher_sidebar.html" %}
+     <div class="flex-1 p-8">
+
+        <div class="mb-4">
+            <div class="flex justify-between items-center mb-4">
+                <form action="/teacher/student_list/" class="flex gap-2" method="GET">
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Search students..." class="bg-white px-3 py-2 border border-gray-300 text-black text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-sm text-sm">Search</button>  
+                    {% if search_query %}
+                        <a href="/teacher/student_list/" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-sm text-sm">Clear</a>
+                    {% endif %}     
+                </form>
+                
+                <!-- Add Student Button -->
+                <div class="flex gap-2 ml-4">
+                    <a href="" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-sm text-sm font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Add Student
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        
+        
+<div class="mb-8">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">Students</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white rounded-xl shadow-lg">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr class="text-left text-gray-700 text-sm font-medium">
+                    <th class="py-3 px-6 font-semibold">Student Name</th>
+                    <th class="py-3 px-6 font-semibold">Gender</th>
+                    <th class="py-3 px-6 font-semibold">Age</th>
+                    <th class="py-3 px-6 font-semibold">Birth Date</th>
+                    <th class="py-3 px-6 font-semibold">Email</th>
+                    <th class="py-3 px-6 font-semibold">Contact</th>
+                    <th class="py-3 px-6 font-semibold text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for student in students %}
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <td class="py-4 px-6 text-gray-900 font-medium">{{ student }}</td>
+                        <td class="py-4 px-6 text-gray-600">{{ student.gender|default:"-" }}</td>
+                        <td class="py-4 px-6 text-gray-600">{{ student.age|default:"-" }}</td>
+                        <td class="py-4 px-6 text-gray-600">{{ student.birth_date|date:"M d, Y"|default:"-" }}</td>
+                        <td class="py-4 px-6 text-gray-600">
+                            {% if student.email %}
+                                <a href="mailto:{{ student.email }}" class="text-blue-600 hover:text-blue-800 hover:underline">
+                                    {{ student.email }}
+                                </a>
+                            {% else %}
+                                <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-gray-600">{{ student.contact_number|default:"-" }}</td>
+                        <td class="py-4 px-6">
+                            <div class="flex justify-center gap-2">
+                                <a href="/user/edit/{{ student.user_id }}" 
+                                   class="inline-flex items-center px-3 py-2 text-xs font-medium text-white bg-green-500 hover:bg-green-600 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    Edit
+                                </a>
+                                <button onclick="confirmDelete('{{ student.user_id }}', '{{ student.name|default:student }}')" 
+                                        class="inline-flex items-center px-3 py-2 text-xs font-medium text-white bg-red-500 hover:bg-red-600 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="py-12 px-6 text-center">
+                            <div class="text-gray-400">
+                                <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                <p class="text-lg font-medium text-gray-500 mb-2">No students found</p>
+                                <p class="text-sm text-gray-400">Add your first student to get started</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+        <nav class="mt-4"> 
+      <ul class="inline-flex -space-x-px text-sm w-full justify-center">
+        {% if page_obj.has_previous %}
+        <li>
+          <a href="?page={{ page_obj.previous_page_number }} 
+          {% if search_query %}
+            &search={{ search_query }}
+          {% endif %}
+            " class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700">Previous</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <li>
+            <a href="?page={{ num }} 
+            {% if search_query %}
+              &search={{ search_query}}
+            {% endif %}
+              " class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700">{{ num }}</a>
+          </li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <li>
+            <a href="?page={{ num }} 
+            {% if search_query %}
+              &search={{ search_query }}
+            {% endif %}
+              " class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">{{ num }}</a>
+          </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li>
+          <a href="?page={{ page_obj.next_page_number }} 
+          {% if search_query %}
+            &search={{ search_query }}
+          {% endif %}
+            " class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700">Next</a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+    </div>
+
+    
+</div>
+{% endblock 'content' %} 

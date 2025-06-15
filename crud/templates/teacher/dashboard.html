@@ -1,79 +1,102 @@
-{% extends "layout.base.html" %}
+{% extends "layout/base.html" %}
 {% block 'title' %}Teacher Dashboard{% endblock 'title' %}
 
 {% block 'content' %}
 <div class="flex min-h-screen bg-gray-100">
-        {% include "include/teacher_sidebar.html" %}
+    {% include "include/teacher_sidebar.html" %}
+     <div class="flex-1 p-8">
 
-<aside class="w-72 bg-gray-800 p-6 flex flex-col gap-6 shadow-lg min-h-screen">
-    <h2 class="text-xl font-bold mb-2">Teacher Dashboard Sidebar</h2>
-    <p class="text-sm text-gray-400 mb-4">(Streamlining lesson delivery and student engagement)</p>
-    <nav>
-        <ol class="space-y-4">
-            <li class="flex items-start gap-3">
-                <span class="text-2xl">📋</span>
-                <div>
-                    <a href="{% url 'teacher_dashboard' %}" class="font-bold hover:underline">Dashboard</a> – <span class="text-gray-300">Class schedules, student progress, and notifications.</span>
-                </div>
-            </li>
-            <li class="flex items-start gap-3">
-                <span class="text-2xl">📑</span>
-                <div>
-                    <span class="font-bold">Lesson Plans & Course Materials</span> – <span class="text-gray-300">Upload and manage learning content.</span>
-                </div>
-            </li>
-            <li class="flex items-start gap-3">
-                <span class="text-2xl">📝</span>
-                <div>
-                    <span class="font-bold">Assignments & Grading</span> – <span class="text-gray-300">Create, review, and assess student submissions.</span>
-                </div>
-            </li>
-            <li class="flex items-start gap-3">
-                <span class="text-2xl">👥</span>
-                <div>
-                    <span class="font-bold">Student Management</span> – <span class="text-gray-300">Track attendance, monitor performance, and provide feedback.</span>
-                </div>
-            </li>
-            <li class="flex items-start gap-3">
-                <span class="text-2xl">💬</span>
-                <div>
-                    <span class="font-bold">Classroom Discussions</span> – <span class="text-gray-300">Communicate with students, answer queries, and share updates.</span>
-                </div>
-            </li>
-        </ol>
-    </nav>
-</aside>
-    <main class="flex-1 p-8">
-        <h1 class="text-3xl font-bold mb-4 text-blue-800">Welcome to the Teacher Dashboard</h1>
-        <p class="mb-6 text-gray-700">Class schedules, student progress and notifications</p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-            <!-- Class Schedules Card -->
-            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
-                <h2 class="text-xl font-semibold mb-2 text-blue-700">Class Schedules</h2>
-                <p class="text-gray-600 text-center mb-4">View your upcoming classes and manage your teaching timetable.</p>
-                <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">View Schedule</a>
+        <div class="mb-4">
+            <form action="/student/dashboard/" class="flex gap-2" method="GET">
+            <input type="text" name="search" value="{{ search_query }}" placeholder="Search" class="bg-white px-3 py-2 border border-gray-300 text-black text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-sm text-sm">Search</button>  
+            {% if search_query %}
+                <a href="/student/dashboard/" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-sm text-sm">Clear</a>
+            {% endif %}     
+            </form>
+        </div>
+
+        
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Lessons</h3>
+                {% comment %} <a href="#" class="text-blue-600 text-sm font-medium">View All</a> {% endcomment %}
             </div>
-            <!-- Student Progress Card -->
-            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
-                <h2 class="text-xl font-semibold mb-2 text-green-700">Student Progress</h2>
-                <p class="text-gray-600 text-center mb-4">Monitor student performance, grades, and attendance records.</p>
-                <a href="#" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">View Progress</a>
-            </div>
-            <!-- Notifications Card -->
-            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
-                <h2 class="text-xl font-semibold mb-2 text-yellow-700">Notifications</h2>
-                <p class="text-gray-600 text-center mb-4">Stay updated with important announcements and alerts.</p>
-                <a href="#" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">View Notifications</a>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white rounded-xl shadow">
+                    <thead>
+                        <tr class="text-left text-gray-600 text-sm">
+                            <th class="py-2 px-4">Task</th>
+                            {% comment %} <th class="py-2 px-4">Teacher Name</th> {% endcomment %}
+                            <th class="py-2 px-4">Student Name</th>
+                            <th class="py-2 px-4">Starting</th>
+                            <th class="py-2 px-4">Due Date</th>
+                            <th class="py-2 px-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        {% for assigned_task in assigned_tasks %}
+                            <tr>
+                            <td class="py-2 px-4">{{ assigned_task.task.title }}</td>
+                            {% comment %} <td class="py-2 px-4">{{ assigned_task.teacher.last_name }}, {{ assigned_task.teacher.first_name }} {{ assigned_task.teacher.middle_name }} {{ assigned_task.teacher.suffix }}</td> {% endcomment %}
+                            <td class="py-2 px-4 flex items-center gap-1">
+                                {{ assigned_task.student.last_name }}, {{ assigned_task.student.first_name }} {{ assigned_task.student.middle_name }} {{ assigned_task.student.suffix }}
+                            </td>
+                            <td class="py-2 px-4">{{ assigned_task.assigned_at|date:"M d, Y" }}</td>
+                            <td class="py-2 px-4">{{ assigned_task.task.deadline|date:"M d, Y" }}</td>
+                            <td class="py-2 px-4"><span class="text-green-600 font-semibold">Done</span></td>
+                            
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    </main>
+        <nav class="mt-4"> 
+      <ul class="inline-flex -space-x-px text-sm w-full justify-center">
+        {% if page_obj.has_previous %}
+        <li>
+          <a href="?page={{ page_obj.previous_page_number }} 
+          {% if search_query %}
+            &search={{ search_query }}
+          {% endif %}
+            " class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700">Previous</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <li>
+            <a href="?page={{ num }} 
+            {% if search_query %}
+              &search={{ search_query}}
+            {% endif %}
+              " class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700">{{ num }}</a>
+          </li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <li>
+            <a href="?page={{ num }} 
+            {% if search_query %}
+              &search={{ search_query }}
+            {% endif %}
+              " class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">{{ num }}</a>
+          </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li>
+          <a href="?page={{ page_obj.next_page_number }} 
+          {% if search_query %}
+            &search={{ search_query }}
+          {% endif %}
+            " class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700">Next</a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+    </div>
 </div>
-{% if messages %}
-  <script>
-    {% for message in messages %}
-      showToast("{{ message|escapejs }}");
-      break; // Only show the first message
-    {% endfor %}
-  </script>
-{% endif %}
 {% endblock 'content' %}

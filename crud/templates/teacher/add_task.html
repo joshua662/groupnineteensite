@@ -1,0 +1,243 @@
+{% extends "layout/base.html" %}
+{% block 'title' %}Create New Task{% endblock 'title' %}
+{% block 'content' %}
+
+    <div class="min-h-screen flex">
+        <!-- Sidebar placeholder -->
+        {% include "include/teacher_sidebar.html" %}
+        <main class="flex-1 p-6">
+            <!-- Page Header -->
+            <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-20 h-20 bg-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                            <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Create New Task</h1>
+                            <p class="text-gray-600">Add a new task for your students</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form class="space-y-6" action="/teacher/add_task/" method="post">
+                {% csrf_token %}
+                
+                <!-- Task Information Section -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                        Task Information
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Task Title *</label>
+                            <input type="text" id="title" name="title" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                   placeholder="Enter task title" required>
+                        </div>
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Task Description *</label>
+                            <textarea id="description" name="description" rows="6"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                      placeholder="Enter detailed task description, instructions, and requirements..." required></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                        Assignment & Section
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Assign to Section *</label>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <input type="radio" id="section_a" name="section" value="1" 
+                                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300" checked>
+                                    <label for="section_a" class="ml-3 flex-1 cursor-pointer">
+                                        <div class="font-medium text-gray-900">Section A</div>
+                                        <div class="text-sm text-gray-500">Default section</div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <input type="radio" id="section_b" name="section" value="2" 
+                                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300">
+                                    <label for="section_b" class="ml-3 flex-1 cursor-pointer">
+                                        <div class="font-medium text-gray-900">Section B</div>
+                                        <div class="text-sm text-gray-500">Second section</div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <input type="radio" id="section_c" name="section" value="3" 
+                                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300">
+                                    <label for="section_c" class="ml-3 flex-1 cursor-pointer">
+                                        <div class="font-medium text-gray-900">Section C</div>
+                                        <div class="text-sm text-gray-500">Third section</div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Schedule & Deadline Section -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                        Schedule & Deadline
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="deadline_date" class="block text-sm font-medium text-gray-700 mb-1">Deadline Date</label>
+                            <input type="date" id="deadline_date" name="deadline_date" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="deadline_time" class="block text-sm font-medium text-gray-700 mb-1">Deadline Time</label>
+                            <input type="time" id="deadline_time" name="deadline_time" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="no_deadline" name="no_deadline" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                            <label for="no_deadline" class="ml-2 block text-sm text-gray-700">
+                                No specific deadline
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Check this if the task doesn't have a specific deadline</p>
+                    </div>
+                </div>
+
+
+                <!-- Preview Section -->
+                <div class="bg-gray-50 rounded-lg shadow-sm border p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-300">
+                        Task Preview
+                    </h2>
+                    <div class="bg-white rounded-md p-4 border">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-lg font-medium text-gray-900" id="preview-title">Task Title</h3>
+                            <span class="text-sm text-gray-500" id="preview-deadline">No deadline set</span>
+                        </div>
+                        <div class="text-gray-700" id="preview-description">
+                            Task description will appear here...
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-gray-200">
+                            <span class="text-xs text-gray-500">Created by: {{ request.user.first_name }} {{ request.user.last_name }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                        Create Task
+                    </h2>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button type="submit" 
+                                class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                            Save Task
+                        </button>
+                        <a href="/teacher/task_list" 
+                           class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 text-center">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        // Live preview functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.getElementById('title');
+            const descriptionInput = document.getElementById('description');
+            const deadlineDateInput = document.getElementById('deadline_date');
+            const deadlineTimeInput = document.getElementById('deadline_time');
+            const noDeadlineCheckbox = document.getElementById('no_deadline');
+            const sectionRadios = document.querySelectorAll('input[name="section"]');
+            const assignAllSectionsCheckbox = document.getElementById('assign_all_sections');
+            
+            const previewTitle = document.getElementById('preview-title');
+            const previewDescription = document.getElementById('preview-description');
+            const previewDeadline = document.getElementById('preview-deadline');
+            const previewSection = document.getElementById('preview-section');
+            
+            function updatePreview() {
+                // Update title
+                previewTitle.textContent = titleInput.value || 'Task Title';
+                
+                // Update description
+                previewDescription.textContent = descriptionInput.value || 'Task description will appear here...';
+                
+                // Update deadline
+                if (noDeadlineCheckbox.checked) {
+                    previewDeadline.textContent = 'No deadline set';
+                } else {
+                    const date = deadlineDateInput.value;
+                    const time = deadlineTimeInput.value;
+                    if (date && time) {
+                        const deadline = new Date(date + 'T' + time);
+                        previewDeadline.textContent = 'Due: ' + deadline.toLocaleDateString() + ' at ' + deadline.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    } else if (date) {
+                        previewDeadline.textContent = 'Due: ' + new Date(date).toLocaleDateString();
+                    } else {
+                        previewDeadline.textContent = 'No deadline set';
+                    }
+                }
+                
+                // Update section
+                if (assignAllSectionsCheckbox.checked) {
+                    previewSection.textContent = 'All Sections (A, B, C)';
+                } else {
+                    const selectedSection = document.querySelector('input[name="section"]:checked');
+                    if (selectedSection) {
+                        previewSection.textContent = 'Section ' + selectedSection.value;
+                    }
+                }
+            }
+            
+            // Add event listeners
+            titleInput.addEventListener('input', updatePreview);
+            descriptionInput.addEventListener('input', updatePreview);
+            deadlineDateInput.addEventListener('change', updatePreview);
+            deadlineTimeInput.addEventListener('change', updatePreview);
+            noDeadlineCheckbox.addEventListener('change', function() {
+                const deadlineInputs = document.querySelectorAll('#deadline_date, #deadline_time');
+                deadlineInputs.forEach(input => {
+                    input.disabled = this.checked;
+                    if (this.checked) input.value = '';
+                });
+                updatePreview();
+            });
+            
+            // Section assignment functionality
+            sectionRadios.forEach(radio => {
+                radio.addEventListener('change', updatePreview);
+            });
+            
+            assignAllSectionsCheckbox.addEventListener('change', function() {
+                sectionRadios.forEach(radio => {
+                    radio.disabled = this.checked;
+                });
+                updatePreview();
+            });
+            
+            // Initial preview update
+            updatePreview();
+        });
+        
+        function saveDraft() {
+            // Add draft functionality here
+            alert('Draft saved! (Implement backend logic)');
+        }
+    </script>
+
+
+{% endblock 'content' %}

@@ -3,242 +3,723 @@ from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import Genders, Profile
+from .models import  Student, AssignedTask, Task, Teacher, Section
+from django.http import HttpResponse
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.sessions.models import Session
+from functools import wraps
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+import re
+from datetime import date, datetime
 
-def login_view(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)    
+def student_login_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.session.get('is_student_authenticated'):
+            return HttpResponseRedirect(reverse('student_login'))
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
-            try:
-                profile = user.profile
-            except Profile.DoesNotExist:
-                profile = Profile.objects.create(user=user, role='admin' if user.is_superuser else 'student')
-            user_role = profile.role
-
-            if user.is_superuser or user_role == "admin":
-                messages.success(request, f"Welcome, Admin {user.username}!")
-                return redirect("admin_dashboard")
-            elif user_role == "teacher":
-                messages.success(request, f"Welcome, Teacher {user.username}!")
-                return redirect("teacher_dashboard")
-            elif user_role == "student":
-                messages.success(request, f"Welcome, Student {user.username}!")
-                return redirect("student_dashboard")
-            else:
-                messages.success(request, f"Welcome, {user.username}!")
-                return redirect("layout/Login.html")
-        else:
-            messages.error(request, "Invalid credentials")
-            return render(request, "layout/Login.html")
-    return render(request, "layout/Login.html")
-
-
-
-@login_required
-def teacher_dashboard(request):
-    try:
-        profile = request.user.profile
-    except Profile.DoesNotExist:
-        profile = Profile.objects.create(user=request.user, role='teacher')
-    if profile.role != 'teacher':
-        messages.warning(request, "You do not have permission to access this page.")
-        return redirect('login') 
-    return render(request, "teacher/dashboard.html")
-
-@login_required
-def student_dashboard(request):
-    try:
-        profile = request.user.profile
-    except Profile.DoesNotExist:
-        profile = Profile.objects.create(user=request.user, role='student')
-    if profile.role != 'student':
-        messages.warning(request, "You do not have permission to access this page.")
-        return redirect('login') 
-    return render(request, "student/dashboard.html")
-
-@login_required
-def admin_dashboard(request):
-    try:
-        profile = request.user.profile
-    except Profile.DoesNotExist:
-        profile = Profile.objects.create(user=request.user, role='admin' if request.user.is_superuser else 'student')
-    if not request.user.is_superuser and profile.role != 'admin':
-        messages.warning(request, "You do not have permission to access this page.")
-        return redirect('login')
-    return render(request, "admin/Dashboard.html")
-
-@login_required
-def class_teacher_management(request):
-    return render(request, 'admin/Class & Teacher Management.html')
-
-@login_required
-def user_account(request):
-    return render(request, 'admin/User Account.html')
-
-@login_required
-def resources_course_materials(request):
-    return render(request, 'admin/Resources & Course Materials.html')
-
-@login_required
-def system_setting_reports(request):
-    return render(request, 'admin/System Setting & Reports.html')
-
-@login_required
-def logout_admin(request):
-    auth_logout(request)
-    messages.success(request, 'You have been logged out successfully.')
-    return redirect('/login/')
-
-@login_required
-def logout(request):
-    auth_logout(request)
-    messages.success(request, 'You have been logged out successfully.')
-    return redirect('/login/')
-
-
-def add_student(request):
-    genders = Genders.objects.all()
+def student_login(request):
     if request.method == 'POST':
-        full_name = request.POST.get('full_name')
-        gender_id = request.POST.get('gender')
-        birth_date = request.POST.get('birth_date')
-        address = request.POST.get('address')
-        email = request.POST.get('email')
-        contact_number = request.POST.get('contact_number')
         username = request.POST.get('username')
         password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
-
-        if password != confirm_password:
-            messages.error(request, "Passwords do not match.")
-            return render(request, 'student/AddStudent.html', {'genders': genders})
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists. Please choose a different one.")
-            return render(request, 'student/AddStudent.html', {'genders': genders})
 
         try:
-            user = User.objects.create_user(username=username, password=password, email=email)
-
-            try:
-                profile = user.profile
-            except Profile.DoesNotExist:
-                profile = Profile.objects.create(user=user, role='student')
-
-            profile.role = 'student'
-
-            gender_obj = None
-            if gender_id:
-                try:
-                    gender_obj = Genders.objects.get(pk=gender_id)
-                except Genders.DoesNotExist:
-                    messages.warning(request, "Selected gender not found for student.")
-
-            profile.full_name = full_name
-            profile.gender = gender_obj
-            profile.birth_date = birth_date
-            profile.address = address
-            profile.contact_number = contact_number
-            profile.save() 
-
-            messages.success(request, f"Student '{username}' added successfully!")
-            return redirect('add_student')
-        except Exception as e:
-            messages.error(request, f"Error adding student: {e}")
-            return render(request, 'student/AddStudent.html', {'genders': genders})
-    return render(request, 'student/AddStudent.html', {'genders': genders})
-
-
-
-def register(request):
-    genders = Genders.objects.all()
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        confirm_password = request.POST.get("confirm_password")
-        role = request.POST.get("role") 
-        email = request.POST.get("email")
-        full_name = request.POST.get("full_name")
-        birth_date = request.POST.get("birth_date")
-        address = request.POST.get("address")
-        contact_number = request.POST.get("contact_number")
-        gender_id = request.POST.get("gender") 
-
-        if password != confirm_password:
-            messages.error(request, "Passwords do not match.")
-            return render(request, "layout/Register.html", {'genders':genders, 'username': username, 'email': email, 'role': role, 'full_name': full_name, 'birth_date': birth_date, 'address': address, 'contact_number': contact_number, 'gender_id': gender_id})
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists. Please choose a different one.")
-            return render(request, "layout/Register.html", {'genders':genders, 'username': username, 'email': email, 'role': role, 'full_name': full_name, 'birth_date': birth_date, 'address': address, 'contact_number': contact_number, 'gender_id': gender_id})
-
-        try:
-           
-            user = User.objects.create_user(username=username, password=password, email=email)
-
-            try:
-                profile = user.profile
-            except Profile.DoesNotExist:
-                profile = Profile.objects.create(user=user, role=role)
-            profile.role = role
-
-            gender_obj = None
-            if gender_id:
-                try:
-                    gender_obj = Genders.objects.get(pk=gender_id)
-                except Genders.DoesNotExist:
-                    messages.warning(request, "Selected gender not found during registration.")
-
-            profile.full_name = full_name
-            profile.birth_date = birth_date
-            profile.address = address
-            profile.contact_number = contact_number
-            profile.gender = gender_obj
-            profile.save()
-
-            if role == "student":
-                login(request, user)
-                messages.success(request, "Registration successful! You are now logged in.")
-                return redirect("student_dashboard")
-            elif role == "teacher":
-                login(request, user)
-                messages.success(request, "Registration successful! You are now logged in.")
-                return redirect("teacher_dashboard")
+            student = Student.objects.get(username=username)
+            if check_password(password, student.password):
+                # Set session data
+                request.session['student_id'] = student.student_id
+                request.session['student_username'] = student.username
+                request.session['is_student_authenticated'] = True
+                messages.success(request, f'Welcome {student}!')
+                return redirect('student_dashboard')  # Use your dashboard URL name
             else:
-                messages.success(request, "Registration successful! Please log in.")
-                return redirect("login")
-        except Exception as e:
-            messages.error(request, f"Registration failed: {e}")
-            return render(request, "layout/Register.html", {'genders':genders, 'username': username, 'email': email, 'role': role, 'full_name': full_name, 'birth_date': birth_date, 'address': address, 'contact_number': contact_number, 'gender_id': gender_id})
-    return render(request, "layout/Register.html", {'genders': genders})
+                messages.error(request, f'Invalid username or password.')
+        except Student.DoesNotExist:
+            messages.error(request, 'Username not found.')
 
+    return render(request, 'student/Login.html')
+
+def student_logout(request):
+    request.session.flush()  # Clear all session data
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('student_login')
+
+@student_login_required
+def student_dashboard(request):
+    try:
+        # Get search input
+        search_query = request.GET.get('search', '')
+
+        # Start with all gender data
+        assigned_tasks = AssignedTask.objects.all()
+
+        # Filter results if search is entered
+        if search_query:
+            assigned_tasks = assigned_tasks.filter(
+                Q(student__last_name__icontains=search_query) |
+                Q(student__first_name__icontains=search_query) |
+                Q(student__middle_name__icontains=search_query) |
+                Q(student__suffix__icontains=search_query) |
+                Q(task__title__icontains=search_query)
+            )
+              # assuming your model has a 'name' field
+
+        # Pagination: Show 6 items per page
+        paginator = Paginator(assigned_tasks, 8)
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+
+        data = {
+            'assigned_tasks': page_obj,
+            'page_obj': page_obj,
+            'search_query': search_query
+        }
+
+        return render(request, 'student/dashboard.html', data)
+
+    except Exception as e:
+        return HttpResponse(f'Error: {e}')
+
+    # return render(request, "student/dashboard.html")
+
+@student_login_required
 def student_course_material(request):
-    return render(request, "student/course_material.html")
+    try:
+        # Get search input
+        search_query = request.GET.get('search', '')
+        student_id = request.session.get('student_id')
+        # Start with all gender data
+        assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
 
+        # Filter results if search is entered
+        if search_query:
+            assigned_tasks = assigned_tasks.filter(
+                Q(teacher__last_name__icontains=search_query) |
+                Q(teacher__first_name__icontains=search_query) |
+                Q(teacher__middle_name__icontains=search_query) |
+                Q(teacher__suffix__icontains=search_query) |
+                Q(task_title__icontains=search_query) 
+            )
+              # assuming your model has a 'name' field
+
+        # Pagination: Show 6 items per page
+        paginator = Paginator(assigned_tasks, 8)
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+
+        data = {
+            'assigned_tasks': page_obj,
+            'page_obj': page_obj,
+            'search_query': search_query
+        }
+
+        return render(request, "student/course_material.html", data)
+
+    except Exception as e:
+        return HttpResponse(f'Error: {e}')
+
+@student_login_required
+def task_description(request, id):
+    try:
+        task = Task.objects.get(pk=id)
+        task = {'task':task}
+        return render(request,'student/task_description.html',  task)
+    except Exception as e:
+        return HttpResponse(f'Error: {e}')
+
+@student_login_required
 def student_assignments_exams(request):
-    return render(request, "student/assignments_exams.html")
+    student_id = request.session.get('student_id')
+    assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
 
+    if request.method == 'POST':
+        assigned_task_id = request.POST.get('assigned_task_id')
+        assignment_file = request.FILES.get('assignment_file')
+
+        if not assigned_task_id or not assignment_file:
+            messages.error(request, "Please select a subject and upload a file.")
+            return redirect('/student/assignments-exams/')  # Use your URL name
+
+        try:
+            assigned_task = AssignedTask.objects.get(id=assigned_task_id, student_id=student_id)
+            assigned_task.submission_file = assignment_file
+            assigned_task.status = 'submitted'
+            assigned_task.save()
+            messages.success(request, "Assignment submitted successfully!")
+        except AssignedTask.DoesNotExist:
+            messages.error(request, "Invalid assignment selection.")
+
+        return redirect('/student/assignments-exams/')  # Use your URL name
+
+    return render(request, 'student/assignments_exams.html', {
+        'assigned_tasks': assigned_tasks,
+    })
+
+# def student_assignments_exams(request):
+
+#     try:
+#         student_id = request.session.get('student_id')
+#         assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
+#         assigned_tasks = {
+#             'assigned_tasks':assigned_tasks
+#         }
+#         return render(request, "student/assignments_exams.html",assigned_tasks)
+#     except Exception as e:
+#             return HttpResponse(f'Error: {e}')
+    
+
+@student_login_required
 def student_classroom_discussion(request):
     return render(request, "student/classroom_discussion.html")
 
+
+@student_login_required
 def student_profile_settings(request):
-    return render(request, "student/profile_settings.html")
+    try:
+        student_id = request.session.get('student_id')
+        student = Student.objects.get(student_id=student_id)
+        student = {
+            'student':student
+        }
+        return render(request, "student/profile_settings.html",student)
+    except Exception as e:
+            return HttpResponse(f'Error: {e}')
 
-def teacher_lesson_plan_course_materials(request):
-    return render(request, "teacher/lesson_plan_course_materials.html")
+@student_login_required
+def edit_student(request, student_id):
+    try:
+        if request.method == 'POST':
+            # student_id = request.session.get('student_id')
+            # student = Student.objects.get(student_id=student_id)
 
-def teacher_assignments_grading(request):
+            studentObj = Student.objects.get(pk=student_id)
+
+            
+            username = request.POST.get('username')
+            first_name = request.POST.get('first_name')
+            middle_name = request.POST.get('middle_name')
+            last_name = request.POST.get('last_name')
+            suffix = request.POST.get('suffix')
+            gender = request.POST.get('gender')
+            birth_date = request.POST.get('birth_date')
+            contact_number = request.POST.get('contact_number')
+            email = request.POST.get('email')
+            
+            if Student.objects.filter(username=username).exclude(student_id=student_id).exists():
+                messages.error(request, 'Username already exists. Please choose a different username.')
+                return redirect(f'/student/edit_student/{student_id}')
+            
+            
+            studentObj.first_name = first_name
+            studentObj.middle_name = middle_name
+            studentObj.last_name = last_name
+            studentObj.suffix = suffix
+            studentObj.username = username
+            studentObj.gender = gender
+            studentObj.birth_date = birth_date
+            studentObj.contact_number = contact_number
+            studentObj.email = email
+            studentObj.save()
+
+            messages.success(request, 'Student updated successfully!')
+            return redirect('/student/profile-settings/')
+        else:
+            studentObj = Student.objects.get(pk=student_id)
+            
+            data = {
+                'student': studentObj,
+            }
+            
+            return render(request,'student/edit_student.html', data)
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/student/profile-settings')
+
+@student_login_required
+def check_password_strength(password):
+    strength = 0
+    feedback = []
+    if len(password) >= 8:
+        strength += 1
+    else:
+        feedback.append('At least 8 characters')
+    if re.search(r'[a-z]', password):
+        strength += 1
+    else:
+        feedback.append('Lowercase letter')
+    if re.search(r'[A-Z]', password):
+        strength += 1
+    else:
+        feedback.append('Uppercase letter')
+    if re.search(r'[0-9]', password):
+        strength += 1
+    else:
+        feedback.append('Number')
+    if re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        strength += 1
+    else:
+        feedback.append('Special character')
+    return strength, feedback
+
+
+@student_login_required
+def student_changepass(request,student_id):
+    # if request.method == 'POST':
+    #     new_password = request.POST.get('new_password')
+    #     confirm_password = request.POST.get('confirm_password')
+
+    #     if new_password != confirm_password:
+    #         messages.error(request, 'New password and confirm password do not match!')
+    #         return redirect('/student/student_changepass/')
+
+    #     strength, feedback = check_password_strength(new_password)
+    #     if strength < 3:
+    #         messages.error(request, 'Password is too weak. Please make sure it meets all requirements: ' + ', '.join(feedback))
+    #         return redirect('/student/student_changepass/')
+
+    #     # Save the new password here (hash it!)
+    #     # user.set_password(new_password)
+    #     # user.save()
+    #     messages.success(request, 'Password changed successfully!')
+    #     return redirect('/student/profile_settings/')
+
+    # return render(request, 'student/student_changepass.html')
+
+    try:
+        if request.method == 'POST':
+            student = Student.objects.get(pk=student_id)
+            current_password = request.POST.get('current_password')
+            password = request.POST.get('password')
+            confirmPassword = request.POST.get('confirm_password')
+
+            # First verify the current password
+            if not check_password(current_password, student.password):
+                messages.error(request, 'Current password is incorrect.')
+                return redirect(f'/student/student_changepass/{student_id}')
+
+            if not password or not confirmPassword:
+                messages.error(request, 'Please fill out both new password fields.')
+                return redirect(f'/student/student_changepass/{student_id}')
+
+            if password != confirmPassword:
+                messages.error(request, 'New password and confirm password do not match!')
+                return redirect(f'/student/student_changepass/{student_id}')
+
+            student.password = make_password(password)
+            student.save()
+            messages.success(request, 'Password changed successfully!')
+            return redirect('/student/profile-settings/')
+        else:
+            student = Student.objects.get(pk=student_id)
+            return render(request, 'student/student_changepass.html', {'student': student})
+    except Student.DoesNotExist:
+        messages.error(request, "User not found.")
+        return redirect('/student/profile-settings/')
+    except Exception as e:
+        messages.error(request, f"Error changing password: {e}")
+        return redirect('/student/profile-settings/')
+    
+
+ 
+
+
+
+
+
+def calculate_age(birth_date):
+    today = date.today()
+    return today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+
+
+
+
+
+
+
+
+
+# landing page
+def landing_page(request):
+    return render(request, 'layout/LandingPage.html')
+
+def teacher_registration(request):
+    try:
+        if request.method == 'POST':
+            first_name = request.POST.get('first_name')
+            middle_name = request.POST.get('middle_name')
+            last_name = request.POST.get('last_name')
+            suffix = request.POST.get('suffix')
+            gender = request.POST.get('gender')
+            birth_date = request.POST.get('birth_date')
+            address = request.POST.get('address')
+            contact_number = request.POST.get('contact_number')
+            email = request.POST.get('email')
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            confirmPassword = request.POST.get('confirm_password')
+
+            
+
+            
+            if password != confirmPassword:
+                messages.error(request, 'Password and Confirm Password do not match!')
+                data = {
+                    'genders': gender,
+                    'first_name': first_name,
+                    'middle_name': middle_name,
+                    'last_name': last_name,
+                    'suffix': suffix,
+                    'gender': gender,
+                    'birth_date': birth_date,
+                    'address': address,
+                    'contact_number': contact_number,
+                    'email': email,
+                    'username': username
+                }
+                return render(request, 'layout/teacher_registration.html', data)
+            
+            # Check if username already exists
+            if Teacher.objects.filter(username=username).exists():
+                messages.error(request, 'Username already exists. Please choose a different username.')
+                data = {
+                    'genders': gender,
+                    'first_name': first_name,
+                    'middle_name': middle_name,
+                    'last_name': last_name,
+                    'suffix': suffix,
+                    'gender': gender,
+                    'birth_date': birth_date,
+                    'address': address,
+                    'contact_number': contact_number,
+                    'email': email,
+                    'username': username
+                }
+                return render(request, 'layout/teacher_registration.html', data)
+            
+
+            birth_date_str = birth_date  # e.g., '2000-05-15'
+            birth_date_1 = datetime.strptime(birth_date_str, '%Y-%m-%d').date()
+            age = calculate_age(birth_date_1)
+
+            Teacher.objects.create(
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name,
+                    suffix=suffix,
+                    gender=gender,
+                    birth_date=birth_date,
+                    age=age,
+                    address=address,
+                    contact_number=contact_number,
+                    email=email,
+                    username=username,
+                    password=make_password(password)
+                    ).save
+
+
+            messages.success(request, 'Teacher added!')
+            teacher = Teacher.objects.get(username=username)
+            request.session['teacher_id'] = teacher.teacher_id
+            request.session['teacher_username'] = teacher.username
+            request.session['is_teacher_authenticated'] = True
+            messages.success(request, f'Welcome {teacher}!')
+            return redirect('teacher_dashboard') 
+        else:
+            return render(request,'layout/teacher_registration.html')
+    except Exception as e:
+        return HttpResponse(f'Error: {e}')
+
+
+
+
+
+
+
+
+
+
+
+
+def teacher_login_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.session.get('is_teacher_authenticated'):
+            return HttpResponseRedirect(reverse('teacher_login'))
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def teacher_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        try:
+            teacher = Teacher.objects.get(username=username)
+            if check_password(password, teacher.password):
+                # Set session data
+                request.session['teacher_id'] = teacher.teacher_id
+                request.session['teacher_username'] = teacher.username
+                request.session['is_teacher_authenticated'] = True
+                messages.success(request, f'Welcome {teacher}!')
+                return redirect('teacher_dashboard')  # Use your dashboard URL name
+            else:
+                messages.error(request, f'Invalid username or password.')
+        except Teacher.DoesNotExist:
+            messages.error(request, 'Username not found.')
+
+    return render(request, 'teacher/Login.html')
+
+def teacher_logout(request):
+    request.session.flush()  # Clear all session data
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('teacher_login')
+
+def teacher_changepass(request, teacher_id):
+    try:
+        if request.method == 'POST':
+            teacher = Teacher.objects.get(pk=teacher_id)
+            current_password = request.POST.get('current_password')
+            password = request.POST.get('password')
+            confirmPassword = request.POST.get('confirm_password')
+
+            # First verify the current password
+            if not check_password(current_password,teacher.password):
+                messages.error(request, 'Current password is incorrect.')
+                return redirect(f'/teacher/teacher_changepass/{teacher_id}')
+
+            if not password or not confirmPassword:
+                messages.error(request, 'Please fill out both new password fields.')
+                return redirect(f'/teacher/teacher_changepass/{teacher_id}')
+
+            if password != confirmPassword:
+                messages.error(request, 'New password and confirm password do not match!')
+                return redirect(f'/teacher/teacher_changepass/{teacher_id}')
+
+            teacher.password = make_password(password)
+            teacher.save()
+            messages.success(request, 'Password changed successfully!')
+            return redirect('/teacher/profile/')
+        else:
+            teacher = Teacher.objects.get(pk=teacher_id)
+            return render(request, 'teacher/teacher_changepass.html', {'teacher': teacher})
+    except Teacher.DoesNotExist:
+        messages.error(request, "User not found.")
+        return redirect('/teacher/profile/')
+    except Exception as e:
+        messages.error(request, f"Error changing password: {e}")
+        return redirect('/teacher/profile/')
+    
+
+
+
+
+
+def teacher_dashboard(request):
+    return render(request, "teacher/dashboard.html")
+
+def teacher_assignment(request):
+    return render(request, "teacher/assignment.html")
+
+def teacher_student(request):
+    try:
+        # Get search input
+        search_query = request.GET.get('search', '')
+        # Start with all gender data
+        students = Student.objects.all().order_by('last_name')
+
+        # Filter results if search is entered
+        if search_query:
+            students = students.filter(
+                Q(first_name__icontains=search_query) |
+                Q(last_name__icontains=search_query) |
+                Q(username__icontains=search_query) |
+                Q(gender__icontains=search_query) |
+                Q(email__icontains=search_query) 
+            )
+            
+              # assuming your model has a 'name' field
+
+        # Pagination: Show 6 items per page
+        paginator = Paginator(students, 8)
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+
+        data = {
+            'students': page_obj,
+            'page_obj': page_obj,
+            'search_query': search_query
+        }
+
+        return render(request, 'teacher/student_list.html', data)
+
+    except Exception as e:
+        return HttpResponse(f'Error: {e}') 
+    
+
+def teacher_task(request):
+    try:
+        # Get search input
+        search_query = request.GET.get('search', '')
+        teacher_id = request.session.get('teacher_id')
+        # Start with all gender data
+        tasks = Task.objects.filter(teacher_id=teacher_id)
+        
+        # Filter results if search is entered
+        if search_query:
+            tasks = tasks.filter(
+                Q(title__icontains=search_query)
+            )
+            
+              # assuming your model has a 'name' field
+
+        # Pagination: Show 6 items per page
+        paginator = Paginator(tasks, 8)
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+
+        data = {
+            'tasks': page_obj,
+            'page_obj': page_obj,
+            'search_query': search_query
+        }
+
+        return render(request, 'teacher/task_list.html', data)
+
+    except Exception as e:
+        return HttpResponse(f'Error: {e}') 
+    
+def add_task(request):
+    if request.method == 'POST':
+        teacher_id = request.session.get('teacher_id')
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        section = request.POST.get('section')
+        deadline_date = request.POST.get('deadline_date')
+        deadline_time = request.POST.get('deadline_time')
+
+        if deadline_date and deadline_time:
+            deadline_str = f"{deadline_date} {deadline_time}"  # '2025-06-15 14:30'
+        else:
+            deadline_str = None
+
+        deadline = None
+        if deadline_str:
+            deadline = datetime.strptime(deadline_str, '%Y-%m-%d %H:%M')
+
+        data = {
+            'teacher_id':teacher_id,
+            'title':title,
+            'description':description,
+            'section':section,
+            'deadline':deadline,
+        }
+
+
+        # Basic validation
+        if not (teacher_id and title and description and section):
+            messages.error(request, "All fields are required.")
+            return redirect('add_task', data)
+
+        try:
+            teacher = Teacher.objects.get(pk=teacher_id)
+            task = Task.objects.create(
+                teacher=teacher,
+                title=title,
+                section = Section.objects.get(pk=section),
+                description=description,
+                deadline=deadline if deadline else None
+
+            )
+            students = Student.objects.filter(section=section)
+            for student in students:
+                AssignedTask.objects.create(
+                    task = task,
+                    student = student,
+                    section = Section.objects.get(pk=section),
+                )
+
+            messages.success(request, "Task added successfully!")
+            return redirect('/teacher/task_list/')  # Change to your task list view name
+        except Teacher.DoesNotExist:
+            messages.error(request, "Teacher not found.")
+            return redirect('add_task')
+
+    return render(request, 'teacher/add_task.html')
+    #return render(request, 'teacher/add_task.html')
+
+def  edit_task(request):
+    return render(request,'teacher/edit_task.html')
+
+def assignment_grading(request):
     return render(request, "teacher/assignments_grading.html")
 
-def teacher_student_management(request):
-    return render(request, "teacher/student_management.html")
+def teacher_profile(request):
+    try:
+        teacher_id = request.session.get('teacher_id')
+        teacher = Teacher.objects.get(teacher_id=teacher_id)
+        teacher = {
+            'teacher':teacher
+        }
+        return render(request, "teacher/profile.html",teacher)
+    except Exception as e:
+            return HttpResponse(f'Error: {e}')
 
-def teacher_classroom_discussions(request):
-    return render(request, "teacher/classroom_discussions.html")
 
-def landing_page(request):
-    return render(request, 'layout/LandingPage.html') 
+def edit_teacher(request, teacher_id):
+    try:
+        if request.method == 'POST':
+            # teacher_id = request.session.get('teacher_id')
+            # student = Student.objects.get(student_id=student_id)
+
+            teacherObj = Teacher.objects.get(pk=teacher_id)
+
+            
+            username = request.POST.get('username')
+            first_name = request.POST.get('first_name')
+            middle_name = request.POST.get('middle_name')
+            last_name = request.POST.get('last_name')
+            suffix = request.POST.get('suffix')
+            gender = request.POST.get('gender')
+            birth_date = request.POST.get('birth_date')
+            contact_number = request.POST.get('contact_number')
+            email = request.POST.get('email')
+            
+            if Teacher.objects.filter(username=username).exclude(teacher_id=teacher_id).exists():
+                messages.error(request, 'Username already exists. Please choose a different username.')
+                return redirect(f'/teacher/edit_student/{teacher_id}')
+            
+            
+            teacherObj.first_name = first_name
+            teacherObj.middle_name = middle_name
+            teacherObj.last_name = last_name
+            teacherObj.suffix = suffix
+            teacherObj.username = username
+            teacherObj.gender = gender
+            teacherObj.birth_date = birth_date
+            teacherObj.contact_number = contact_number
+            teacherObj.email = email
+            teacherObj.save()
+
+            messages.success(request, 'Student updated successfully!')
+            return redirect('/teacher/profile/')
+        else:
+            teacherObj = Teacher.objects.get(pk=teacher_id)
+            
+            data = {
+                'teacher': teacherObj,
+            }
+            
+            return render(request,'teacher/edit_teacher.html', data)
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/teacher/profile')
+
+
+
+
+    
