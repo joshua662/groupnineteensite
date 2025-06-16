@@ -74,7 +74,11 @@ class Student(models.Model):
         db_table = 'tbl_student'
 
     def __str__(self):
-        return f"{self.last_name}, {self.first_name} {self.middle_name} {self.suffix}"
+        if self.middle_name:
+            middle_initial = f"{self.middle_name[0]}."
+        else:
+            middle_initial = ""
+        return f"{self.last_name}, {self.first_name} {middle_initial} {self.suffix}"
     
 
 class Task(models.Model):
@@ -96,6 +100,7 @@ class AssignedTask(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     assigned_at = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         max_length=20,
         choices=[('pending', 'Pending'), ('submitted', 'Submitted'), ('graded', 'Graded')],
@@ -104,6 +109,8 @@ class AssignedTask(models.Model):
     submission_file = models.FileField(upload_to='submissions/', null=True, blank=True) 
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, blank=True)
     rating = models.PositiveIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     
     class Meta:

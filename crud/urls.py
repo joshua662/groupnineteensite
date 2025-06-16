@@ -18,11 +18,14 @@ urlpatterns = [
     path("teacher/task_list/", views.teacher_task),
     path("teacher/add_task/", views.add_task, name="add_task"),
     path("teacher/edit_task/<int:id>/", views.edit_task, name="edit_task"),
-    path("teacher/assignment/", views.teacher_assignment ),
+    path("teacher/delete_task/<int:id>/", views.delete_task, name="delete_task"),
     path("teacher/profile/", views.teacher_profile),
     path("teacher/edit_teacher/<int:teacher_id>/", views.edit_teacher),
     path("teacher/teacher_changepass/<int:teacher_id>/", views.teacher_changepass),
     path("teacher/grading/", views.assignment_grading),
+    path("teacher/add_student/", views.add_student, name="add_student"),
+    path("teacher/delete_student/<int:id>/", views.delete_student1, name="delete_student"),
+    path("teacher/edit_student/<int:id>/", views.edit_student1, name="edit_student"),
     
    
     # Student URLs

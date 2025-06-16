@@ -14,6 +14,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 import re
 from datetime import date, datetime
+from django.utils import timezone
 
 def student_login_required(view_func):
     @wraps(view_func)
@@ -48,6 +49,7 @@ def student_logout(request):
     request.session.flush()  # Clear all session data
     messages.success(request, 'You have been logged out successfully.')
     return redirect('student_login')
+
 
 @student_login_required
 def student_dashboard(request):
@@ -149,16 +151,19 @@ def student_assignments_exams(request):
             assigned_task = AssignedTask.objects.get(id=assigned_task_id, student_id=student_id)
             assigned_task.submission_file = assignment_file
             assigned_task.status = 'submitted'
+            assigned_task.submitted_at = timezone.now()
             assigned_task.save()
+
             messages.success(request, "Assignment submitted successfully!")
         except AssignedTask.DoesNotExist:
             messages.error(request, "Invalid assignment selection.")
 
-        return redirect('/student/assignments-exams/')  # Use your URL name
-
+        assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
+        return redirect('/student/assignments-exams/' )  # Use your URL name
+    has_pending = any(task.status == 'pending' for task in assigned_tasks)
     return render(request, 'student/assignments_exams.html', {
-        'assigned_tasks': assigned_tasks,
-    })
+    'assigned_tasks': assigned_tasks,
+    'has_pending': has_pending,})
 
 # def student_assignments_exams(request):
 
@@ -209,6 +214,7 @@ def edit_student(request, student_id):
             birth_date = request.POST.get('birth_date')
             contact_number = request.POST.get('contact_number')
             email = request.POST.get('email')
+            address = request.POST.get('address')
             
             if Student.objects.filter(username=username).exclude(student_id=student_id).exists():
                 messages.error(request, 'Username already exists. Please choose a different username.')
@@ -224,6 +230,7 @@ def edit_student(request, student_id):
             studentObj.birth_date = birth_date
             studentObj.contact_number = contact_number
             studentObj.email = email
+            studentObj.address = address
             studentObj.save()
 
             messages.success(request, 'Student updated successfully!')
@@ -561,6 +568,170 @@ def teacher_student(request):
         return HttpResponse(f'Error: {e}') 
     
 
+def add_student(request):
+    try:
+        if request.method == 'POST':
+            first_name = request.POST.get('first_name')
+            middle_name = request.POST.get('middle_name')
+            last_name = request.POST.get('last_name')
+            suffix = request.POST.get('suffix')
+            gender = request.POST.get('gender')
+            birth_date = request.POST.get('birth_date')
+            address = request.POST.get('address')
+            contact_number = request.POST.get('contact_number')
+            email = request.POST.get('email')
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            confirmPassword = request.POST.get('confirm_password')
+            section = request.POST.get('section')
+
+            
+            if password != confirmPassword:
+                messages.error(request, 'Password and Confirm Password do not match!')
+                student = {
+                    'genders': gender,
+                    'first_name': first_name,
+                    'middle_name': middle_name,
+                    'last_name': last_name,
+                    'suffix': suffix,
+                    'gender': gender,
+                    'birth_date': birth_date,
+                    'address': address,
+                    'contact_number': contact_number,
+                    'email': email,
+                    'username': username,
+                    'section': Section.objects.all()
+                }
+                return render(request, 'teacher/add_student.html', {'student':student})
+            
+            # Check if username already exists
+            if Student.objects.filter(username=username).exists():
+                messages.error(request, 'Username already exists. Please choose a different username.')
+                student = {
+                    'genders': gender,
+                    'first_name': first_name,
+                    'middle_name': middle_name,
+                    'last_name': last_name,
+                    'suffix': suffix,
+                    'gender': gender,
+                    'birth_date': birth_date,
+                    'address': address,
+                    'contact_number': contact_number,
+                    'email': email,
+                    'username': username,
+                    'section': Section.objects.all()
+                }
+                return render(request, 'layout/teacher_registration.html', {'student':student})
+            
+
+            birth_date_str = birth_date  # e.g., '2000-05-15'
+            birth_date_1 = datetime.strptime(birth_date_str, '%Y-%m-%d').date()
+            age = calculate_age(birth_date_1)
+
+            Student.objects.create(
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name,
+                    suffix=suffix,
+                    gender=gender,
+                    birth_date=birth_date,
+                    age=age,
+                    address=address,
+                    contact_number=contact_number,
+                    email=email,
+                    username=username,
+                    password=make_password(password),
+                    section= Section.objects.get(pk=section)
+                    ).save
+
+
+            messages.success(request, 'Student added!')
+            return redirect('/teacher/student_list/') 
+        else:
+
+            sectionObj = Section.objects.all()
+
+            return render(request, 'teacher/add_student.html', {'sections':sectionObj})
+    except Exception as e:
+        return HttpResponse(f'Error: {e}')
+    
+
+def edit_student1(request,id):
+    try:
+        if request.method == 'POST':
+            # student_id = request.session.get('student_id')
+            # student = Student.objects.get(student_id=student_id)
+
+            studentObj = Student.objects.get(pk=id)
+
+            
+            username = request.POST.get('username')
+            first_name = request.POST.get('first_name')
+            middle_name = request.POST.get('middle_name')
+            last_name = request.POST.get('last_name')
+            suffix = request.POST.get('suffix')
+            gender = request.POST.get('gender')
+            birth_date = request.POST.get('birth_date')
+            contact_number = request.POST.get('contact_number')
+            email = request.POST.get('email')
+            address = request.POST.get('address')
+            section = request.POST.get('section')
+            
+            if Student.objects.filter(username=username).exclude(student_id=id).exists():
+                messages.error(request, 'Username already exists. Please choose a different username.')
+                return redirect(f'/student/edit_student/{id}')
+            
+            
+            studentObj.first_name = first_name
+            studentObj.middle_name = middle_name
+            studentObj.last_name = last_name
+            studentObj.suffix = suffix
+            studentObj.username = username
+            studentObj.gender = gender
+            studentObj.birth_date = birth_date
+            studentObj.contact_number = contact_number
+            studentObj.email = email
+            studentObj.address = address
+            studentObj.section=Section.objects.get(pk=section)
+            studentObj.save()
+
+            messages.success(request, 'Student updated successfully!')
+            return redirect('/teacher/student_list/')
+        else:
+            studentObj = Student.objects.get(pk=id)
+            sections = Section.objects.all()
+            data = {
+                'student': studentObj,
+                'sections': sections,
+            }
+            
+            return render(request, 'teacher/edit_student.html', data)
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/teacher/student_list/')
+    
+    
+def delete_student1(request, id):
+    try:
+        if request.method == 'GET':
+            student = Student.objects.get(pk=id)
+            data = {
+                'student': student,
+            }
+            return render(request, 'teacher/delete_student.html', data)
+        else:
+            student = Student.objects.get(pk=id)
+            student.delete()
+            messages.success(request, f"{student} has been deleted.")
+            return redirect('/teacher/student_list')
+    except Task.DoesNotExist:
+        messages.error(request, "Student not found.")
+        return redirect('/teacher/student_list')
+    except Exception as e:
+        messages.error(request, f"Error deleting Student: {e}")
+        return redirect('/teacher/student_list')
+    
+    
 def teacher_task(request):
     try:
         # Get search input
@@ -652,11 +823,86 @@ def add_task(request):
     return render(request, 'teacher/add_task.html')
     #return render(request, 'teacher/add_task.html')
 
-def  edit_task(request):
-    return render(request,'teacher/edit_task.html')
+def  edit_task(request, id):
+    try:
+        if request.method == 'POST':
+            
+
+            task = Task.objects.get(pk=id)
+
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            deadline = request.POST.get('deadline')
+            
+            
+            
+            task.title = title
+            task.description = description
+            task.deadline = deadline
+            task.save()
+
+            messages.success(request, 'Task updated successfully!')
+            return redirect('/teacher/task_list/')
+        else:
+            teacherObj = Task.objects.get(pk=id)
+            
+            data = {
+                'task': teacherObj,
+            }
+            
+            return render(request,'teacher/edit_task.html', data)
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/teacher/task_list')
+    
+def delete_task(request, id):
+    try:
+        if request.method == 'GET':
+            task = Task.objects.get(pk=id)
+            data = {
+                'task': task,
+            }
+            return render(request, 'teacher/delete_task.html', data)
+        else:
+            task = Task.objects.get(pk=id)
+            task.delete()
+            messages.success(request, f"{task.title} has been deleted.")
+            return redirect('/teacher/task_list')
+    except Task.DoesNotExist:
+        messages.error(request, "Task not found.")
+        return redirect('/teacher/task_list')
+    except Exception as e:
+        messages.error(request, f"Error deleting Task: {e}")
+        return redirect('/teacher/task_list')
+    
 
 def assignment_grading(request):
-    return render(request, "teacher/assignments_grading.html")
+    teacher_id = request.session.get('teacher_id')
+    if not teacher_id:
+        # Redirect to login or show error if not logged in
+        return redirect('teacher_login')
+
+    # Get all tasks for the current teacher
+    tasks = Task.objects.filter(teacher_id=teacher_id)
+
+    # Get all assigned tasks for these tasks
+    assigned_tasks = AssignedTask.objects.filter(task__in=tasks).select_related('student', 'student__section', 'task')
+
+    # Prepare data for the template
+    data = []
+    for assigned in assigned_tasks:
+        data.append({
+            'task_title': assigned.task.title,
+            'student_name': f"{assigned.student}",
+            'student_section': assigned.student.section.name if assigned.student.section else '',
+            'status': assigned.status,
+            'rating': assigned.rating,
+            'assigned_date': assigned.assigned_at,
+            'submission_file': assigned.submission_file.url if assigned.submission_file else '',
+            'actions': assigned.id,  # You can use this for edit/delete links in your template
+        })
+
+    return render(request, "teacher/assignments_grading.html", {'assigned_tasks': data})
 
 def teacher_profile(request):
     try:
