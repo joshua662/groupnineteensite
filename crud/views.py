@@ -138,7 +138,27 @@ def task_description(request, id):
 @student_login_required
 def student_assignments_exams(request):
     student_id = request.session.get('student_id')
-    assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
+    assigned_tasks = AssignedTask.objects.filter(student_id=student_id).select_related('task')
+
+    # Add submission status for each assigned task
+    for assigned_task in assigned_tasks:
+        if assigned_task.status == 'submitted' and assigned_task.task.deadline and assigned_task.submitted_at:
+            if assigned_task.submitted_at <= assigned_task.task.deadline:
+                assigned_task.submission_status = 'On Time'
+            else:
+                assigned_task.submission_status = 'Late'
+        elif assigned_task.status == 'pending':
+            assigned_task.submission_status = 'Pending'
+        elif assigned_task.status == 'graded':
+            if assigned_task.task.deadline and assigned_task.submitted_at:
+                if assigned_task.submitted_at <= assigned_task.task.deadline:
+                    assigned_task.submission_status = 'Graded (On Time)'
+                else:
+                    assigned_task.submission_status = 'Graded (Late)'
+            else:
+                assigned_task.submission_status = 'Graded'
+        else:
+            assigned_task.submission_status = assigned_task.status # Fallback for other statuses
 
     if request.method == 'POST':
         assigned_task_id = request.POST.get('assigned_task_id')
@@ -531,28 +551,63 @@ def teacher_changepass(request, teacher_id):
 def teacher_dashboard(request):
     try:
         teacher_id = request.session.get('teacher_id')
+        selected_section = request.GET.get('section')
         
         # Get all tasks for the current teacher
         tasks = Task.objects.filter(teacher_id=teacher_id)
         
         # Get all assigned tasks for these tasks
-        assigned_tasks = AssignedTask.objects.filter(task__in=tasks)
+        assigned_tasks = AssignedTask.objects.filter(task__in=tasks).select_related('student', 'task')
         
-        # Calculate statistics
+        # Add submission status for each assigned task
+        for assigned_task in assigned_tasks:
+            if assigned_task.status == 'submitted' and assigned_task.task.deadline and assigned_task.submitted_at:
+                if assigned_task.submitted_at <= assigned_task.task.deadline:
+                    assigned_task.submission_status = 'On Time'
+                else:
+                    assigned_task.submission_status = 'Late'
+            elif assigned_task.status == 'pending':
+                assigned_task.submission_status = 'Pending'
+            elif assigned_task.status == 'graded':
+                if assigned_task.task.deadline and assigned_task.submitted_at:
+                    if assigned_task.submitted_at <= assigned_task.task.deadline:
+                        assigned_task.submission_status = 'Graded (On Time)'
+                    else:
+                        assigned_task.submission_status = 'Graded (Late)'
+                else:
+                    assigned_task.submission_status = 'Graded'
+            else:
+                assigned_task.submission_status = assigned_task.status # Fallback for other statuses
+
+        # Filter by section if selected
+        if selected_section:
+            # Map section values to section names
+            section_map = {
+                "1": "A",
+                "2": "B",
+                "3": "C",
+                "4": "D"
+            }
+            section_name = section_map.get(selected_section)
+            if section_name:
+                assigned_tasks = assigned_tasks.filter(section__name=section_name)
+        
+        # Calculate statistics for submitted tasks
         on_time_passed = assigned_tasks.filter(
-            status='completed',
+            status='submitted',
             submitted_at__lte=F('task__deadline')
         ).count()
         
         late_passed = assigned_tasks.filter(
-            status='completed',
+            status='submitted',
             submitted_at__gt=F('task__deadline')
         ).count()
         
         context = {
             'assigned_tasks': assigned_tasks,
             'on_time_passed': on_time_passed,
-            'late_passed': late_passed
+            'late_passed': late_passed,
+            'selected_section': selected_section
         }
         
         return render(request, "teacher/dashboard.html", context)
@@ -998,4 +1053,32 @@ def edit_teacher(request, teacher_id):
 
 
 
+def grade_task(request, id):
     
+    try:
+        if request.method == 'POST':
+            assigned_task = AssignedTask.objects.get(pk=id)
+            rating = request.POST.get('rating')
+            feedback = request.POST.get('feedback')
+
+
+
+            
+            assigned_task.status = "graded"
+            assigned_task.rating = rating
+            assigned_task.feedback = feedback
+            assigned_task.save()
+            
+            messages.success(request, 'User updated successfully!')
+            return redirect('/teacher/grading/')
+        else:
+            assigned_task = AssignedTask.objects.get(pk=id)
+
+            data = {
+                'assigned_task':assigned_task
+            }
+            
+            return render(request, 'teacher/rating.html', data)
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/teacher/grading/')

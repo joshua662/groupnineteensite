@@ -1,0 +1,218 @@
+{% extends "layout/base.html" %}
+{% block 'title' %}Task Information & Rating{% endblock 'title' %}
+{% block 'content' %}
+<div class="flex min-h-screen bg-gray-100">
+    {% include "include/teacher_sidebar.html" %}
+    <main class="flex-1 p-6">
+        <!-- Task Header -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Task Information</h1>
+                    <p class="text-gray-600 mt-1">Review and rate student submissions</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-gray-600">Task ID: <span class="font-medium">{{ assigned_task.task.id }}</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Information -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            
+            <!-- Task Details -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                    Student Details
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Student Name</span>
+                        <span class="font-medium">{{ assigned_task.student.first_name }} {{ assigned_task.student.last_name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Section</span>
+                        <span class="font-medium">{{ assigned_task.section.name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Status</span>
+                        <span class="font-medium">
+                            <span class="px-2 py-1 rounded-full text-xs 
+                                {% if assigned_task.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif assigned_task.status == 'submitted' %}bg-blue-100 text-blue-800
+                                {% elif assigned_task.status == 'graded' %}bg-green-100 text-green-800
+                                {% endif %}">
+                                {{ assigned_task.get_status_display }}
+                            </span>
+                        </span>
+                    </div>
+                    
+
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Current Rating</span>
+                        <span class="font-medium">
+                            {% if assigned_task.rating %}
+                                <span class="text-yellow-600">{{ assigned_task.rating }}/5 ⭐</span>
+                            {% else %}
+                                <span class="text-gray-400">Not rated</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Assigned Date</span>
+                        <span class="font-medium">{{ assigned_task.assigned_at|date:"M d, Y - H:i" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Submission Date</span>
+                        <span class="font-medium">
+                            {% if assigned_task.submitted_at %}
+                                {{ assigned_task.submitted_at|date:"M d, Y - H:i" }}
+                            {% else %}
+                                <span class="text-gray-400">Not submitted</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Submitted File</span>
+                        <span class="font-medium">
+                            <a href="{{ assigned_task.submission_file.url }}" 
+                       class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                       target="_blank">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Download Submission
+                    </a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Description -->
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                    Task Title
+                </h2>
+                <div class="prose prose-sm max-w-none">
+                    <h2><b>{{ assigned_task.task.title }}</b></h2>
+                </div>
+
+
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b mt-2" >
+                    Task Description
+                </h2>
+                <div class="prose prose-sm max-w-none">
+                    <p class="text-gray-700 leading-relaxed">
+                        {{ assigned_task.task.description|linebreaks }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating and Feedback -->
+        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                Rating & Feedback
+            </h2>
+            
+            <form method="post" action="">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div>
+                        <label for="rating" class="block text-sm font-medium text-gray-700 mb-2">
+                            Rating (1-5 Stars)
+                        </label>
+                        <select id="rating" name="rating" 
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                            <option value="">Select Rating</option>
+                            <option value="1" {% if assigned_task.rating == 1 %}selected{% endif %}>1 - Poor</option>
+                            <option value="2" {% if assigned_task.rating == 2 %}selected{% endif %}>2 - Fair</option>
+                            <option value="3" {% if assigned_task.rating == 3 %}selected{% endif %}>3 - Good</option>
+                            <option value="4" {% if assigned_task.rating == 4 %}selected{% endif %}>4 - Very Good</option>
+                            <option value="5" {% if assigned_task.rating == 5 %}selected{% endif %}>5 - Excellent</option>
+                        </select>
+                        
+                        <!-- Rating Visual Display -->
+                        <div class="mt-2 flex items-center space-x-1" id="rating-display">
+                            {% for i in "12345" %}
+                                <svg class="w-5 h-5 rating-star {% if assigned_task.rating >= forloop.counter %}text-yellow-400{% else %}text-gray-300{% endif %}" 
+                                     fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Feedback Section -->
+                    <div>
+                        <label for="feedback" class="block text-sm font-medium text-gray-700 mb-2">
+                            Feedback (Optional)
+                        </label>
+                        <textarea id="feedback" name="feedback" rows="4" 
+                                  class="mt-1 block w-full sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500  border p-2"
+                                  placeholder="Provide feedback for the student...">{{ assigned_task.feedback|default:"" }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-6 flex flex-col sm:flex-row gap-4">
+                    <button type="submit" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Save Rating & Feedback
+                    </button>
+                    <a href="/teacher/grading/" 
+                       class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded font-medium text-center transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+    </main>
+</div>
+
+<script>
+// Update visual rating display when dropdown changes
+document.getElementById('rating').addEventListener('change', function() {
+    const rating = parseInt(this.value) || 0;
+    const stars = document.querySelectorAll('.rating-star');
+    
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.remove('text-gray-300');
+            star.classList.add('text-yellow-400');
+        } else {
+            star.classList.remove('text-yellow-400');
+            star.classList.add('text-gray-300');
+        }
+    });
+});
+
+// Mark task as graded
+function markAsGraded(taskId) {
+    if (confirm('Are you sure you want to mark this task as graded?')) {
+        fetch(/teacher/mark_graded/${taskId}/, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error marking task as graded');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error marking task as graded');
+        });
+    }
+}
+</script>
+
+{% endblock 'content' %}

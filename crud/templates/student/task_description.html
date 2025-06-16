@@ -10,7 +10,7 @@
 
         <h3 class="mb-2 text-1xl font-bold tracking-tight text-gray-900"class="mb-2 text-2xl font-bold tracking-tight text-gray-900" >By {{ task.teacher.last_name }},{{ task.teacher.first_name }} {{ task.teacher.middle_name }} {{ task.teacher.suffix }}</h3>
 
-        <h2 class="mb-2 text-1xl font-bold tracking-tight text-gray-900">Deadline: {{ task.deadline }}</h2>
+        <h2 class="mb-2 text-1xl font-bold tracking-tight text-gray-900">Deadline: {{ task.deadline|date:"M d, Y h:i A" }}</h2>
 
 
     

@@ -118,12 +118,10 @@
                             <select id="section" name="section" 
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                                 <option value="">Select Section</option>
-                                {% for section in sections %}
-                                    <option value="{{ section.id }}" 
-                                            {% if student.section.id == section.id %}selected{% endif %}>
-                                        {{ section.name }}
-                                    </option>
-                                {% endfor %}
+                                <option value="1" {% if student.section.name == "A" %}selected{% endif %}>Section A</option>
+                                <option value="2" {% if student.section.name == "B" %}selected{% endif %}>Section B</option>
+                                <option value="3" {% if student.section.name == "C" %}selected{% endif %}>Section C</option>
+                                <option value="4" {% if student.section.name == "D" %}selected{% endif %}>Section D</option>
                             </select>
                         </div>
                     </div>

@@ -10,6 +10,7 @@ urlpatterns = [
     path("teacher_login/", views.teacher_login, name="teacher_login"),
     path("teacher_logout/", views.teacher_logout, name="teacher_logout"),
     path("teacher_registration/", views.teacher_registration),
+    path("teacher/grade_task/<int:id>/", views.grade_task),
 
 
     # Teacher URLs

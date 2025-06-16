@@ -6,13 +6,19 @@
     {% include "include/teacher_sidebar.html" %}
      <div class="flex-1 p-8">
 
-        <div class="mb-4">
-            <form action="/student/dashboard/" class="flex gap-2" method="GET">
-            <input type="text" name="search" value="{{ search_query }}" placeholder="Search" class="bg-white px-3 py-2 border border-gray-300 text-black text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600">
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-sm text-sm">Search</button>  
-            {% if search_query %}
-                <a href="/student/dashboard/" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-sm text-sm">Clear</a>
-            {% endif %}     
+        <div class="mb-4 flex gap-4">
+            <form action="/teacher/dashboard/" class="flex gap-2 flex-1" method="GET">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search" class="bg-white px-3 py-2 border border-gray-300 text-black text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-sm text-sm">Search</button>  
+                {% if search_query %}
+                    <a href="/teacher/dashboard/" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-sm text-sm">Clear</a>
+                {% endif %}     
+            </form>
+
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-sm text-sm">Filter</button>
+                {% if selected_section %}
+                    <a href="/teacher/dashboard/" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-sm text-sm">Clear</a>
+                {% endif %}
             </form>
         </div>
 
@@ -46,13 +52,26 @@
                         {% for assigned_task in assigned_tasks %}
                             <tr>
                             <td class="py-2 px-4">{{ assigned_task.task.title }}</td>
-                            {% comment %} <td class="py-2 px-4">{{ assigned_task.teacher.last_name }}, {{ assigned_task.teacher.first_name }} {{ assigned_task.teacher.middle_name }} {{ assigned_task.teacher.suffix }}</td> {% endcomment %}
                             <td class="py-2 px-4 flex items-center gap-1">
                                 {{ assigned_task.student.last_name }}, {{ assigned_task.student.first_name }} {{ assigned_task.student.middle_name }} {{ assigned_task.student.suffix }}
                             </td>
-                            <td class="py-2 px-4">{{ assigned_task.assigned_at|date:"M d, Y" }}</td>
-                            <td class="py-2 px-4">{{ assigned_task.task.deadline|date:"M d, Y" }}</td>
-                            <td class="py-2 px-4"><span class="text-green-600 font-semibold">Done</span></td>
+                            <td class="py-2 px-4">{{ assigned_task.assigned_at|date:"M d, Y h:i A" }}</td>
+                            <td class="py-2 px-4">{{ assigned_task.task.deadline|date:"M d, Y h:i A" }}</td>
+                            <td class="py-2 px-4">
+                                    {% if assigned_task.submission_status == 'On Time' %}
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">On Time</span>
+                                    {% elif assigned_task.submission_status == 'Late' %}
+                                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">Late</span>
+                                    {% elif assigned_task.submission_status == 'Pending' %}
+                                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>
+                                    {% elif assigned_task.submission_status == 'Graded (On Time)' %}
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Graded (On Time)</span>
+                                    {% elif assigned_task.submission_status == 'Graded (Late)' %}
+                                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">Graded (Late)</span>
+                                    {% else %}
+                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">{{ assigned_task.submission_status }}</span>
+                                {% endif %}
+                            </td>
                             
 
                         </tr>
@@ -117,42 +136,71 @@ document.addEventListener('DOMContentLoaded', function() {
     const onTimePassed = {{ on_time_passed|default:0 }};
     const latePassed = {{ late_passed|default:0 }};
     
+    const totalSubmissions = onTimePassed + latePassed;
+    let onTimePercentage = 0;
+    let latePercentage = 0;
+
+    if (totalSubmissions > 0) {
+        onTimePercentage = (onTimePassed / totalSubmissions * 100).toFixed(2);
+        latePercentage = (latePassed / totalSubmissions * 100).toFixed(2);
+    }
+    
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['On Time', 'Late'],
+            labels: ['On Time Submissions', 'Late Submissions'],
             datasets: [{
-                label: 'Completed Tasks',
-                data: [onTimePassed, latePassed],
+                label: 'Percentage of Submissions',
+                data: [onTimePercentage, latePercentage],
                 backgroundColor: [
                     'rgba(34, 197, 94, 0.8)',  // Green for on time
-                    'rgba(234, 179, 8, 0.8)',  // Yellow for late
+                    'rgba(239, 68, 68, 0.8)',  // Red for late
                 ],
                 borderColor: [
                     'rgb(34, 197, 94)',
-                    'rgb(234, 179, 8)',
+                    'rgb(239, 68, 68)',
                 ],
                 borderWidth: 1
             }]
         },
         options: {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: {
+                x: {
                     beginAtZero: true,
+                    max: 100,
                     ticks: {
-                        stepSize: 1
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Percentage of Submissions'
                     }
+                },
+                y: {
                 }
             },
             plugins: {
                 legend: {
                     display: false
                 },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.dataset.label || '';
+                            const value = context.raw;
+                            const count = (context.label === 'On Time Submissions') ? onTimePassed : latePassed;
+                            return `${label}: ${value}% (${count} students)`;
+                        }
+                    }
+                },
                 title: {
                     display: true,
-                    text: 'Task Completion Status'
+                    text: 'Task Submission Status'
                 }
             }
         }
