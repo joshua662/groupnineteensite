@@ -13,9 +13,10 @@ from functools import wraps
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from django.utils import timezone
 from django.db.models import F
+import calendar
 
 def student_login_required(view_func):
     @wraps(view_func)
@@ -57,9 +58,83 @@ def student_dashboard(request):
     try:
         # Get search input
         search_query = request.GET.get('search', '')
+        
+        # Calendar functionality
+        import calendar
+        from datetime import datetime, timedelta
+        
+        # Get the current month or use the month from the request
+        month_str = request.GET.get('month')
+        if month_str:
+            current_month = datetime.strptime(month_str, '%Y-%m')
+        else:
+            current_month = datetime.now()
+            
+        # Calculate previous and next months
+        prev_month = current_month - timedelta(days=1)
+        next_month = current_month + timedelta(days=32)
+        
+        # Get the calendar for the current month
+        cal = calendar.monthcalendar(current_month.year, current_month.month)
+        
+        # Get all tasks with deadlines for the current month
+        student_id = request.session.get('student_id')
+        tasks_with_deadlines = AssignedTask.objects.filter(
+            student_id=student_id,
+            task__deadline__year=current_month.year,
+            task__deadline__month=current_month.month
+        ).select_related('task')
+        
+        # Create a dictionary of days with deadlines
+        deadline_days = {}
+        now = datetime.now()
+        for task in tasks_with_deadlines:
+            day = task.task.deadline.day
+            if day not in deadline_days:
+                deadline_days[day] = []
+            
+            # Determine deadline status
+            deadline = task.task.deadline
+            if deadline < now:
+                status = 'overdue'
+            elif (deadline - now).days <= 3:  # Within 3 days
+                status = 'urgent'
+            else:
+                status = 'upcoming'
+                
+            deadline_days[day].append({
+                'title': task.task.title,
+                'deadline': task.task.deadline,
+                'status': status
+            })
+        
+        # Flatten the calendar and add deadline information
+        calendar_days = []
+        for week in cal:
+            for day in week:
+                if day == 0:
+                    calendar_days.append(0)
+                else:
+                    tasks = deadline_days.get(day, [])
+                    # Determine the most urgent status for the day
+                    status = 'normal'
+                    if tasks:
+                        if any(task['status'] == 'overdue' for task in tasks):
+                            status = 'overdue'
+                        elif any(task['status'] == 'urgent' for task in tasks):
+                            status = 'urgent'
+                        else:
+                            status = 'upcoming'
+                            
+                    calendar_days.append({
+                        'day': day,
+                        'has_deadline': day in deadline_days,
+                        'tasks': tasks,
+                        'status': status
+                    })
 
-        # Start with all gender data
-        assigned_tasks = AssignedTask.objects.all()
+        # Start with all assigned tasks
+        assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
 
         # Filter results if search is entered
         if search_query:
@@ -70,7 +145,6 @@ def student_dashboard(request):
                 Q(student__suffix__icontains=search_query) |
                 Q(task__title__icontains=search_query)
             )
-              # assuming your model has a 'name' field
 
         # Pagination: Show 6 items per page
         paginator = Paginator(assigned_tasks, 8)
@@ -80,7 +154,12 @@ def student_dashboard(request):
         data = {
             'assigned_tasks': page_obj,
             'page_obj': page_obj,
-            'search_query': search_query
+            'search_query': search_query,
+            'calendar': calendar_days,
+            'current_month': current_month,
+            'prev_month': prev_month,
+            'next_month': next_month,
+            'today': datetime.now()
         }
 
         return render(request, 'student/dashboard.html', data)
@@ -603,11 +682,15 @@ def teacher_dashboard(request):
             submitted_at__gt=F('task__deadline')
         ).count()
         
+        # Force total students to 50 for the chart
+        total_students = 30
+
         context = {
             'assigned_tasks': assigned_tasks,
             'on_time_passed': on_time_passed,
             'late_passed': late_passed,
-            'selected_section': selected_section
+            'selected_section': selected_section,
+            'total_students': total_students
         }
         
         return render(request, "teacher/dashboard.html", context)
@@ -619,12 +702,9 @@ def teacher_assignment(request):
 
 def teacher_student(request):
     try:
-        # Get search input
         search_query = request.GET.get('search', '')
-        # Start with all gender data
         students = Student.objects.all().order_by('last_name')
 
-        # Filter results if search is entered
         if search_query:
             students = students.filter(
                 Q(first_name__icontains=search_query) |
@@ -634,9 +714,7 @@ def teacher_student(request):
                 Q(email__icontains=search_query) 
             )
             
-              # assuming your model has a 'name' field
 
-        # Pagination: Show 6 items per page
         paginator = Paginator(students, 8)
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
@@ -689,7 +767,6 @@ def add_student(request):
                 }
                 return render(request, 'teacher/add_student.html', {'student':student})
             
-            # Check if username already exists
             if Student.objects.filter(username=username).exists():
                 messages.error(request, 'Username already exists. Please choose a different username.')
                 student = {
@@ -744,9 +821,7 @@ def add_student(request):
 def edit_student1(request,id):
     try:
         if request.method == 'POST':
-            # student_id = request.session.get('student_id')
-            # student = Student.objects.get(student_id=student_id)
-
+         
             studentObj = Student.objects.get(pk=id)
 
             
@@ -819,13 +894,10 @@ def delete_student1(request, id):
     
 def teacher_task(request):
     try:
-        # Get search input
         search_query = request.GET.get('search', '')
         teacher_id = request.session.get('teacher_id')
-        # Start with all gender data
         tasks = Task.objects.filter(teacher_id=teacher_id)
         
-        # Filter results if search is entered
         if search_query:
             tasks = tasks.filter(
                 Q(title__icontains=search_query)

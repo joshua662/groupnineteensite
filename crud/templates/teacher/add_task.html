@@ -90,16 +90,35 @@
                     <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
                         Schedule & Deadline
                     </h2>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Quick Set Deadline</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="quick-deadline-btn bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200" data-days="1">Tomorrow</button>
+                            <button type="button" class="quick-deadline-btn bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200" data-days="3">3 Days</button>
+                            <button type="button" class="quick-deadline-btn bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200" data-days="7">1 Week</button>
+                            <button type="button" class="quick-deadline-btn bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200" data-days="14">2 Weeks</button>
+                            <button type="button" class="quick-deadline-btn bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200" data-days="30">1 Month</button>
+                        </div>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="deadline_date" class="block text-sm font-medium text-gray-700 mb-1">Deadline Date</label>
-                            <input type="date" id="deadline_date" name="deadline_date" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <div class="relative">
+                                <input type="date" id="deadline_date" name="deadline_date" 
+                                       min="{% now 'Y-m-d' %}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                       required>
+                                <button type="button" id="calendar_toggle" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Select a future date</p>
                         </div>
-                        <div>
+                       <div>
                             <label for="deadline_time" class="block text-sm font-medium text-gray-700 mb-1">Deadline Time</label>
-                            <input type="time" id="deadline_time" name="deadline_time" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <input type="time" name="deadline_time" id="deadline_time" class="bg-white px-3 py-2 border border-gray-300 text-black text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600">
                         </div>
                     </div>
                     <div class="mt-4">
@@ -111,8 +130,18 @@
                         </div>
                         <p class="text-xs text-gray-500 mt-1">Check this if the task doesn't have a specific deadline</p>
                     </div>
+                    <div id="deadline_preview" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
+                        <h3 class="text-sm font-medium text-gray-900 mb-2">Calendar Preview</h3>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-800 flex items-center justify-center text-sm" id="preview_day"></div>
+                            <div class="text-sm text-gray-600">
+                                <span id="preview_date"></span>
+                                <span id="preview_time"></span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">This is how the deadline will appear in the student calendar</p>
+                    </div>
                 </div>
-
 
                 <!-- Preview Section -->
                 <div class="bg-gray-50 rounded-lg shadow-sm border p-6">
@@ -154,20 +183,65 @@
     </div>
 
     <script>
-        // Live preview functionality
         document.addEventListener('DOMContentLoaded', function() {
             const titleInput = document.getElementById('title');
             const descriptionInput = document.getElementById('description');
             const deadlineDateInput = document.getElementById('deadline_date');
             const deadlineTimeInput = document.getElementById('deadline_time');
             const noDeadlineCheckbox = document.getElementById('no_deadline');
-            const sectionRadios = document.querySelectorAll('input[name="section"]');
-            const assignAllSectionsCheckbox = document.getElementById('assign_all_sections');
-            
+            const deadlinePreview = document.getElementById('deadline_preview');
+            const previewDay = document.getElementById('preview_day');
+            const previewDate = document.getElementById('preview_date');
+            const previewTime = document.getElementById('preview_time');
             const previewTitle = document.getElementById('preview-title');
             const previewDescription = document.getElementById('preview-description');
             const previewDeadline = document.getElementById('preview-deadline');
-            const previewSection = document.getElementById('preview-section');
+            
+            function formatDeadlineForDashboard(deadline) {
+                const now = new Date();
+                const daysUntilDeadline = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                
+                // Format date for dashboard display
+                const formattedDate = deadline.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                // Format time for dashboard display
+                const formattedTime = deadline.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Determine status for dashboard
+                let status = 'pending';
+                let statusClass = 'text-yellow-600';
+                let badgeText = '';
+                let badgeClass = '';
+                
+                if (deadline < now) {
+                    status = 'overdue';
+                    statusClass = 'text-red-600';
+                    badgeText = 'Overdue';
+                    badgeClass = 'bg-red-100 text-red-800';
+                } else if (daysUntilDeadline <= 3) {
+                    status = 'urgent';
+                    statusClass = 'text-orange-600';
+                    badgeText = 'Urgent';
+                    badgeClass = 'bg-orange-100 text-orange-800';
+                }
+                
+                return {
+                    formattedDate,
+                    formattedTime,
+                    status,
+                    statusClass,
+                    badgeText,
+                    badgeClass,
+                    daysUntilDeadline
+                };
+            }
             
             function updatePreview() {
                 // Update title
@@ -179,35 +253,96 @@
                 // Update deadline
                 if (noDeadlineCheckbox.checked) {
                     previewDeadline.textContent = 'No deadline set';
+                    deadlinePreview.classList.add('hidden');
                 } else {
                     const date = deadlineDateInput.value;
                     const time = deadlineTimeInput.value;
                     if (date && time) {
                         const deadline = new Date(date + 'T' + time);
-                        previewDeadline.textContent = 'Due: ' + deadline.toLocaleDateString() + ' at ' + deadline.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    } else if (date) {
-                        previewDeadline.textContent = 'Due: ' + new Date(date).toLocaleDateString();
+                        const dashboardFormat = formatDeadlineForDashboard(deadline);
+                        
+                        // Update preview with dashboard-style formatting
+                        previewDeadline.textContent = `Due: ${dashboardFormat.formattedDate} at ${dashboardFormat.formattedTime}`;
+                        
+                        // Update calendar preview
+                        deadlinePreview.classList.remove('hidden');
+                        previewDay.textContent = deadline.getDate();
+                        previewDate.textContent = deadline.toLocaleDateString('en-US', { 
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                        previewTime.textContent = ' at ' + dashboardFormat.formattedTime;
+                        
+                        // Set calendar preview color based on dashboard status
+                        if (dashboardFormat.status === 'overdue') {
+                            previewDay.className = 'w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center text-sm';
+                        } else if (dashboardFormat.status === 'urgent') {
+                            previewDay.className = 'w-8 h-8 rounded-full bg-orange-400 text-white flex items-center justify-center text-sm';
+                        } else {
+                            previewDay.className = 'w-8 h-8 rounded-full bg-yellow-100 text-yellow-800 flex items-center justify-center text-sm';
+                        }
                     } else {
                         previewDeadline.textContent = 'No deadline set';
-                    }
-                }
-                
-                // Update section
-                if (assignAllSectionsCheckbox.checked) {
-                    previewSection.textContent = 'All Sections (A, B, C)';
-                } else {
-                    const selectedSection = document.querySelector('input[name="section"]:checked');
-                    if (selectedSection) {
-                        previewSection.textContent = 'Section ' + selectedSection.value;
+                        deadlinePreview.classList.add('hidden');
                     }
                 }
             }
             
+            // Quick deadline buttons
+            const quickDeadlineBtns = document.querySelectorAll('.quick-deadline-btn');
+            quickDeadlineBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const days = parseInt(this.dataset.days);
+                    const deadline = new Date();
+                    deadline.setDate(deadline.getDate() + days);
+                    
+                    // Set date
+                    const dateStr = deadline.toISOString().split('T')[0];
+                    deadlineDateInput.value = dateStr;
+                    
+                    // Update preview
+                    updatePreview();
+                    
+                    // Highlight selected button
+                    quickDeadlineBtns.forEach(b => b.classList.remove('bg-purple-600', 'text-white'));
+                    this.classList.add('bg-purple-600', 'text-white');
+                });
+            });
+
+            // Calendar toggle
+            const calendarToggle = document.getElementById('calendar_toggle');
+            calendarToggle.addEventListener('click', function() {
+                deadlineDateInput.showPicker();
+            });
+
+            // Time toggle
+            const timeToggle = document.getElementById('time_toggle');
+            timeToggle.addEventListener('click', function() {
+                deadlineTimeInput.showPicker();
+            });
+
+            // Reset quick deadline selection when manually changing date/time
+            deadlineDateInput.addEventListener('change', function() {
+                quickDeadlineBtns.forEach(btn => {
+                    btn.classList.remove('bg-purple-600', 'text-white');
+                    btn.classList.add('bg-purple-100', 'text-purple-700');
+                });
+                updatePreview();
+            });
+
+            deadlineTimeInput.addEventListener('change', function() {
+                quickDeadlineBtns.forEach(btn => {
+                    btn.classList.remove('bg-purple-600', 'text-white');
+                    btn.classList.add('bg-purple-100', 'text-purple-700');
+                });
+                updatePreview();
+            });
+            
             // Add event listeners
             titleInput.addEventListener('input', updatePreview);
             descriptionInput.addEventListener('input', updatePreview);
-            deadlineDateInput.addEventListener('change', updatePreview);
-            deadlineTimeInput.addEventListener('change', updatePreview);
             noDeadlineCheckbox.addEventListener('change', function() {
                 const deadlineInputs = document.querySelectorAll('#deadline_date, #deadline_time');
                 deadlineInputs.forEach(input => {
@@ -217,26 +352,9 @@
                 updatePreview();
             });
             
-            // Section assignment functionality
-            sectionRadios.forEach(radio => {
-                radio.addEventListener('change', updatePreview);
-            });
-            
-            assignAllSectionsCheckbox.addEventListener('change', function() {
-                sectionRadios.forEach(radio => {
-                    radio.disabled = this.checked;
-                });
-                updatePreview();
-            });
-            
             // Initial preview update
             updatePreview();
         });
-        
-        function saveDraft() {
-            // Add draft functionality here
-            alert('Draft saved! (Implement backend logic)');
-        }
     </script>
 
 
