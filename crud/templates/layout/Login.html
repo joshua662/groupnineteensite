@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.7s;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0);}
+            50% { transform: translateY(-12px);}
+        }
+        .animate-bounce {
+            animation: bounce 0.6s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen" style="background: linear-gradient(135deg, #000000 0%, #2563eb 100%);">
+
+    <div class="fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-sm" id="loadingOverlay">
+        <div class="flex flex-col items-center gap-4 bg-white/60 backdrop-blur-md px-8 py-6 rounded shadow-lg">
+            <div class="flex flex-row items-center gap-6">
+                <span class="text-lg font-semibold text-gray-800">Loading</span>
+                <div class="flex flex-row gap-2 ml-2">
+                    <div class="w-4 h-4 rounded-full bg-gradient-to-br from-black to-blue-700 animate-bounce" style="animation-delay:0s"></div>
+                    <div class="w-4 h-4 rounded-full bg-gradient-to-br from-black to-blue-700 animate-bounce" style="animation-delay:.15s"></div>
+                    <div class="w-4 h-4 rounded-full bg-gradient-to-br from-black to-blue-700 animate-bounce" style="animation-delay:.3s"></div>
+                    <div class="w-4 h-4 rounded-full bg-gradient-to-br from-black to-blue-700 animate-bounce" style="animation-delay:.45s"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-4xl rounded shadow flex backdrop-blur-xs fade-in" style="backdrop-filter: blur(32px); background-color: transparent;">
+        
+        <div class="w-1/2 flex items-center justify-center p-12">
+            <img src="{% static 'images/IconTab.png' %}" alt="Website Logo" class="max-h-72 mx-auto">
+        </div>
+        
+        <div class="w-1/2 p-12 flex flex-col justify-center" style="background-color: transparent; backdrop-filter: blur(1000px);">
+            <h2 class="text-2xl font-bold text-center mb-8 text-white">Login</h2> {# Added text-white for better visibility on dark background #}
+            
+            {% if messages %}
+                <ul class="mb-4">
+                    {% for message in messages %}
+                        <li class="p-2 {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %} rounded">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}" id="loginForm">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <div class="relative">
+                        <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" placeholder="Enter Email" 
+                            class="w-full px-4 py-3 rounded-lg bg-gray-100 border-none focus:ring-2 focus:ring-blue-400 placeholder-gray-500 text-sm"
+                            value="{{ form.username.value|default:'' }}" required>
+                        <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <i class="fa-regular fa-user"></i> 
+                        </span>
+                    </div>
+                    {% if form.username.errors %}
+                        <p class="text-red-300 text-xs italic mt-1">{{ form.username.errors }}</p> {# Changed text color for better visibility #}
+                    {% endif %}
+                </div>
+                <div class="mb-2">
+                    <div class="relative">
+                        <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" placeholder="Password"
+                            class="w-full px-4 py-3 rounded-lg bg-gray-100 border-none focus:ring-2 focus:ring-blue-400 placeholder-gray-500 text-sm"
+                            required>
+                        <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer" id="togglePassword">
+                            <i class="fa-regular fa-eye-slash" id="passwordIcon"></i>
+                        </span>
+                    </div>
+                    {% if form.password.errors %}
+                        <p class="text-red-300 text-xs italic mt-1">{{ form.password.errors }}</p> {# Changed text color for better visibility #}
+                    {% endif %}
+                </div>
+                <div class="flex justify-end mb-6">
+                    <a href="#" class="text-gray-300 text-xs hover:underline">Recover Password ?</a>
+                </div>
+                <button type="submit" class="w-full bg-white hover:bg-gray-200 text-black font-medium py-3 rounded mb-6 transition duration-300 ease-in-out">Log In</button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <span class="text-white text-sm">Don't have an account? </span>
+                <a href="{% url 'register' %}" class="text-white font-bold underline hover:text-gray-200 transition duration-300 ease-in-out">Register here!</a> 
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('{{ form.password.id_for_label }}'); 
+        const passwordIcon = document.getElementById('passwordIcon');
+
+        togglePassword.addEventListener('click', function (e) {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            if (type === 'password') {
+                passwordIcon.classList.remove('fa-eye');
+                passwordIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordIcon.classList.remove('fa-eye-slash');
+                passwordIcon.classList.add('fa-eye');
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            document.getElementById('loadingOverlay').classList.remove('hidden'); // Show loading overlay
+        });
+    </script>
+</body>
+</html>

@@ -15,6 +15,7 @@ from django.urls import reverse
 import re
 from datetime import date, datetime
 from django.utils import timezone
+from django.db.models import F
 
 def student_login_required(view_func):
     @wraps(view_func)
@@ -526,8 +527,37 @@ def teacher_changepass(request, teacher_id):
 
 
 
+@teacher_login_required
 def teacher_dashboard(request):
-    return render(request, "teacher/dashboard.html")
+    try:
+        teacher_id = request.session.get('teacher_id')
+        
+        # Get all tasks for the current teacher
+        tasks = Task.objects.filter(teacher_id=teacher_id)
+        
+        # Get all assigned tasks for these tasks
+        assigned_tasks = AssignedTask.objects.filter(task__in=tasks)
+        
+        # Calculate statistics
+        on_time_passed = assigned_tasks.filter(
+            status='completed',
+            submitted_at__lte=F('task__deadline')
+        ).count()
+        
+        late_passed = assigned_tasks.filter(
+            status='completed',
+            submitted_at__gt=F('task__deadline')
+        ).count()
+        
+        context = {
+            'assigned_tasks': assigned_tasks,
+            'on_time_passed': on_time_passed,
+            'late_passed': late_passed
+        }
+        
+        return render(request, "teacher/dashboard.html", context)
+    except Exception as e:
+        return HttpResponse(f'Error: {e}')
 
 def teacher_assignment(request):
     return render(request, "teacher/assignment.html")
