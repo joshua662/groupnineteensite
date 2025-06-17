@@ -46,7 +46,7 @@ def login_view(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        # Try student login first
+
         try:
             student = Student.objects.get(username=username)
             if check_password(password, student.password):
@@ -56,7 +56,7 @@ def login_view(request):
                 messages.success(request, f'Welcome {student}!')
                 return redirect('student_dashboard')
             else:
-                # If password doesn't match, try teacher login
+                
                 try:
                     teacher = Teacher.objects.get(username=username)
                     if check_password(password, teacher.password):
@@ -70,7 +70,7 @@ def login_view(request):
                 except Teacher.DoesNotExist:
                     messages.error(request, 'Invalid username or password.')
         except Student.DoesNotExist:
-            # If student not found, try teacher login
+            
             try:
                 teacher = Teacher.objects.get(username=username)
                 if check_password(password, teacher.password):
@@ -99,28 +99,27 @@ def teacher_logout(request):
 @student_login_required
 def student_dashboard(request):
     try:
-        # Get search input
+        
         search_query = request.GET.get('search', '')
         
-        # Calendar functionality
+        
         import calendar
         from datetime import datetime, timedelta
         
-        # Get the current month or use the month from the request
+        
         month_str = request.GET.get('month')
         if month_str:
             current_month = datetime.strptime(month_str, '%Y-%m')
         else:
             current_month = datetime.now()
             
-        # Calculate previous and next months
+        
         prev_month = current_month - timedelta(days=1)
         next_month = current_month + timedelta(days=32)
         
-        # Get the calendar for the current month
+    
         cal = calendar.monthcalendar(current_month.year, current_month.month)
         
-        # Get all tasks with deadlines for the current month
         student_id = request.session.get('student_id')
         tasks_with_deadlines = AssignedTask.objects.filter(
             student_id=student_id,
@@ -128,7 +127,7 @@ def student_dashboard(request):
             task__deadline__month=current_month.month
         ).select_related('task')
         
-        # Create a dictionary of days with deadlines
+        
         deadline_days = {}
         now = datetime.now()
         for task in tasks_with_deadlines:
@@ -136,11 +135,11 @@ def student_dashboard(request):
             if day not in deadline_days:
                 deadline_days[day] = []
             
-            # Determine deadline status
+            
             deadline = task.task.deadline
             if deadline < now:
                 status = 'overdue'
-            elif (deadline - now).days <= 3:  # Within 3 days
+            elif (deadline - now).days <= 3:  
                 status = 'urgent'
             else:
                 status = 'upcoming'
@@ -151,7 +150,6 @@ def student_dashboard(request):
                 'status': status
             })
         
-        # Flatten the calendar and add deadline information
         calendar_days = []
         for week in cal:
             for day in week:
@@ -159,7 +157,7 @@ def student_dashboard(request):
                     calendar_days.append(0)
                 else:
                     tasks = deadline_days.get(day, [])
-                    # Determine the most urgent status for the day
+                    
                     status = 'normal'
                     if tasks:
                         if any(task['status'] == 'overdue' for task in tasks):
@@ -176,10 +174,9 @@ def student_dashboard(request):
                         'status': status
                     })
 
-        # Start with all assigned tasks
+
         assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
 
-        # Filter results if search is entered
         if search_query:
             assigned_tasks = assigned_tasks.filter(
                 Q(student__last_name__icontains=search_query) |
@@ -189,7 +186,6 @@ def student_dashboard(request):
                 Q(task__title__icontains=search_query)
             )
 
-        # Pagination: Show 6 items per page
         paginator = Paginator(assigned_tasks, 8)
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
@@ -210,18 +206,17 @@ def student_dashboard(request):
     except Exception as e:
         return HttpResponse(f'Error: {e}')
 
-    # return render(request, "student/dashboard.html")
 
 @student_login_required
 def student_course_material(request):
     try:
-        # Get search input
+
         search_query = request.GET.get('search', '')
         student_id = request.session.get('student_id')
         # Start with all gender data
         assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
 
-        # Filter results if search is entered
+        
         if search_query:
             assigned_tasks = assigned_tasks.filter(
                 Q(teacher__last_name__icontains=search_query) |
@@ -230,9 +225,8 @@ def student_course_material(request):
                 Q(teacher__suffix__icontains=search_query) |
                 Q(task_title__icontains=search_query) 
             )
-              # assuming your model has a 'name' field
 
-        # Pagination: Show 6 items per page
+        
         paginator = Paginator(assigned_tasks, 8)
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
@@ -262,7 +256,7 @@ def student_assignments_exams(request):
     student_id = request.session.get('student_id')
     assigned_tasks = AssignedTask.objects.filter(student_id=student_id).select_related('task')
 
-    # Add submission status for each assigned task
+    
     for assigned_task in assigned_tasks:
         if assigned_task.status == 'submitted' and assigned_task.task.deadline and assigned_task.submitted_at:
             if assigned_task.submitted_at <= assigned_task.task.deadline:
@@ -288,7 +282,7 @@ def student_assignments_exams(request):
 
         if not assigned_task_id or not assignment_file:
             messages.error(request, "Please select a subject and upload a file.")
-            return redirect('/student/assignments-exams/')  # Use your URL name
+            return redirect('/student/assignments-exams/')  
 
         try:
             assigned_task = AssignedTask.objects.get(id=assigned_task_id, student_id=student_id)
@@ -302,24 +296,12 @@ def student_assignments_exams(request):
             messages.error(request, "Invalid assignment selection.")
 
         assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
-        return redirect('/student/assignments-exams/' )  # Use your URL name
+        return redirect('/student/assignments-exams/' ) 
     has_pending = any(task.status == 'pending' for task in assigned_tasks)
     return render(request, 'student/assignments_exams.html', {
     'assigned_tasks': assigned_tasks,
     'has_pending': has_pending,})
 
-# def student_assignments_exams(request):
-
-#     try:
-#         student_id = request.session.get('student_id')
-#         assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
-#         assigned_tasks = {
-#             'assigned_tasks':assigned_tasks
-#         }
-#         return render(request, "student/assignments_exams.html",assigned_tasks)
-#     except Exception as e:
-#             return HttpResponse(f'Error: {e}')
-    
 
 @student_login_required
 def student_classroom_discussion(request):
@@ -342,9 +324,7 @@ def student_profile_settings(request):
 def edit_student(request, student_id):
     try:
         if request.method == 'POST':
-            # student_id = request.session.get('student_id')
-            # student = Student.objects.get(student_id=student_id)
-
+        
             studentObj = Student.objects.get(pk=student_id)
 
             
@@ -562,7 +542,7 @@ def teacher_login(request):
                 request.session['teacher_username'] = teacher.username
                 request.session['is_teacher_authenticated'] = True
                 messages.success(request, f'Welcome {teacher}!')
-                return redirect('teacher_dashboard')  # Use your dashboard URL name
+                return redirect('teacher_dashboard')  
             else:
                 messages.error(request, f'Invalid username or password.')
         except Teacher.DoesNotExist:
@@ -622,6 +602,7 @@ def teacher_dashboard(request):
                 Q(task__title__icontains=search_query)
             )
         
+        # Calculate statistics
         on_time_passed = assigned_tasks.filter(
             status='submitted',
             submitted_at__lte=F('task__deadline')
@@ -632,12 +613,20 @@ def teacher_dashboard(request):
             submitted_at__gt=F('task__deadline')
         ).count()
         
-        
         pending_tasks = assigned_tasks.filter(status='pending').count()
         
+        # Calculate graded submissions
+        graded_on_time = assigned_tasks.filter(
+            status='graded',
+            submitted_at__lte=F('task__deadline')
+        ).count()
+        
+        graded_late = assigned_tasks.filter(
+            status='graded',
+            submitted_at__gt=F('task__deadline')
+        ).count()
+        
         total_tasks = assigned_tasks.count()
-        
-        
         total_students = 30
 
         context = {
@@ -645,6 +634,8 @@ def teacher_dashboard(request):
             'on_time_passed': on_time_passed,
             'late_passed': late_passed,
             'pending_tasks': pending_tasks,
+            'graded_on_time': graded_on_time,
+            'graded_late': graded_late,
             'total_tasks': total_tasks,
             'selected_section': selected_section,
             'search_query': search_query,
@@ -872,10 +863,6 @@ def teacher_task(request):
             tasks = tasks.filter(
                 Q(title__icontains=search_query)
             )
-            
-            
-
-        
         paginator = Paginator(tasks, 8)
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
@@ -961,7 +948,7 @@ def add_task(request):
         send_email_notification = request.POST.get('send_email_notification') == 'on'
 
         if deadline_date and deadline_time:
-            deadline_str = f"{deadline_date} {deadline_time}"  # '2025-06-15 14:30'
+            deadline_str = f"{deadline_date} {deadline_time}"  
         else:
             deadline_str = None
 
@@ -1089,16 +1076,20 @@ def delete_task(request, id):
 def assignment_grading(request):
     teacher_id = request.session.get('teacher_id')
     if not teacher_id:
-    
         return redirect('login')
 
-    
+    search_query = request.GET.get('search', '').strip()
     tasks = Task.objects.filter(teacher_id=teacher_id)
-
-
     assigned_tasks = AssignedTask.objects.filter(task__in=tasks).select_related('student', 'student__section', 'task')
 
-    
+    if search_query:
+        assigned_tasks = assigned_tasks.filter(
+            Q(task__title__icontains=search_query) |
+            Q(student__first_name__icontains=search_query) |
+            Q(student__last_name__icontains=search_query) |
+            Q(student__section__name__icontains=search_query)
+        )
+
     data = []
     for assigned in assigned_tasks:
         data.append({
@@ -1112,7 +1103,7 @@ def assignment_grading(request):
             'submission_file': assigned.submission_file.url if assigned.submission_file else '',
         })
 
-    return render(request, "teacher/assignments_grading.html", {'assigned_tasks': data})
+    return render(request, "teacher/assignments_grading.html", {'assigned_tasks': data, 'search_query': search_query})
 
 def teacher_profile(request):
     try:
@@ -1300,7 +1291,7 @@ def edit_grade(request, id):
                 messages.error(request, 'Rating is required!')
                 return redirect(f'/teacher/edit_grade/{id}/')
 
-            # Check if the teacher owns this task
+            
             teacher_id = request.session.get('teacher_id')
             if assigned_task.task.teacher_id != teacher_id:
                 messages.error(request, 'You do not have permission to edit this grade.')
@@ -1315,7 +1306,7 @@ def edit_grade(request, id):
         else:
             assigned_task = AssignedTask.objects.get(pk=id)
             
-            # Check if the teacher owns this task
+            
             teacher_id = request.session.get('teacher_id')
             if assigned_task.task.teacher_id != teacher_id:
                 messages.error(request, 'You do not have permission to edit this grade.')
@@ -1341,7 +1332,7 @@ def teacher_changepass(request, teacher_id):
             new_password = request.POST.get('new_password')
             confirm_password = request.POST.get('confirm_password')
 
-            # First verify the current password
+            
             if not check_password(current_password, teacher.password):
                 messages.error(request, 'Current password is incorrect.')
                 return redirect(f'/teacher/teacher_changepass/{teacher_id}')
@@ -1354,13 +1345,11 @@ def teacher_changepass(request, teacher_id):
                 messages.error(request, 'New password and confirm password do not match!')
                 return redirect(f'/teacher/teacher_changepass/{teacher_id}')
 
-            # Check password strength
             strength, feedback = check_password_strength(new_password)
             if strength < 3:
                 messages.error(request, 'Password is too weak. Please make sure it meets all requirements: ' + ', '.join(feedback))
                 return redirect(f'/teacher/teacher_changepass/{teacher_id}')
 
-            # Update the password
             teacher.password = make_password(new_password)
             teacher.save()
             messages.success(request, 'Password changed successfully!')
@@ -1431,36 +1420,28 @@ def download_student_submission(request, assigned_task_id):
         student_id = request.session.get('student_id')
         assigned_task = AssignedTask.objects.select_related('task', 'student').get(pk=assigned_task_id)
         
-        # Check if the student owns this submission
         if assigned_task.student.student_id != student_id:
             messages.error(request, 'You do not have permission to download this file.')
             return redirect('/student/assignments-exams/')
         
-        # Check if file exists
         if not assigned_task.submission_file:
             messages.error(request, 'No file found for this submission.')
             return redirect('/student/assignments-exams/')
         
-        # Get file path and name
         file_path = assigned_task.submission_file.path
-        file_name = assigned_task.submission_file.name.split('/')[-1]  # Get just the filename
+        file_name = assigned_task.submission_file.name.split('/')[-1]  
         
-        # Check if file exists on disk
         if not os.path.exists(file_path):
             messages.error(request, 'File not found on server.')
             return redirect('/student/assignments-exams/')
         
-        # Open and read the file
         with open(file_path, 'rb') as file:
             file_content = file.read()
         
-        # Create response with proper headers for all browsers
         response = HttpResponse(file_content, content_type='application/octet-stream')
-        
-        # Set filename for download (works across all browsers)
+
         response['Content-Disposition'] = f'attachment; filename="{file_name}"'
         
-        # Additional headers for better compatibility
         response['Content-Length'] = len(file_content)
         response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response['Pragma'] = 'no-cache'
@@ -1506,25 +1487,25 @@ def register_view(request):
                     first_name=first_name,
                     last_name=last_name,
                     email=email,
-                    birth_date=request.POST.get('birth_date')  # Ensure birth_date is provided
+                    birth_date=request.POST.get('birth_date')  
                 )
                 messages.success(request, 'Student registration successful! Please login.')
                 return redirect('login')
 
             elif role == 'teacher':
-                # Check if username already exists
+                
                 if Teacher.objects.filter(username=username).exists():
                     messages.error(request, 'Username already exists.')
                     return redirect('register')
 
-                # Create new teacher
+                
                 teacher = Teacher.objects.create(
                     username=username,
                     password=make_password(password),
                     first_name=first_name,
                     last_name=last_name,
                     email=email,
-                    birth_date=request.POST.get('birth_date')  # Ensure birth_date is provided
+                    birth_date=request.POST.get('birth_date')  
                 )
                 messages.success(request, 'Teacher registration successful! Please login.')
                 return redirect('login')

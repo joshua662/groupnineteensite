@@ -36,7 +36,6 @@ class Teacher(models.Model):
     address = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(unique=True)
     contact_number = models.CharField(max_length=20, null=True, blank=True)
-    subject = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

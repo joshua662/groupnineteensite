@@ -1,9 +1,10 @@
 {% extends "layout/base.html" %}
 {% load static %}
 
-{% block 'title' %} Classroom Management System {% endblock 'title' %}
+{% block 'title' %} EduTask Manager {% endblock 'title' %}
 
 {% block 'content' %}
+<!-- Loading Overlay -->
 <div class="fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-sm hidden" id="loadingOverlay">
     <div class="flex flex-col items-center gap-4 bg-white/60 backdrop-blur-md px-8 py-6 rounded shadow-lg">
         <div class="flex flex-row items-center gap-6">
@@ -18,23 +19,121 @@
     </div>
 </div>
 
-<div class="flex flex-col md:flex-row items-center justify-between min-h-screen px-8 py-12" style="background: linear-gradient(135deg, #000000 0%, #2563eb 100%);">
-    <div class="md:w-1/2 w-full mb-12 md:mb-0 md:pl-12">
-        <h2 class="text-2xl md:text-3xl font-normal text-gray-200 mb-4">
-            Welcome to Classroom Management System
-        </h2>
-        <h1 class="text-5xl md:text-6xl font-bold text-blue-400 mb-6 leading-tight">
-            Begin your<br>journey with us,
-        </h1>
-        <p class="text-lg md:text-xl text-gray-200 mb-10">
-            where academic excellence and innovation lead the way. Apply now to become part of a community that's committed to shaping a brighter future.
-        </p>
-        <a href="{% url 'login' %}" id="getStartedBtn" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-lg text-lg shadow transition">
-            Get Started
-        </a>
+<!-- Hero Section with Headline -->
+<div class="min-h-screen bg-gradient-to-br from-[#0F0C29] via-[#302b63] to-[#1E5E98]">
+    <!-- Navigation -->
+    <nav class="container mx-auto px-6 py-4">
+        <div class="flex justify-between items-center">
+            <div class="text-2xl font-bold text-white">Classroom Task Management System</div>
+            <div class="space-x-6">
+                <a href="{% url 'login' %}" class="text-white hover:text-blue-300">Login</a>
+                <a href="{% url 'login' %}" id="getStartedBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 1. Headline Section -->
+    <div class="container mx-auto px-8 py-20">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+            <div class="md:w-1/2 w-full mb-12 md:mb-0">
+                <h2 class="text-2xl md:text-3xl font-normal text-gray-200 mb-4">
+                    Welcome to Classroom Task Management System
+                </h2>
+                <h1 class="text-5xl md:text-6xl font-bold text-blue-400 mb-6 leading-tight">
+                    Transform Your<br>Learning Journey
+                </h1>
+                <p class="text-lg md:text-xl text-gray-200 mb-10">
+                    Where academic excellence meets innovative task management. Join our community of educators and learners shaping the future of education.
+                </p>
+                <a href="{% url 'login' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-lg text-lg shadow transition">
+                    Start Your Journey
+                </a>
+            </div>
+            <div class="md:w-1/2 w-full flex justify-center">
+                <img src="{% static 'images/IconTab.png' %}" alt="EduTask Manager Logo" class="max-w-xl w-full h-auto">
+            </div>
+        </div>
     </div>
-    <div class="md:w-1/2 w-full flex justify-center">
-        <img src="{% static 'images/IconTab.png' %}" alt="ISATU Emblem" class="max-w-xl w-full h-auto">
+
+    <!-- 2. Visual Focus & 3. Benefits -->
+    <div class="container mx-auto px-8 py-20">
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-white/10 backdrop-blur-sm p-8 rounded-lg">
+                <h3 class="text-xl font-semibold text-white mb-4">Efficient Task Management</h3>
+                <p class="text-gray-300">Streamline assignment creation, submission, and grading all in one place.</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm p-8 rounded-lg">
+                <h3 class="text-xl font-semibold text-white mb-4">Real-time Progress Tracking</h3>
+                <p class="text-gray-300">Monitor student progress and performance with intuitive analytics.</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm p-8 rounded-lg">
+                <h3 class="text-xl font-semibold text-white mb-4">Seamless Communication</h3>
+                <p class="text-gray-300">Foster better teacher-student interaction with integrated messaging.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Social Proof -->
+    <div class="container mx-auto px-8 py-20">
+        <h2 class="text-3xl font-bold text-white text-center mb-12">What Our Users Say</h2>
+        <div class="grid md:grid-cols-2 gap-8">
+            <blockquote class="bg-white/10 backdrop-blur-sm p-8 rounded-lg">
+                <p class="text-gray-200 italic mb-4">"EduTask Manager has revolutionized how I manage my classroom assignments. It's intuitive and saves me hours every week."</p>
+                <footer class="text-blue-400 font-semibold">- Sarah Johnson, High School Teacher</footer>
+            </blockquote>
+            <blockquote class="bg-white/10 backdrop-blur-sm p-8 rounded-lg">
+                <p class="text-gray-200 italic mb-4">"As a student, I love how organized everything is. No more missing assignments or confusion about due dates!"</p>
+                <footer class="text-blue-400 font-semibold">- Michael Chen, Student</footer>
+            </blockquote>
+        </div>
+    </div>
+
+    <!-- 5. Storytelling -->
+    <div class="container mx-auto px-8 py-20">
+        <div class="bg-white/10 backdrop-blur-sm p-8 rounded-lg">
+            <h2 class="text-3xl font-bold text-white mb-6">Our Journey</h2>
+            <p class="text-gray-300 mb-4">Born from the challenges faced in modern education, EduTask Manager was created to bridge the gap between teachers and students. We understand the importance of efficient task management in education and have built a platform that makes it seamless.</p>
+            <p class="text-gray-300">Our mission is to empower educators and students with tools that enhance the learning experience.</p>
+        </div>
+    </div>
+
+    <!-- 6. Guarantee -->
+    <div class="container mx-auto px-8 py-20">
+        <h2 class="text-3xl font-bold text-white text-center mb-12">Our Promise to You</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-white/10 backdrop-blur-sm p-8 rounded-lg text-center">
+                <svg class="w-12 h-12 text-blue-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-white mb-2">Secure Platform</h3>
+                <p class="text-gray-300">Your data is protected with enterprise-grade security</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm p-8 rounded-lg text-center">
+                <svg class="w-12 h-12 text-blue-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-white mb-2">24/7 Support</h3>
+                <p class="text-gray-300">Round-the-clock technical assistance when you need it</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm p-8 rounded-lg text-center">
+                <svg class="w-12 h-12 text-blue-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-white mb-2">Satisfaction Guaranteed</h3>
+                <p class="text-gray-300">30-day money-back guarantee, no questions asked</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Call to Action -->
+    <div class="container mx-auto px-8 py-20">
+        <div class="bg-white/10 backdrop-blur-sm p-12 rounded-lg text-center">
+            <h2 class="text-4xl font-bold text-white mb-6">Ready to Transform Your Educational Experience?</h2>
+            <p class="text-xl text-gray-300 mb-8">Join thousands of educators and students already using EduTask Manager</p>
+            <a href="{% url 'login' %}" id="finalCTA" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-lg text-lg shadow transition">
+                Get Started Now
+            </a>
+        </div>
     </div>
 </div>
 
@@ -59,6 +158,17 @@
 
 <script>
 document.getElementById('getStartedBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    loadingOverlay.classList.remove('hidden');
+    
+    // Redirect after 3 seconds
+    setTimeout(() => {
+        window.location.href = this.href;
+    }, 3000);
+});
+
+document.getElementById('finalCTA').addEventListener('click', function(e) {
     e.preventDefault();
     const loadingOverlay = document.getElementById('loadingOverlay');
     loadingOverlay.classList.remove('hidden');

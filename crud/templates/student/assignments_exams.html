@@ -6,51 +6,56 @@
     <main class="flex-1 p-8">
         <h1 class="text-2xl font-bold mb-4">Assignments & Exams</h1>
         <p class="text-gray-600 mb-6">Submit work and track deadlines.</p>
-        <!-- Upcoming Assignments/Exams -->
-        <div class="mb-8">
-            <h2 class="text-lg font-semibold mb-3">Upcoming Deadlines</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for assigned_task in assigned_tasks %}
-                    {% if assigned_task.status == 'pending' %}
-                    <div class="bg-white rounded-xl shadow p-4">
-                        <div class="font-medium text-blue-700 mb-1">{{ assigned_task.task.title }}</div>
-                        <div class="text-xs text-gray-500 mb-2">
-                            Due:
-                            {% if assigned_task.task.deadline %}
-                                {{ assigned_task.task.deadline|date:"M d, Y h:i A" }}
-                            {% else %}
-                                <span class="text-gray-500 text-center">No deadline</span>
-                            {% endif %}
-                        </div>
-                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">{{ assigned_task.status }}</span>
-                    </div>
-                    {% endif %}
-                {% endfor %}
-                {% if not has_pending %}
-                    <div class="text-gray-500 text-center">No upcoming deadline</div>
-                {% endif %}
-
-            </div>
-        </div>
-        <!-- Assignment Submission Form -->
-        <div class="mb-8">
-            <h2 class="text-lg font-semibold mb-3">Submit Assignment</h2>
-            <form method="post" action="" enctype="multipart/form-data" class="bg-white rounded-xl shadow p-6 flex flex-col gap-4 max-w-xl">
-                {% csrf_token %}
-                <label class="font-medium">Assignment Title</label>
-                <select name="assigned_task_id" class="border rounded px-2 py-1" required>
-                    <option value="">Select subject</option>
+        
+        <!-- Two Column Layout for Upcoming Deadlines and Submit Assignment -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Upcoming Assignments/Exams -->
+            <div>
+                <h2 class="text-lg font-semibold mb-3">Upcoming Deadlines</h2>
+                <div class="space-y-4">
                     {% for assigned_task in assigned_tasks %}
                         {% if assigned_task.status == 'pending' %}
-                        <option value="{{ assigned_task.id }}">{{ assigned_task.task.title }}</option>
+                        <div class="bg-white rounded-xl shadow p-4">
+                            <div class="font-medium text-blue-700 mb-1">{{ assigned_task.task.title }}</div>
+                            <div class="text-xs text-gray-500 mb-2">
+                                Due:
+                                {% if assigned_task.task.deadline %}
+                                    {{ assigned_task.task.deadline|date:"M d, Y h:i A" }}
+                                {% else %}
+                                    <span class="text-gray-500 text-center">No deadline</span>
+                                {% endif %}
+                            </div>
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">{{ assigned_task.status }}</span>
+                        </div>
                         {% endif %}
                     {% endfor %}
-                </select>
-                <label class="font-medium">Upload File</label>
-                <input type="file" name="assignment_file" class="border rounded px-2 py-1" required>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded self-end">Submit</button>
-            </form>
+                    {% if not has_pending %}
+                        <div class="text-gray-500 text-center">No upcoming deadline</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Assignment Submission Form -->
+            <div>
+                <h2 class="text-lg font-semibold mb-3">Submit Assignment</h2>
+                <form method="post" action="" enctype="multipart/form-data" class="bg-white rounded-xl shadow p-6 flex flex-col gap-4">
+                    {% csrf_token %}
+                    <label class="font-medium">Assignment Title</label>
+                    <select name="assigned_task_id" class="border rounded px-2 py-1" required>
+                        <option value="">Select subject</option>
+                        {% for assigned_task in assigned_tasks %}
+                            {% if assigned_task.status == 'pending' %}
+                            <option value="{{ assigned_task.id }}">{{ assigned_task.task.title }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label class="font-medium">Upload File</label>
+                    <input type="file" name="assignment_file" class="border rounded px-2 py-1" required>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded self-end">Submit</button>
+                </form>
+            </div>
         </div>
+
         <!-- Submission Tracker -->
         <div>
             <h2 class="text-lg font-semibold mb-3">Your Submissions</h2>

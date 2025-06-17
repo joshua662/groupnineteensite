@@ -12,14 +12,6 @@
             <div class="flex justify-between items-center mb-4">
                 <h1 class="text-3xl font-bold text-gray-900">Assigned Tasks</h1>
                 
-                <form action="/teacher/assigned_tasks/" class="flex gap-2" method="GET">
-                    <input type="text" name="search" value="{{ search_query }}" placeholder="Search assigned tasks..." class="bg-white px-3 py-2 border border-gray-300 text-black text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-sm text-sm">Search</button>  
-                    {% if search_query %}
-                        <a href="/teacher/assigned_tasks/" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-sm text-sm">Clear</a>
-                    {% endif %}     
-                </form>
-                
                 <!-- Assign Task Button -->
                 
             </div>
@@ -208,4 +200,18 @@
         </nav>
     </div>
 </div>
+
+<script>
+// Hide toast message when any delete button is clicked
+window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('a.bg-red-500').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var toastSuccess = document.getElementById('toast-success');
+            var toastDanger = document.getElementById('toast-danger');
+            if (toastSuccess) toastSuccess.style.display = 'none';
+            if (toastDanger) toastDanger.style.display = 'none';
+        });
+    });
+});
+</script>
 {% endblock 'content' %}
