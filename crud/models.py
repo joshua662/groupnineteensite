@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from datetime import date
 # from .models import Profile # Your Profile model
 
 
@@ -39,6 +40,10 @@ class Teacher(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    def calculate_current_age(self):
+        """Calculate current age based on birth_date"""
+        today = date.today()
+        return today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
 
     class Meta:
         db_table = 'tbl_teacher'
@@ -69,6 +74,11 @@ class Student(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     section = models.ForeignKey(Section, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def calculate_current_age(self):
+        """Calculate current age based on birth_date"""
+        today = date.today()
+        return today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
 
     class Meta:
         db_table = 'tbl_student'

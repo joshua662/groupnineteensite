@@ -4,6 +4,20 @@
 {% block 'title' %} Classroom Management System {% endblock 'title' %}
 
 {% block 'content' %}
+<div class="fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-sm hidden" id="loadingOverlay">
+    <div class="flex flex-col items-center gap-4 bg-white/60 backdrop-blur-md px-8 py-6 rounded shadow-lg">
+        <div class="flex flex-row items-center gap-6">
+            <span class="text-lg font-semibold text-gray-800">Loading</span>
+            <div class="flex flex-row gap-2 ml-2">
+                <div class="w-4 h-4 rounded-full bg-gradient-to-br from-black to-blue-700 animate-bounce" style="animation-delay:0s"></div>
+                <div class="w-4 h-4 rounded-full bg-gradient-to-br from-black to-blue-700 animate-bounce" style="animation-delay:.15s"></div>
+                <div class="w-4 h-4 rounded-full bg-gradient-to-br from-black to-blue-700 animate-bounce" style="animation-delay:.3s"></div>
+                <div class="w-4 h-4 rounded-full bg-gradient-to-br from-black to-blue-700 animate-bounce" style="animation-delay:.45s"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="flex flex-col md:flex-row items-center justify-between min-h-screen px-8 py-12" style="background: linear-gradient(135deg, #000000 0%, #2563eb 100%);">
     <div class="md:w-1/2 w-full mb-12 md:mb-0 md:pl-12">
         <h2 class="text-2xl md:text-3xl font-normal text-gray-200 mb-4">
@@ -15,7 +29,7 @@
         <p class="text-lg md:text-xl text-gray-200 mb-10">
             where academic excellence and innovation lead the way. Apply now to become part of a community that's committed to shaping a brighter future.
         </p>
-        <a href="student_login/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-lg text-lg shadow transition">
+        <a href="{% url 'login' %}" id="getStartedBtn" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-lg text-lg shadow transition">
             Get Started
         </a>
     </div>
@@ -23,6 +37,7 @@
         <img src="{% static 'images/IconTab.png' %}" alt="ISATU Emblem" class="max-w-xl w-full h-auto">
     </div>
 </div>
+
 <style>
 .fade-out {
     animation: fadeOut 0.7s forwards;
@@ -33,5 +48,25 @@
         transform: scale(0.98);
     }
 }
+@keyframes bounce {
+    0%, 100% { transform: translateY(0);}
+    50% { transform: translateY(-12px);}
+}
+.animate-bounce {
+    animation: bounce 0.6s infinite;
+}
 </style>
+
+<script>
+document.getElementById('getStartedBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    loadingOverlay.classList.remove('hidden');
+    
+    // Redirect after 3 seconds
+    setTimeout(() => {
+        window.location.href = this.href;
+    }, 3000);
+});
+</script>
 {% endblock 'content' %}

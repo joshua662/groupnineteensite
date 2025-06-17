@@ -5,13 +5,12 @@ from django.contrib import messages
 urlpatterns = [
     # General 
     path("", views.landing_page, name="landing_page"),
-    path("student_login/", views.student_login, name="student_login"),
+    path("login/", views.login_view, name="login"),
+    path("register/", views.register_view, name="register"),
     path("student_logout/", views.student_logout, name="student_logout"),
-    path("teacher_login/", views.teacher_login, name="teacher_login"),
     path("teacher_logout/", views.teacher_logout, name="teacher_logout"),
     path("teacher_registration/", views.teacher_registration),
     path("teacher/grade_task/<int:id>/", views.grade_task),
-
 
     # Teacher URLs
     path("teacher/dashboard/", views.teacher_dashboard, name="teacher_dashboard"),
@@ -27,8 +26,12 @@ urlpatterns = [
     path("teacher/add_student/", views.add_student, name="add_student"),
     path("teacher/delete_student/<int:id>/", views.delete_student1, name="delete_student"),
     path("teacher/edit_student/<int:id>/", views.edit_student1, name="edit_student"),
+    path("teacher/get_students_by_section/<int:section_id>/", views.get_students_by_section, name="get_students_by_section"),
+    path("teacher/view_assigned_task/<int:id>/", views.view_assigned_task, name="view_assigned_task"),
+    path("teacher/delete_assigned_task/<int:id>/", views.delete_assigned_task, name="delete_assigned_task"),
+    path("teacher/edit_grade/<int:id>/", views.edit_grade, name="edit_grade"),
+    path("teacher/download_submission/<int:assigned_task_id>/", views.download_submission_file, name="download_submission_file"),
     
-   
     # Student URLs
     path("student/dashboard/", views.student_dashboard, name="student_dashboard"),
     path("student/course-material/", views.student_course_material, name="student_course_material"),
@@ -38,6 +41,6 @@ urlpatterns = [
     path('student/edit_student/<int:student_id>/',views.edit_student),
     path("student/task_description/<int:id>/", views.task_description),
     path("student/student_changepass/<int:student_id>/", views.student_changepass),
-    
+    path("student/download_submission/<int:assigned_task_id>/", views.download_student_submission, name="download_student_submission"),
 ]
 

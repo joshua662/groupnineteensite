@@ -8,7 +8,7 @@
     {% include "include/teacher_sidebar.html" %}
     
     <main class="flex-1 p-8">
-        <div class="max-w-5xl mx-auto">
+        <div class="max-w-7xl mx-auto">
             <h1 class="text-3xl font-bold text-gray-900 mb-8">Course Tasks</h1>
 
             <!-- Search Section -->
@@ -29,7 +29,7 @@
                     </form> {% endcomment %}
                     
                     <!-- Add Task Button -->
-                    <div class="flex gap-2 ml-4 ">
+                    <div class="flex gap-2 ml-4">
                         <a href="/teacher/add_task/" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-sm text-sm font-medium flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -46,12 +46,10 @@
                     <h3 class="text-lg font-semibold text-gray-800">Tasks</h3>
                 </div>
                 
-                <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {% if tasks %}
                         {% for task in tasks %}
-                            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 
-                                
-                                hover:shadow-xl transition-shadow duration-200">
+                            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 hover:shadow-xl transition-shadow duration-200">
                                 <div class="flex justify-between items-start mb-4">
                                     <h2 class="text-xl font-semibold text-gray-900">{{ task.title }}</h2>
                                 </div>
@@ -82,32 +80,26 @@
                                         </svg>
                                         Created: {{ task.created_at|date:"M d, Y" }}
                                     </div>
-                                    
-                                    
                                 </div>
-
-                                <!-- Progress Bar (if applicable) -->
-                                
 
                                 <!-- Action Buttons -->
                                 <div class="flex justify-end gap-2 pt-4 border-t border-gray-100">
-                                    
-                                    
                                     <a href="/teacher/edit_task/{{ task.id }}/" 
                                        class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-sm text-xs font-medium transition-colors duration-200">
                                         Edit Task
                                     </a>
                                     
-                                    <a href="/teacher/delete_task/{{ task.id }}/" 
-                                       class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-sm text-xs font-medium transition-colors duration-200">
+                                    <button type="button" 
+                                           onclick="return openDeleteModal('/teacher/delete_task/{{ task.id }}/', 'Delete Task', '{{ task.title }}', 'Are you sure you want to delete this task? This action cannot be undone.', 'This will permanently delete the task and all associated assignments.', 'ajax')"
+                                           class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-sm text-xs font-medium transition-colors duration-200">
                                         Delete
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         {% endfor %}
                     {% else %}
                         <!-- Empty State -->
-                        <div class="bg-white rounded-xl shadow-lg p-12 text-center">
+                        <div class="col-span-2 bg-white rounded-xl shadow-lg p-12 text-center">
                             <div class="text-gray-400">
                                 <svg class="mx-auto h-12 w-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -128,4 +120,10 @@
         </div>
     </main>
 </div>
+
+<!-- CSRF Token for AJAX requests -->
+{% csrf_token %}
+
+{% include "include/delete_modal.html" %}
+
 {% endblock 'content' %}

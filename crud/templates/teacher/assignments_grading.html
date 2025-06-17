@@ -88,22 +88,7 @@
                                 </td>
                                 <td class="py-4 px-6 text-gray-600">
                                     {% if assigned_task.rating %}
-                                        <div class="flex items-center">
-                                            <span class="text-sm font-medium text-gray-900 mr-2">{{ assigned_task.rating }}/10</span>
-                                            <div class="flex items-center">
-                                                {% for i in "0123456789" %}
-                                                    {% if forloop.counter0 < assigned_task.rating %}
-                                                        <svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                                                        </svg>
-                                                    {% else %}
-                                                        <svg class="w-4 h-4 text-gray-300 fill-current" viewBox="0 0 20 20">
-                                                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                                                        </svg>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                        </div>
+                                        <span class="text-sm font-medium text-gray-900">{{ assigned_task.rating }}/10</span>
                                     {% else %}
                                         <span class="text-gray-400">Not rated</span>
                                     {% endif %}

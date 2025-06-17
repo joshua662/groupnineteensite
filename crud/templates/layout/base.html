@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="path-to-tailwind.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static '/css/output.css' %}">
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" type="images/png" href="{% static 'images/IconTab.png' %}">
     <meta name="csrf-token" content="{{ csrf_token }}">
@@ -15,20 +14,6 @@
     {% include "include/ToastMessage.html" %}
     {% block 'content' %}{% endblock 'content' %}
     <script src="{% static 'js/toast.js' %}"></script>
-
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('[data-dismiss-target]').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var target = btn.getAttribute('data-dismiss-target');
-            var el = document.querySelector(target);
-            if (el) {
-                el.style.display = 'none';
-            }
-        });
-    });
-});
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 </body>
 </html>

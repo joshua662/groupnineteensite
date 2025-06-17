@@ -85,6 +85,38 @@
                     </div>
                 </div>
 
+                <!-- Student Selection Section -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                        Student Assignment
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Select Students</label>
+                            <div class="flex items-center mb-3">
+                                <input type="checkbox" id="select_all_students" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                <label for="select_all_students" class="ml-2 block text-sm text-gray-700 font-medium">
+                                    Select All Students in Section
+                                </label>
+                            </div>
+                            <div class="border border-gray-300 rounded-lg p-4 max-h-60 overflow-y-auto">
+                                <div id="students_list" class="space-y-2">
+                                    <!-- Students will be loaded here dynamically -->
+                                    <div class="text-gray-500 text-sm">Select a section to view students</div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Selected students will receive email notifications about this task</p>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="send_email_notification" name="send_email_notification" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded" checked>
+                            <label for="send_email_notification" class="ml-2 block text-sm text-gray-700">
+                                Send email notification to selected students
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Schedule & Deadline Section -->
                 <div class="bg-white rounded-lg shadow-sm border p-6">
                     <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
@@ -196,6 +228,101 @@
             const previewTitle = document.getElementById('preview-title');
             const previewDescription = document.getElementById('preview-description');
             const previewDeadline = document.getElementById('preview-deadline');
+            
+            // Student selection elements
+            const sectionRadios = document.querySelectorAll('input[name="section"]');
+            const studentsList = document.getElementById('students_list');
+            const selectAllCheckbox = document.getElementById('select_all_students');
+            
+            // Load students when section changes
+            function loadStudents(sectionId) {
+                fetch(`/teacher/get_students_by_section/${sectionId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            displayStudents(data.students);
+                        } else {
+                            studentsList.innerHTML = '<div class="text-red-500 text-sm">Error loading students</div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        studentsList.innerHTML = '<div class="text-red-500 text-sm">Error loading students</div>';
+                    });
+            }
+            
+            // Display students in the list
+            function displayStudents(students) {
+                if (students.length === 0) {
+                    studentsList.innerHTML = '<div class="text-gray-500 text-sm">No students found in this section</div>';
+                    return;
+                }
+                
+                let html = '';
+                students.forEach(student => {
+                    html += `
+                        <div class="flex items-center p-2 border border-gray-200 rounded hover:bg-gray-50">
+                            <input type="checkbox" name="selected_students" value="${student.student_id}" 
+                                   class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded student-checkbox">
+                            <label class="ml-3 flex-1 cursor-pointer">
+                                <div class="font-medium text-gray-900">${student.first_name} ${student.last_name}</div>
+                                <div class="text-sm text-gray-500">ID: ${student.student_id} | Email: ${student.email}</div>
+                            </label>
+                        </div>
+                    `;
+                });
+                studentsList.innerHTML = html;
+                
+                // Add event listeners to individual checkboxes
+                const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+                studentCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', updateSelectAllState);
+                });
+            }
+            
+            // Update select all checkbox state
+            function updateSelectAllState() {
+                const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+                const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
+                
+                if (checkedBoxes.length === 0) {
+                    selectAllCheckbox.indeterminate = false;
+                    selectAllCheckbox.checked = false;
+                } else if (checkedBoxes.length === studentCheckboxes.length) {
+                    selectAllCheckbox.indeterminate = false;
+                    selectAllCheckbox.checked = true;
+                } else {
+                    selectAllCheckbox.indeterminate = true;
+                    selectAllCheckbox.checked = false;
+                }
+            }
+            
+            // Handle section radio button changes
+            sectionRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        loadStudents(this.value);
+                        // Reset select all checkbox
+                        selectAllCheckbox.checked = false;
+                        selectAllCheckbox.indeterminate = false;
+                    }
+                });
+            });
+            
+            // Handle select all checkbox
+            selectAllCheckbox.addEventListener('change', function() {
+                const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+                studentCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                this.indeterminate = false;
+            });
+            
+            // Load students for the initially selected section
+            const initialSection = document.querySelector('input[name="section"]:checked');
+            if (initialSection) {
+                loadStudents(initialSection.value);
+            }
             
             function formatDeadlineForDashboard(deadline) {
                 const now = new Date();

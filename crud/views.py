@@ -1,12 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import  Student, AssignedTask, Task, Teacher, Section
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, F
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.sessions.models import Session
 from functools import wraps
@@ -15,43 +15,86 @@ from django.urls import reverse
 import re
 from datetime import date, datetime, timedelta
 from django.utils import timezone
-from django.db.models import F
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+import json
 import calendar
+import os
 
 def student_login_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         if not request.session.get('is_student_authenticated'):
-            return HttpResponseRedirect(reverse('student_login'))
+            return HttpResponseRedirect(reverse('login'))
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
-def student_login(request):
+def teacher_login_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.session.get('is_teacher_authenticated'):
+            return HttpResponseRedirect(reverse('login'))
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
 
+        # Try student login first
         try:
             student = Student.objects.get(username=username)
             if check_password(password, student.password):
-                # Set session data
                 request.session['student_id'] = student.student_id
                 request.session['student_username'] = student.username
                 request.session['is_student_authenticated'] = True
                 messages.success(request, f'Welcome {student}!')
-                return redirect('student_dashboard')  # Use your dashboard URL name
+                return redirect('student_dashboard')
             else:
-                messages.error(request, f'Invalid username or password.')
+                # If password doesn't match, try teacher login
+                try:
+                    teacher = Teacher.objects.get(username=username)
+                    if check_password(password, teacher.password):
+                        request.session['teacher_id'] = teacher.teacher_id
+                        request.session['teacher_username'] = teacher.username
+                        request.session['is_teacher_authenticated'] = True
+                        messages.success(request, f'Welcome {teacher}!')
+                        return redirect('teacher_dashboard')
+                    else:
+                        messages.error(request, 'Invalid username or password.')
+                except Teacher.DoesNotExist:
+                    messages.error(request, 'Invalid username or password.')
         except Student.DoesNotExist:
-            messages.error(request, 'Username not found.')
+            # If student not found, try teacher login
+            try:
+                teacher = Teacher.objects.get(username=username)
+                if check_password(password, teacher.password):
+                    request.session['teacher_id'] = teacher.teacher_id
+                    request.session['teacher_username'] = teacher.username
+                    request.session['is_teacher_authenticated'] = True
+                    messages.success(request, f'Welcome {teacher}!')
+                    return redirect('teacher_dashboard')
+                else:
+                    messages.error(request, 'Invalid username or password.')
+            except Teacher.DoesNotExist:
+                messages.error(request, 'Invalid username or password.')
 
-    return render(request, 'student/Login.html')
+    return render(request, 'layout/Login.html')
 
 def student_logout(request):
-    request.session.flush()  # Clear all session data
+    request.session.flush()
     messages.success(request, 'You have been logged out successfully.')
-    return redirect('student_login')
+    return redirect('login')
 
+def teacher_logout(request):
+    request.session.flush()
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('login')
 
 @student_login_required
 def student_dashboard(request):
@@ -552,14 +595,6 @@ def teacher_registration(request):
 
 
 
-def teacher_login_required(view_func):
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-        if not request.session.get('is_teacher_authenticated'):
-            return HttpResponseRedirect(reverse('teacher_login'))
-        return view_func(request, *args, **kwargs)
-    return _wrapped_view
-
 def teacher_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -581,56 +616,12 @@ def teacher_login(request):
 
     return render(request, 'teacher/Login.html')
 
-def teacher_logout(request):
-    request.session.flush()  # Clear all session data
-    messages.success(request, 'You have been logged out successfully.')
-    return redirect('teacher_login')
-
-def teacher_changepass(request, teacher_id):
-    try:
-        if request.method == 'POST':
-            teacher = Teacher.objects.get(pk=teacher_id)
-            current_password = request.POST.get('current_password')
-            password = request.POST.get('password')
-            confirmPassword = request.POST.get('confirm_password')
-
-            # First verify the current password
-            if not check_password(current_password,teacher.password):
-                messages.error(request, 'Current password is incorrect.')
-                return redirect(f'/teacher/teacher_changepass/{teacher_id}')
-
-            if not password or not confirmPassword:
-                messages.error(request, 'Please fill out both new password fields.')
-                return redirect(f'/teacher/teacher_changepass/{teacher_id}')
-
-            if password != confirmPassword:
-                messages.error(request, 'New password and confirm password do not match!')
-                return redirect(f'/teacher/teacher_changepass/{teacher_id}')
-
-            teacher.password = make_password(password)
-            teacher.save()
-            messages.success(request, 'Password changed successfully!')
-            return redirect('/teacher/profile/')
-        else:
-            teacher = Teacher.objects.get(pk=teacher_id)
-            return render(request, 'teacher/teacher_changepass.html', {'teacher': teacher})
-    except Teacher.DoesNotExist:
-        messages.error(request, "User not found.")
-        return redirect('/teacher/profile/')
-    except Exception as e:
-        messages.error(request, f"Error changing password: {e}")
-        return redirect('/teacher/profile/')
-    
-
-
-
-
-
 @teacher_login_required
 def teacher_dashboard(request):
     try:
         teacher_id = request.session.get('teacher_id')
         selected_section = request.GET.get('section')
+        search_query = request.GET.get('search', '')
         
         # Get all tasks for the current teacher
         tasks = Task.objects.filter(teacher_id=teacher_id)
@@ -671,7 +662,18 @@ def teacher_dashboard(request):
             if section_name:
                 assigned_tasks = assigned_tasks.filter(section__name=section_name)
         
-        # Calculate statistics for submitted tasks
+        
+        if search_query:
+            assigned_tasks = assigned_tasks.filter(
+                Q(student__student_id__icontains=search_query) |
+                Q(student__first_name__icontains=search_query) |
+                Q(student__last_name__icontains=search_query) |
+                Q(student__middle_name__icontains=search_query) |
+                Q(student__username__icontains=search_query) |
+                Q(task__title__icontains=search_query)
+            )
+        
+        
         on_time_passed = assigned_tasks.filter(
             status='submitted',
             submitted_at__lte=F('task__deadline')
@@ -682,14 +684,23 @@ def teacher_dashboard(request):
             submitted_at__gt=F('task__deadline')
         ).count()
         
-        # Force total students to 50 for the chart
+        
+        pending_tasks = assigned_tasks.filter(status='pending').count()
+        
+        
+        total_tasks = assigned_tasks.count()
+        
+        
         total_students = 30
 
         context = {
             'assigned_tasks': assigned_tasks,
             'on_time_passed': on_time_passed,
             'late_passed': late_passed,
+            'pending_tasks': pending_tasks,
+            'total_tasks': total_tasks,
             'selected_section': selected_section,
+            'search_query': search_query,
             'total_students': total_students
         }
         
@@ -786,7 +797,7 @@ def add_student(request):
                 return render(request, 'layout/teacher_registration.html', {'student':student})
             
 
-            birth_date_str = birth_date  # e.g., '2000-05-15'
+            birth_date_str = birth_date  
             birth_date_1 = datetime.strptime(birth_date_str, '%Y-%m-%d').date()
             age = calculate_age(birth_date_1)
 
@@ -873,23 +884,35 @@ def edit_student1(request,id):
     
 def delete_student1(request, id):
     try:
-        if request.method == 'GET':
+        if request.method == 'POST':
             student = Student.objects.get(pk=id)
-            data = {
-                'student': student,
-            }
-            return render(request, 'teacher/delete_student.html', data)
+            student_name = f"{student.first_name} {student.last_name}"
+            student.delete()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True, 
+                    'message': f'Student "{student_name}" has been deleted successfully!'
+                })
+            
+            messages.success(request, f'Student "{student_name}" has been deleted successfully!')
+            return redirect('/teacher/student_list/')
         else:
             student = Student.objects.get(pk=id)
-            student.delete()
-            messages.success(request, f"{student} has been deleted.")
-            return redirect('/teacher/student_list')
-    except Task.DoesNotExist:
-        messages.error(request, "Student not found.")
-        return redirect('/teacher/student_list')
+            data = {
+                'student': student
+            }
+            return render(request, 'teacher/delete_student.html', data)
+    except Student.DoesNotExist:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Student not found.'})
+        messages.error(request, 'Student not found.')
+        return redirect('/teacher/student_list/')
     except Exception as e:
-        messages.error(request, f"Error deleting Student: {e}")
-        return redirect('/teacher/student_list')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': f'An error occurred: {str(e)}'})
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/teacher/student_list/')
     
     
 def teacher_task(request):
@@ -903,9 +926,9 @@ def teacher_task(request):
                 Q(title__icontains=search_query)
             )
             
-              # assuming your model has a 'name' field
+            
 
-        # Pagination: Show 6 items per page
+        
         paginator = Paginator(tasks, 8)
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
@@ -921,6 +944,64 @@ def teacher_task(request):
     except Exception as e:
         return HttpResponse(f'Error: {e}') 
     
+def get_students_by_section(request, section_id):
+    """Get students by section for AJAX request"""
+    try:
+    
+        section_map = {
+            "1": "A",
+            "2": "B", 
+            "3": "C",
+            "4": "D"
+        }
+        section_name = section_map.get(str(section_id))
+        
+        if not section_name:
+            return JsonResponse({'success': False, 'error': 'Invalid section'})
+        
+        section = Section.objects.get(name=section_name)
+        students = Student.objects.filter(section=section).values('student_id', 'first_name', 'last_name', 'email')
+        
+        return JsonResponse({
+            'success': True,
+            'students': list(students)
+        })
+    except Section.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Section not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+def send_task_notification_email(student, task, teacher):
+    """Send email notification to student about new task"""
+    try:
+        subject = f'New Task Assignment: {task.title}'
+        
+        
+        html_message = render_to_string('emails/task_notification.html', {
+            'student': student,
+            'task': task,
+            'teacher': teacher,
+            'deadline': task.deadline.strftime('%B %d, %Y at %I:%M %p') if task.deadline else 'No deadline set'
+        })
+        
+        
+        plain_message = strip_tags(html_message)
+        
+        
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[student.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        return True
+    except Exception as e:
+        print(f"Error sending email to {student.email}: {e}")
+        return False
+
 def add_task(request):
     if request.method == 'POST':
         teacher_id = request.session.get('teacher_id')
@@ -929,6 +1010,8 @@ def add_task(request):
         section = request.POST.get('section')
         deadline_date = request.POST.get('deadline_date')
         deadline_time = request.POST.get('deadline_time')
+        selected_students = request.POST.getlist('selected_students')
+        send_email_notification = request.POST.get('send_email_notification') == 'on'
 
         if deadline_date and deadline_time:
             deadline_str = f"{deadline_date} {deadline_time}"  # '2025-06-15 14:30'
@@ -947,8 +1030,7 @@ def add_task(request):
             'deadline':deadline,
         }
 
-
-        # Basic validation
+        
         if not (teacher_id and title and description and section):
             messages.error(request, "All fields are required.")
             return redirect('add_task', data)
@@ -961,24 +1043,36 @@ def add_task(request):
                 section = Section.objects.get(pk=section),
                 description=description,
                 deadline=deadline if deadline else None
-
             )
-            students = Student.objects.filter(section=section)
+            
+            
+            if selected_students:
+                students = Student.objects.filter(student_id__in=selected_students)
+            else:
+                
+                students = Student.objects.filter(section=section)
+            
+    
             for student in students:
                 AssignedTask.objects.create(
                     task = task,
                     student = student,
                     section = Section.objects.get(pk=section),
                 )
+                
+            
+                if send_email_notification:
+                    send_task_notification_email(student, task, teacher)
 
             messages.success(request, "Task added successfully!")
-            return redirect('/teacher/task_list/')  # Change to your task list view name
+            if send_email_notification:
+                messages.success(request, f"Email notifications sent to {students.count()} students.")
+            return redirect('/teacher/task_list/')  
         except Teacher.DoesNotExist:
             messages.error(request, "Teacher not found.")
             return redirect('add_task')
 
     return render(request, 'teacher/add_task.html')
-    #return render(request, 'teacher/add_task.html')
 
 def  edit_task(request, id):
     try:
@@ -1014,41 +1108,54 @@ def  edit_task(request, id):
     
 def delete_task(request, id):
     try:
-        if request.method == 'GET':
+        if request.method == 'POST':
             task = Task.objects.get(pk=id)
-            data = {
-                'task': task,
-            }
-            return render(request, 'teacher/delete_task.html', data)
+            task_title = task.title
+            task.delete()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True, 
+                    'message': f'Task "{task_title}" has been deleted successfully!'
+                })
+            
+            messages.success(request, f'Task "{task_title}" has been deleted successfully!')
+            return redirect('/teacher/task_list/')
         else:
             task = Task.objects.get(pk=id)
-            task.delete()
-            messages.success(request, f"{task.title} has been deleted.")
-            return redirect('/teacher/task_list')
+            data = {
+                'task': task
+            }
+            return render(request, 'teacher/delete_task.html', data)
     except Task.DoesNotExist:
-        messages.error(request, "Task not found.")
-        return redirect('/teacher/task_list')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Task not found.'})
+        messages.error(request, 'Task not found.')
+        return redirect('/teacher/task_list/')
     except Exception as e:
-        messages.error(request, f"Error deleting Task: {e}")
-        return redirect('/teacher/task_list')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': f'An error occurred: {str(e)}'})
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/teacher/task_list/')
     
 
 def assignment_grading(request):
     teacher_id = request.session.get('teacher_id')
     if not teacher_id:
-        # Redirect to login or show error if not logged in
-        return redirect('teacher_login')
+    
+        return redirect('login')
 
-    # Get all tasks for the current teacher
+    
     tasks = Task.objects.filter(teacher_id=teacher_id)
 
-    # Get all assigned tasks for these tasks
+
     assigned_tasks = AssignedTask.objects.filter(task__in=tasks).select_related('student', 'student__section', 'task')
 
-    # Prepare data for the template
+    
     data = []
     for assigned in assigned_tasks:
         data.append({
+            'id': assigned.id, 
             'task_title': assigned.task.title,
             'student_name': f"{assigned.student}",
             'student_section': assigned.student.section.name if assigned.student.section else '',
@@ -1056,7 +1163,6 @@ def assignment_grading(request):
             'rating': assigned.rating,
             'assigned_date': assigned.assigned_at,
             'submission_file': assigned.submission_file.url if assigned.submission_file else '',
-            'actions': assigned.id,  # You can use this for edit/delete links in your template
         })
 
     return render(request, "teacher/assignments_grading.html", {'assigned_tasks': data})
@@ -1076,9 +1182,7 @@ def teacher_profile(request):
 def edit_teacher(request, teacher_id):
     try:
         if request.method == 'POST':
-            # teacher_id = request.session.get('teacher_id')
-            # student = Student.objects.get(student_id=student_id)
-
+            
             teacherObj = Teacher.objects.get(pk=teacher_id)
 
             
@@ -1125,32 +1229,371 @@ def edit_teacher(request, teacher_id):
 
 
 
+@teacher_login_required
 def grade_task(request, id):
-    
     try:
         if request.method == 'POST':
             assigned_task = AssignedTask.objects.get(pk=id)
             rating = request.POST.get('rating')
             feedback = request.POST.get('feedback')
 
+            if not rating:
+                messages.error(request, 'Rating is required!')
+                return redirect(f'/teacher/grade_task/{id}/')
 
-
-            
             assigned_task.status = "graded"
             assigned_task.rating = rating
             assigned_task.feedback = feedback
             assigned_task.save()
             
-            messages.success(request, 'User updated successfully!')
+            messages.success(request, 'Task graded successfully!')
             return redirect('/teacher/grading/')
         else:
             assigned_task = AssignedTask.objects.get(pk=id)
-
             data = {
-                'assigned_task':assigned_task
+                'assigned_task': assigned_task
             }
-            
             return render(request, 'teacher/rating.html', data)
+    except AssignedTask.DoesNotExist:
+        messages.error(request, 'Task not found.')
+        return redirect('/teacher/grading/')
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('/teacher/grading/')
+
+@teacher_login_required
+def view_assigned_task(request, id):
+    """View detailed information about an assigned task"""
+    try:
+        assigned_task = AssignedTask.objects.select_related('student', 'task', 'student__section').get(pk=id)
+        
+    
+        teacher_id = request.session.get('teacher_id')
+        if assigned_task.task.teacher_id != teacher_id:
+            messages.error(request, 'You do not have permission to view this task.')
+            return redirect('/teacher/grading/')
+        
+        context = {
+            'assigned_task': assigned_task,
+            'student': assigned_task.student,
+            'task': assigned_task.task,
+        }
+        return render(request, 'teacher/view_assigned_task.html', context)
+    except AssignedTask.DoesNotExist:
+        messages.error(request, 'Task not found.')
+        return redirect('/teacher/grading/')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/teacher/grading/')
+
+@teacher_login_required
+def delete_assigned_task(request, id):
+    """Delete an assigned task"""
+    try:
+        if request.method == 'POST':
+            assigned_task = AssignedTask.objects.get(pk=id)
+            
+    
+            teacher_id = request.session.get('teacher_id')
+            if assigned_task.task.teacher_id != teacher_id:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'You do not have permission to delete this task.'})
+                messages.error(request, 'You do not have permission to delete this task.')
+                return redirect('/teacher/grading/')
+            
+            task_title = assigned_task.task.title
+            student_name = f"{assigned_task.student}"
+            
+            assigned_task.delete()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True, 
+                    'message': f'Task "{task_title}" for {student_name} has been deleted successfully!'
+                })
+            
+            messages.success(request, f'Task "{task_title}" for {student_name} has been deleted successfully!')
+            return redirect('/teacher/grading/')
+        else:
+            assigned_task = AssignedTask.objects.select_related('student', 'task').get(pk=id)
+            
+            # 
+            teacher_id = request.session.get('teacher_id')
+            if assigned_task.task.teacher_id != teacher_id:
+                messages.error(request, 'You do not have permission to delete this task.')
+                return redirect('/teacher/grading/')
+            
+            context = {
+                'assigned_task': assigned_task,
+                'student': assigned_task.student,
+                'task': assigned_task.task,
+            }
+            return render(request, 'teacher/delete_assigned_task.html', context)
+    except AssignedTask.DoesNotExist:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Task not found.'})
+        messages.error(request, 'Task not found.')
+        return redirect('/teacher/grading/')
+    except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': f'An error occurred: {str(e)}'})
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/teacher/grading/')
+
+@teacher_login_required
+def edit_grade(request, id):
+    """Edit the grade of an already graded task"""
+    try:
+        if request.method == 'POST':
+            assigned_task = AssignedTask.objects.get(pk=id)
+            rating = request.POST.get('rating')
+            feedback = request.POST.get('feedback')
+
+            if not rating:
+                messages.error(request, 'Rating is required!')
+                return redirect(f'/teacher/edit_grade/{id}/')
+
+            # Check if the teacher owns this task
+            teacher_id = request.session.get('teacher_id')
+            if assigned_task.task.teacher_id != teacher_id:
+                messages.error(request, 'You do not have permission to edit this grade.')
+                return redirect('/teacher/grading/')
+
+            assigned_task.rating = rating
+            assigned_task.feedback = feedback
+            assigned_task.save()
+            
+            messages.success(request, 'Grade updated successfully!')
+            return redirect('/teacher/grading/')
+        else:
+            assigned_task = AssignedTask.objects.get(pk=id)
+            
+            # Check if the teacher owns this task
+            teacher_id = request.session.get('teacher_id')
+            if assigned_task.task.teacher_id != teacher_id:
+                messages.error(request, 'You do not have permission to edit this grade.')
+                return redirect('/teacher/grading/')
+            
+            data = {
+                'assigned_task': assigned_task
+            }
+            return render(request, 'teacher/edit_grade.html', data)
+    except AssignedTask.DoesNotExist:
+        messages.error(request, 'Task not found.')
+        return redirect('/teacher/grading/')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/teacher/grading/')
+
+@teacher_login_required
+def teacher_changepass(request, teacher_id):
+    try:
+        if request.method == 'POST':
+            teacher = Teacher.objects.get(pk=teacher_id)
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            # First verify the current password
+            if not check_password(current_password, teacher.password):
+                messages.error(request, 'Current password is incorrect.')
+                return redirect(f'/teacher/teacher_changepass/{teacher_id}')
+
+            if not new_password or not confirm_password:
+                messages.error(request, 'Please fill out both new password fields.')
+                return redirect(f'/teacher/teacher_changepass/{teacher_id}')
+
+            if new_password != confirm_password:
+                messages.error(request, 'New password and confirm password do not match!')
+                return redirect(f'/teacher/teacher_changepass/{teacher_id}')
+
+            # Check password strength
+            strength, feedback = check_password_strength(new_password)
+            if strength < 3:
+                messages.error(request, 'Password is too weak. Please make sure it meets all requirements: ' + ', '.join(feedback))
+                return redirect(f'/teacher/teacher_changepass/{teacher_id}')
+
+            # Update the password
+            teacher.password = make_password(new_password)
+            teacher.save()
+            messages.success(request, 'Password changed successfully!')
+            return redirect('/teacher/profile/')
+        else:
+            teacher = Teacher.objects.get(pk=teacher_id)
+            return render(request, 'teacher/teacher_changepass.html', {'teacher': teacher})
+    except Teacher.DoesNotExist:
+        messages.error(request, "User not found.")
+        return redirect('/teacher/profile/')
+    except Exception as e:
+        messages.error(request, f"Error changing password: {e}")
+        return redirect('/teacher/profile/')
+
+@teacher_login_required
+def download_submission_file(request, assigned_task_id):
+    """Download submission file with proper headers for all browsers"""
+    try:
+        assigned_task = AssignedTask.objects.select_related('task', 'student').get(pk=assigned_task_id)
+
+        teacher_id = request.session.get('teacher_id')
+        if assigned_task.task.teacher_id != teacher_id:
+            messages.error(request, 'You do not have permission to download this file.')
+            return redirect('/teacher/grading/')
+        
+        
+        if not assigned_task.submission_file:
+            messages.error(request, 'No file found for this submission.')
+            return redirect('/teacher/grading/')
+    
+        file_path = assigned_task.submission_file.path
+        file_name = assigned_task.submission_file.name.split('/')[-1]  
+        
+        
+        if not os.path.exists(file_path):
+            messages.error(request, 'File not found on server.')
+            return redirect('/teacher/grading/')
+        
+        
+        with open(file_path, 'rb') as file:
+            file_content = file.read()
+        
+        
+        response = HttpResponse(file_content, content_type='application/octet-stream')
+        
+    
+        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        
+        
+        response['Content-Length'] = len(file_content)
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        
+        return response
+        
+    except AssignedTask.DoesNotExist:
+        messages.error(request, 'Assignment not found.')
+        return redirect('/teacher/grading/')
+    except Exception as e:
+        messages.error(request, f'Error downloading file: {str(e)}')
+        return redirect('/teacher/grading/')
+
+@student_login_required
+def download_student_submission(request, assigned_task_id):
+    """Download submission file for students (their own submissions)"""
+    try:
+        student_id = request.session.get('student_id')
+        assigned_task = AssignedTask.objects.select_related('task', 'student').get(pk=assigned_task_id)
+        
+        # Check if the student owns this submission
+        if assigned_task.student.student_id != student_id:
+            messages.error(request, 'You do not have permission to download this file.')
+            return redirect('/student/assignments-exams/')
+        
+        # Check if file exists
+        if not assigned_task.submission_file:
+            messages.error(request, 'No file found for this submission.')
+            return redirect('/student/assignments-exams/')
+        
+        # Get file path and name
+        file_path = assigned_task.submission_file.path
+        file_name = assigned_task.submission_file.name.split('/')[-1]  # Get just the filename
+        
+        # Check if file exists on disk
+        if not os.path.exists(file_path):
+            messages.error(request, 'File not found on server.')
+            return redirect('/student/assignments-exams/')
+        
+        # Open and read the file
+        with open(file_path, 'rb') as file:
+            file_content = file.read()
+        
+        # Create response with proper headers for all browsers
+        response = HttpResponse(file_content, content_type='application/octet-stream')
+        
+        # Set filename for download (works across all browsers)
+        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        
+        # Additional headers for better compatibility
+        response['Content-Length'] = len(file_content)
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        
+        return response
+        
+    except AssignedTask.DoesNotExist:
+        messages.error(request, 'Assignment not found.')
+        return redirect('/student/assignments-exams/')
+    except Exception as e:
+        messages.error(request, f'Error downloading file: {str(e)}')
+        return redirect('/student/assignments-exams/')
+
+def register_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+        role = request.POST.get('role')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+
+        # Validate input
+        if not all([username, password, confirm_password, role, first_name, last_name, email]):
+            messages.error(request, 'All fields are required.')
+            return redirect('register')
+
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match.')
+            return redirect('register')
+
+        # Check password strength
+        strength, feedback = check_password_strength(password)
+        if strength < 3:
+            messages.error(request, 'Password is too weak. Please make sure it meets all requirements: ' + ', '.join(feedback))
+            return redirect('register')
+
+        try:
+            if role == 'student':
+                # Check if username already exists
+                if Student.objects.filter(username=username).exists():
+                    messages.error(request, 'Username already exists.')
+                    return redirect('register')
+
+                # Create new student
+                student = Student.objects.create(
+                    username=username,
+                    password=make_password(password),
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email
+                )
+                messages.success(request, 'Student registration successful! Please login.')
+                return redirect('login')
+
+            elif role == 'teacher':
+                # Check if username already exists
+                if Teacher.objects.filter(username=username).exists():
+                    messages.error(request, 'Username already exists.')
+                    return redirect('register')
+
+                # Create new teacher
+                teacher = Teacher.objects.create(
+                    username=username,
+                    password=make_password(password),
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email
+                )
+                messages.success(request, 'Teacher registration successful! Please login.')
+                return redirect('login')
+
+            else:
+                messages.error(request, 'Invalid role selected.')
+                return redirect('register')
+
+        except Exception as e:
+            messages.error(request, f'Registration failed: {str(e)}')
+            return redirect('register')
+
+    return render(request, 'layout/Register.html')
