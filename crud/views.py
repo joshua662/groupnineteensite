@@ -419,27 +419,6 @@ def check_password_strength(password):
 
 @student_login_required
 def student_changepass(request,student_id):
-    # if request.method == 'POST':
-    #     new_password = request.POST.get('new_password')
-    #     confirm_password = request.POST.get('confirm_password')
-
-    #     if new_password != confirm_password:
-    #         messages.error(request, 'New password and confirm password do not match!')
-    #         return redirect('/student/student_changepass/')
-
-    #     strength, feedback = check_password_strength(new_password)
-    #     if strength < 3:
-    #         messages.error(request, 'Password is too weak. Please make sure it meets all requirements: ' + ', '.join(feedback))
-    #         return redirect('/student/student_changepass/')
-
-    #     # Save the new password here (hash it!)
-    #     # user.set_password(new_password)
-    #     # user.save()
-    #     messages.success(request, 'Password changed successfully!')
-    #     return redirect('/student/profile_settings/')
-
-    # return render(request, 'student/student_changepass.html')
-
     try:
         if request.method == 'POST':
             student = Student.objects.get(pk=student_id)
@@ -447,7 +426,6 @@ def student_changepass(request,student_id):
             password = request.POST.get('password')
             confirmPassword = request.POST.get('confirm_password')
 
-            # First verify the current password
             if not check_password(current_password, student.password):
                 messages.error(request, 'Current password is incorrect.')
                 return redirect(f'/student/student_changepass/{student_id}')
@@ -458,6 +436,11 @@ def student_changepass(request,student_id):
 
             if password != confirmPassword:
                 messages.error(request, 'New password and confirm password do not match!')
+                return redirect(f'/student/student_changepass/{student_id}')
+
+            strength, feedback = check_password_strength(password)
+            if strength < 3:
+                messages.error(request, 'Password is too weak. Please make sure it meets all requirements: ' + ', '.join(feedback))
                 return redirect(f'/student/student_changepass/{student_id}')
 
             student.password = make_password(password)
@@ -474,26 +457,10 @@ def student_changepass(request,student_id):
         messages.error(request, f"Error changing password: {e}")
         return redirect('/student/profile-settings/')
     
-
- 
-
-
-
-
-
 def calculate_age(birth_date):
     today = date.today()
     return today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
 
-
-
-
-
-
-
-
-
-# landing page
 def landing_page(request):
     return render(request, 'layout/LandingPage.html')
 
@@ -513,9 +480,7 @@ def teacher_registration(request):
             password = request.POST.get('password')
             confirmPassword = request.POST.get('confirm_password')
 
-            
-
-            
+                   
             if password != confirmPassword:
                 messages.error(request, 'Password and Confirm Password do not match!')
                 data = {
@@ -533,7 +498,7 @@ def teacher_registration(request):
                 }
                 return render(request, 'layout/teacher_registration.html', data)
             
-            # Check if username already exists
+
             if Teacher.objects.filter(username=username).exists():
                 messages.error(request, 'Username already exists. Please choose a different username.')
                 data = {
@@ -552,7 +517,7 @@ def teacher_registration(request):
                 return render(request, 'layout/teacher_registration.html', data)
             
 
-            birth_date_str = birth_date  # e.g., '2000-05-15'
+            birth_date_str = birth_date  
             birth_date_1 = datetime.strptime(birth_date_str, '%Y-%m-%d').date()
             age = calculate_age(birth_date_1)
 
@@ -584,17 +549,6 @@ def teacher_registration(request):
     except Exception as e:
         return HttpResponse(f'Error: {e}')
 
-
-
-
-
-
-
-
-
-
-
-
 def teacher_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -623,13 +577,10 @@ def teacher_dashboard(request):
         selected_section = request.GET.get('section')
         search_query = request.GET.get('search', '')
         
-        # Get all tasks for the current teacher
         tasks = Task.objects.filter(teacher_id=teacher_id)
         
-        # Get all assigned tasks for these tasks
         assigned_tasks = AssignedTask.objects.filter(task__in=tasks).select_related('student', 'task')
         
-        # Add submission status for each assigned task
         for assigned_task in assigned_tasks:
             if assigned_task.status == 'submitted' and assigned_task.task.deadline and assigned_task.submitted_at:
                 if assigned_task.submitted_at <= assigned_task.task.deadline:
@@ -647,11 +598,9 @@ def teacher_dashboard(request):
                 else:
                     assigned_task.submission_status = 'Graded'
             else:
-                assigned_task.submission_status = assigned_task.status # Fallback for other statuses
+                assigned_task.submission_status = assigned_task.status 
 
-        # Filter by section if selected
         if selected_section:
-            # Map section values to section names
             section_map = {
                 "1": "A",
                 "2": "B",
@@ -673,7 +622,6 @@ def teacher_dashboard(request):
                 Q(task__title__icontains=search_query)
             )
         
-        
         on_time_passed = assigned_tasks.filter(
             status='submitted',
             submitted_at__lte=F('task__deadline')
@@ -686,7 +634,6 @@ def teacher_dashboard(request):
         
         
         pending_tasks = assigned_tasks.filter(status='pending').count()
-        
         
         total_tasks = assigned_tasks.count()
         
@@ -1538,7 +1485,7 @@ def register_view(request):
         last_name = request.POST.get('last_name')
         email = request.POST.get('email')
 
-        # Validate input
+      
         if not all([username, password, confirm_password, role, first_name, last_name, email]):
             messages.error(request, 'All fields are required.')
             return redirect('register')
@@ -1547,26 +1494,19 @@ def register_view(request):
             messages.error(request, 'Passwords do not match.')
             return redirect('register')
 
-        # Check password strength
-        strength, feedback = check_password_strength(password)
-        if strength < 3:
-            messages.error(request, 'Password is too weak. Please make sure it meets all requirements: ' + ', '.join(feedback))
-            return redirect('register')
-
         try:
             if role == 'student':
-                # Check if username already exists
                 if Student.objects.filter(username=username).exists():
                     messages.error(request, 'Username already exists.')
                     return redirect('register')
 
-                # Create new student
                 student = Student.objects.create(
                     username=username,
                     password=make_password(password),
                     first_name=first_name,
                     last_name=last_name,
-                    email=email
+                    email=email,
+                    birth_date=request.POST.get('birth_date')  # Ensure birth_date is provided
                 )
                 messages.success(request, 'Student registration successful! Please login.')
                 return redirect('login')
@@ -1583,7 +1523,8 @@ def register_view(request):
                     password=make_password(password),
                     first_name=first_name,
                     last_name=last_name,
-                    email=email
+                    email=email,
+                    birth_date=request.POST.get('birth_date')  # Ensure birth_date is provided
                 )
                 messages.success(request, 'Teacher registration successful! Please login.')
                 return redirect('login')

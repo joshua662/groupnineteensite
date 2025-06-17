@@ -8,14 +8,14 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
         </svg>
       </div>
-      <h2 class="text-xl font-bold mb-2 text-gray-900">Delete</h2>
-      <p class="text-gray-600 mb-6 text-center">Are you sure you want to delete?</p>
+      <h2 id="modalTitle" class="text-xl font-bold mb-2 text-gray-900"></h2>
+      <p id="modalMessage" class="text-gray-600 mb-2 text-center"></p>
+      <p class="text-gray-600 mb-4 text-center font-semibold" id="modalItemName"></p>
+      <p id="modalWarning" class="text-red-500 text-sm mb-4 text-center"></p>
+      
       <div class="flex gap-4 w-full">
-        <button onclick="closeDeleteModal()" class="flex-1 py-2 rounded bg-gray-100 text-gray-700 hover:bg-gray-200">Cancel</button>
-        <form id="deleteForm" method="post" class="flex-1">
-          {% csrf_token %}
-          <button type="submit" class="w-full py-2 rounded bg-red-500 text-white hover:bg-red-600">Confirm</button>
-        </form>
+        <button id="cancelDelete" onclick="closeDeleteModal()" class="flex-1 py-2 rounded bg-gray-100 text-gray-700 hover:bg-gray-200">Cancel</button>
+        <button id="confirmDelete" type="submit" class="w-full py-2 rounded bg-red-500 text-white hover:bg-red-600">Confirm</button>
       </div>
     </div>
   </div>
@@ -36,18 +36,8 @@ function openDeleteModal(url, title, itemName, message, warning, deleteType = 'r
     document.getElementById('modalItemName').textContent = itemName || 'Unknown Item';
     document.getElementById('modalWarning').textContent = warning || 'This action cannot be undone.';
     
-    // Reset confirmation input
-    document.getElementById('deleteConfirmation').value = '';
-    document.getElementById('confirmationError').classList.add('hidden');
-    document.getElementById('confirmDelete').disabled = true;
-    
     // Show modal
     document.getElementById('deleteModal').classList.remove('hidden');
-    
-    // Focus on confirmation input
-    setTimeout(() => {
-        document.getElementById('deleteConfirmation').focus();
-    }, 100);
     
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
@@ -65,30 +55,12 @@ function closeDeleteModal() {
     document.body.style.overflow = 'auto';
 }
 
-function checkDeleteConfirmation() {
-    const confirmationInput = document.getElementById('deleteConfirmation');
-    const confirmButton = document.getElementById('confirmDelete');
-    const errorMessage = document.getElementById('confirmationError');
-    
-    if (confirmationInput.value === 'DELETE') {
-        confirmButton.disabled = false;
-        errorMessage.classList.add('hidden');
-    } else {
-        confirmButton.disabled = true;
-        if (confirmationInput.value.length > 0) {
-            errorMessage.classList.remove('hidden');
-        } else {
-            errorMessage.classList.add('hidden');
-        }
-    }
-}
-
 // Event Listeners (only add once)
 if (!window.deleteModalInitialized) {
     document.getElementById('cancelDelete').addEventListener('click', closeDeleteModal);
 
     document.getElementById('confirmDelete').addEventListener('click', function() {
-        if (currentDeleteUrl && !this.disabled) {
+        if (currentDeleteUrl) {
             if (currentDeleteType === 'ajax') {
                 // Handle AJAX deletion
                 deleteItemAjax(currentDeleteUrl);
@@ -123,6 +95,7 @@ function deleteItemAjax(url) {
     const originalText = confirmButton.textContent;
     confirmButton.textContent = 'Deleting...';
     confirmButton.disabled = true;
+    confirmButton.classList.add('opacity-50', 'cursor-not-allowed');
     
     // Get CSRF token
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -154,6 +127,7 @@ function deleteItemAjax(url) {
             // Reset button
             confirmButton.textContent = originalText;
             confirmButton.disabled = false;
+            confirmButton.classList.remove('opacity-50', 'cursor-not-allowed');
         }
     })
     .catch(error => {
@@ -163,6 +137,7 @@ function deleteItemAjax(url) {
         // Reset button
         confirmButton.textContent = originalText;
         confirmButton.disabled = false;
+        confirmButton.classList.remove('opacity-50', 'cursor-not-allowed');
     });
 }
 
