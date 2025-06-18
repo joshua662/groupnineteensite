@@ -1,49 +1,30 @@
 {% extends "layout/base.html" %}
 {% block 'title' %}Course Material{% endblock 'title' %}
 {% block 'content' %}
-<div class="flex min-h-screen bg-gray-50">
+<div class="flex min-h-screen" style="background: linear-gradient(135deg, #000000 0%, #2563eb 100%);">
     {% include "include/student_sidebar.html" %}
     
-    <main class="flex-1 p-8">
-        <h1 class="text-2xl font-bold mb-6">Course Tasks</h1>
-
-        
-        {% comment %} <div class="mb-6">
-            <form action="/student/course-material/" method="GET" class="flex gap-2 w-96">
-                <input 
-                    type="text" 
-                    name="search" 
-                    value="{{ search_query }}" 
-                    placeholder="Search tasks..." 
-                    class="flex-1 px-3 py-2 border rounded"
-                >
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">
-                    Search
-                </button>
-                {% if search_query %}
-                    <a href="/student/course-material/" class="bg-gray-500 text-white px-4 py-2 rounded">
-                        Clear
-                    </a>
-                {% endif %}
-            </form> 
-        </div> {% endcomment %}
+    <main class="flex-1 p-4 md:p-8 overflow-hidden">
+        <div class="mb-6 md:mb-8">
+            <h1 class="text-xl md:text-2xl font-bold text-white">Course Tasks</h1>
+        </div>
 
         <!-- Tasks -->
         <div class="space-y-4">
             {% if assigned_tasks %}
                 {% for assigned_task in assigned_tasks %}
-                    <div class="bg-white p-6 rounded border">
-                        <h3 class="text-lg font-semibold mb-2">{{ assigned_task.task.title }}</h3>
-                        <p class="text-gray-600 mb-3">{{ assigned_task.task.description }}</p>
-                        <div class="text-sm text-gray-500">
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 p-6">
+                        <h3 class="text-lg font-semibold mb-2 text-white">{{ assigned_task.task.title }}</h3>
+                        <p class="text-white/80 mb-3">{{ assigned_task.task.description }}</p>
+                        <div class="text-sm text-white/60">
                             <span>Status: {{ assigned_task.status }}</span> • 
                             <span>Assigned: {{ assigned_task.assigned_at|date:"M d, Y" }}</span>
                         </div>
                     </div>
                 {% endfor %}
             {% else %}
-                <div class="bg-white p-8 rounded border text-center">
-                    <p class="text-gray-500">No tasks assigned yet.</p>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 p-8 text-center">
+                    <p class="text-white/60">No tasks assigned yet.</p>
                 </div>
             {% endif %}
         </div>

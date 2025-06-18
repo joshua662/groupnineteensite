@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import  Student, AssignedTask, Task, Teacher, Section
+from .models import  Student, AssignedTask, Task, Teacher, Section, Notification
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, F
@@ -190,6 +190,12 @@ def student_dashboard(request):
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
 
+        # Get unread notifications count
+        unread_notifications_count = Notification.objects.filter(
+            student_id=student_id, 
+            is_read=False
+        ).count()
+
         data = {
             'assigned_tasks': page_obj,
             'page_obj': page_obj,
@@ -198,7 +204,8 @@ def student_dashboard(request):
             'current_month': current_month,
             'prev_month': prev_month,
             'next_month': next_month,
-            'today': datetime.now()
+            'today': datetime.now(),
+            'unread_notifications_count': unread_notifications_count
         }
 
         return render(request, 'student/dashboard.html', data)
@@ -254,27 +261,6 @@ def task_description(request, id):
 @student_login_required
 def student_assignments_exams(request):
     student_id = request.session.get('student_id')
-    assigned_tasks = AssignedTask.objects.filter(student_id=student_id).select_related('task')
-
-    
-    for assigned_task in assigned_tasks:
-        if assigned_task.status == 'submitted' and assigned_task.task.deadline and assigned_task.submitted_at:
-            if assigned_task.submitted_at <= assigned_task.task.deadline:
-                assigned_task.submission_status = 'On Time'
-            else:
-                assigned_task.submission_status = 'Late'
-        elif assigned_task.status == 'pending':
-            assigned_task.submission_status = 'Pending'
-        elif assigned_task.status == 'graded':
-            if assigned_task.task.deadline and assigned_task.submitted_at:
-                if assigned_task.submitted_at <= assigned_task.task.deadline:
-                    assigned_task.submission_status = 'Graded (On Time)'
-                else:
-                    assigned_task.submission_status = 'Graded (Late)'
-            else:
-                assigned_task.submission_status = 'Graded'
-        else:
-            assigned_task.submission_status = assigned_task.status # Fallback for other statuses
 
     if request.method == 'POST':
         assigned_task_id = request.POST.get('assigned_task_id')
@@ -294,13 +280,36 @@ def student_assignments_exams(request):
             messages.success(request, "Assignment submitted successfully!")
         except AssignedTask.DoesNotExist:
             messages.error(request, "Invalid assignment selection.")
+        except Exception as e:
+            messages.error(request, f"Error submitting assignment: {str(e)}")
+        
+        return redirect('/student/assignments-exams/')
 
-        assigned_tasks = AssignedTask.objects.filter(student_id=student_id)
-        return redirect('/student/assignments-exams/' ) 
+    # GET request - display assignments
+    assigned_tasks = AssignedTask.objects.filter(student_id=student_id).select_related('task')
+
+    for assigned_task in assigned_tasks:
+        if assigned_task.status == 'submitted' and assigned_task.task.deadline and assigned_task.submitted_at:
+            if assigned_task.submitted_at <= assigned_task.task.deadline:
+                assigned_task.submission_status = 'On Time'
+            else:
+                assigned_task.submission_status = 'Late'
+        elif assigned_task.status == 'pending':
+            assigned_task.submission_status = 'Pending'
+        elif assigned_task.status == 'graded':
+            if assigned_task.task.deadline and assigned_task.submitted_at:
+                if assigned_task.submitted_at <= assigned_task.task.deadline:
+                    assigned_task.submission_status = 'Graded (On Time)'
+                else:
+                    assigned_task.submission_status = 'Graded (Late)'
+            else:
+                assigned_task.submission_status = assigned_task.status # Fallback for other statuses
+
     has_pending = any(task.status == 'pending' for task in assigned_tasks)
     return render(request, 'student/assignments_exams.html', {
     'assigned_tasks': assigned_tasks,
-    'has_pending': has_pending,})
+        'has_pending': has_pending,
+    })
 
 
 @student_login_required
@@ -787,6 +796,11 @@ def edit_student1(request,id):
             section = request.POST.get('section')
             
             if Student.objects.filter(username=username).exclude(student_id=id).exists():
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False, 
+                        'message': 'Username already exists. Please choose a different username.'
+                    })
                 messages.error(request, 'Username already exists. Please choose a different username.')
                 return redirect(f'/student/edit_student/{id}')
             
@@ -804,6 +818,12 @@ def edit_student1(request,id):
             studentObj.section=Section.objects.get(pk=section)
             studentObj.save()
 
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True, 
+                    'message': 'Student updated successfully!'
+                })
+
             messages.success(request, 'Student updated successfully!')
             return redirect('/teacher/student_list/')
         else:
@@ -816,6 +836,11 @@ def edit_student1(request,id):
             
             return render(request, 'teacher/edit_student.html', data)
     except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False, 
+                'message': f'An error occurred: {str(e)}'
+            })
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('/teacher/student_list/')
     
@@ -988,12 +1013,21 @@ def add_task(request):
             
     
             for student in students:
-                AssignedTask.objects.create(
+                assigned_task = AssignedTask.objects.create(
                     task = task,
                     student = student,
                     section = Section.objects.get(pk=section),
                 )
                 
+                # Create notification for the student
+                Notification.objects.create(
+                    student=student,
+                    title=f"New Task Assigned: {task.title}",
+                    message=f"You have been assigned a new task: '{task.title}'. Please check your assignments and submit before the deadline.",
+                    notification_type='task_assigned',
+                    related_task=task,
+                    related_assigned_task=assigned_task
+                )
             
                 if send_email_notification:
                     send_task_notification_email(student, task, teacher)
@@ -1184,6 +1218,16 @@ def grade_task(request, id):
             assigned_task.feedback = feedback
             assigned_task.save()
             
+            # Create notification for the student about grade update
+            Notification.objects.create(
+                student=assigned_task.student,
+                title=f"Grade Updated: {assigned_task.task.title}",
+                message=f"Your grade for '{assigned_task.task.title}' has been updated. New rating: {rating}/10. Check your submissions for updated feedback.",
+                notification_type='task_graded',
+                related_task=assigned_task.task,
+                related_assigned_task=assigned_task
+            )
+            
             messages.success(request, 'Task graded successfully!')
             return redirect('/teacher/grading/')
         else:
@@ -1223,6 +1267,98 @@ def view_assigned_task(request, id):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('/teacher/grading/')
+
+@teacher_login_required
+def assigned_task_detail_partial(request, assigned_task_id):
+    """Return partial HTML for modal content"""
+    try:
+        assigned_task = AssignedTask.objects.select_related('student', 'task', 'student__section').get(pk=assigned_task_id)
+        
+        # Check if teacher has permission to view this task
+        teacher_id = request.session.get('teacher_id')
+        if assigned_task.task.teacher_id != teacher_id:
+            return HttpResponse('You do not have permission to view this task.', status=403)
+        
+        context = {
+            'assigned_task': assigned_task,
+            'student': assigned_task.student,
+            'task': assigned_task.task,
+        }
+        return render(request, 'teacher/assigned_task_detail_partial.html', context)
+    except AssignedTask.DoesNotExist:
+        return HttpResponse('Task not found.', status=404)
+    except Exception as e:
+        return HttpResponse(f'An error occurred: {str(e)}', status=500)
+
+@teacher_login_required
+def edit_grade_partial(request, assigned_task_id):
+    """Return partial HTML for edit grade modal content"""
+    try:
+        assigned_task = AssignedTask.objects.select_related('student', 'task', 'student__section').get(pk=assigned_task_id)
+        
+        # Check if teacher has permission to edit this task
+        teacher_id = request.session.get('teacher_id')
+        if assigned_task.task.teacher_id != teacher_id:
+            return HttpResponse('You do not have permission to edit this task.', status=403)
+        
+        context = {
+            'assigned_task': assigned_task,
+            'student': assigned_task.student,
+            'task': assigned_task.task,
+        }
+        return render(request, 'teacher/edit_grade_partial.html', context)
+    except AssignedTask.DoesNotExist:
+        return HttpResponse('Task not found.', status=404)
+    except Exception as e:
+        return HttpResponse(f'An error occurred: {str(e)}', status=500)
+
+@teacher_login_required
+def delete_assigned_task_partial(request, assigned_task_id):
+    """Return partial HTML for delete assigned task modal content"""
+    try:
+        assigned_task = AssignedTask.objects.select_related('student', 'task', 'student__section').get(pk=assigned_task_id)
+        
+        # Check if teacher has permission to delete this task
+        teacher_id = request.session.get('teacher_id')
+        if assigned_task.task.teacher_id != teacher_id:
+            return HttpResponse('You do not have permission to delete this task.', status=403)
+        
+        context = {
+            'assigned_task': assigned_task,
+            'student': assigned_task.student,
+            'task': assigned_task.task,
+        }
+        return render(request, 'teacher/delete_assigned_task_partial.html', context)
+    except AssignedTask.DoesNotExist:
+        return HttpResponse('Task not found.', status=404)
+    except Exception as e:
+        return HttpResponse(f'An error occurred: {str(e)}', status=500)
+
+@teacher_login_required
+def grade_task_partial(request, assigned_task_id):
+    """Return partial HTML for grade task modal content"""
+    try:
+        assigned_task = AssignedTask.objects.select_related('student', 'task', 'student__section').get(pk=assigned_task_id)
+        
+        # Check if teacher has permission to grade this task
+        teacher_id = request.session.get('teacher_id')
+        if assigned_task.task.teacher_id != teacher_id:
+            return HttpResponse('You do not have permission to grade this task.', status=403)
+        
+        # Check if task is submitted
+        if assigned_task.status != 'submitted':
+            return HttpResponse('This task is not ready for grading.', status=400)
+        
+        context = {
+            'assigned_task': assigned_task,
+            'student': assigned_task.student,
+            'task': assigned_task.task,
+        }
+        return render(request, 'teacher/grade_task_partial.html', context)
+    except AssignedTask.DoesNotExist:
+        return HttpResponse('Task not found.', status=404)
+    except Exception as e:
+        return HttpResponse(f'An error occurred: {str(e)}', status=500)
 
 @teacher_login_required
 def delete_assigned_task(request, id):
@@ -1288,12 +1424,16 @@ def edit_grade(request, id):
             feedback = request.POST.get('feedback')
 
             if not rating:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'Rating is required!'})
                 messages.error(request, 'Rating is required!')
                 return redirect(f'/teacher/edit_grade/{id}/')
 
-            
+            # Check if teacher has permission to edit this task
             teacher_id = request.session.get('teacher_id')
             if assigned_task.task.teacher_id != teacher_id:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'You do not have permission to edit this grade.'})
                 messages.error(request, 'You do not have permission to edit this grade.')
                 return redirect('/teacher/grading/')
 
@@ -1301,12 +1441,28 @@ def edit_grade(request, id):
             assigned_task.feedback = feedback
             assigned_task.save()
             
+            # Create notification for the student about grade update
+            Notification.objects.create(
+                student=assigned_task.student,
+                title=f"Grade Updated: {assigned_task.task.title}",
+                message=f"Your grade for '{assigned_task.task.title}' has been updated. New rating: {rating}/10. Check your submissions for updated feedback.",
+                notification_type='task_graded',
+                related_task=assigned_task.task,
+                related_assigned_task=assigned_task
+            )
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True, 
+                    'message': 'Grade updated successfully!'
+                })
+            
             messages.success(request, 'Grade updated successfully!')
             return redirect('/teacher/grading/')
         else:
             assigned_task = AssignedTask.objects.get(pk=id)
             
-            
+            # Check if teacher has permission to edit this task
             teacher_id = request.session.get('teacher_id')
             if assigned_task.task.teacher_id != teacher_id:
                 messages.error(request, 'You do not have permission to edit this grade.')
@@ -1317,9 +1473,13 @@ def edit_grade(request, id):
             }
             return render(request, 'teacher/edit_grade.html', data)
     except AssignedTask.DoesNotExist:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Task not found.'})
         messages.error(request, 'Task not found.')
         return redirect('/teacher/grading/')
     except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': f'An error occurred: {str(e)}'})
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('/teacher/grading/')
 
@@ -1439,9 +1599,7 @@ def download_student_submission(request, assigned_task_id):
             file_content = file.read()
         
         response = HttpResponse(file_content, content_type='application/octet-stream')
-
         response['Content-Disposition'] = f'attachment; filename="{file_name}"'
-        
         response['Content-Length'] = len(file_content)
         response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response['Pragma'] = 'no-cache'
@@ -1455,6 +1613,82 @@ def download_student_submission(request, assigned_task_id):
     except Exception as e:
         messages.error(request, f'Error downloading file: {str(e)}')
         return redirect('/student/assignments-exams/')
+
+@student_login_required
+def student_notifications(request):
+    """View all notifications for a student"""
+    try:
+        student_id = request.session.get('student_id')
+        
+        if not student_id:
+            messages.error(request, 'Student session not found.')
+            return redirect('/student/dashboard/')
+        
+        student = Student.objects.get(student_id=student_id)
+        
+        # Get notifications without marking them as read yet
+        notifications = Notification.objects.filter(student=student).order_by('-created_at')
+        
+        # Mark all notifications as read when viewing (but don't modify the queryset)
+        Notification.objects.filter(student=student, is_read=False).update(is_read=True)
+        
+        # Get unread count (should be 0 after marking all as read)
+        unread_notifications_count = Notification.objects.filter(
+            student=student, 
+            is_read=False
+        ).count()
+        
+        context = {
+            'notifications': notifications,
+            'student': student,
+            'unread_notifications_count': unread_notifications_count
+        }
+        return render(request, 'student/notifications.html', context)
+    except Student.DoesNotExist:
+        messages.error(request, 'Student not found.')
+        return redirect('/student/dashboard/')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/student/dashboard/')
+
+@student_login_required
+def mark_notification_read(request, notification_id):
+    """Mark a specific notification as read via AJAX"""
+    try:
+        student_id = request.session.get('student_id')
+        notification = Notification.objects.get(pk=notification_id, student__student_id=student_id)
+        notification.is_read = True
+        notification.save()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True})
+        else:
+            messages.success(request, 'Notification marked as read.')
+            return redirect('/student/notifications/')
+    except Notification.DoesNotExist:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Notification not found.'})
+        messages.error(request, 'Notification not found.')
+        return redirect('/student/notifications/')
+    except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': f'An error occurred: {str(e)}'})
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('/student/notifications/')
+
+@student_login_required
+def get_unread_notifications_count(request):
+    """Get count of unread notifications for AJAX requests"""
+    try:
+        student_id = request.session.get('student_id')
+        unread_count = Notification.objects.filter(
+            student__student_id=student_id, 
+            is_read=False
+        ).count()
+        
+        return JsonResponse({'unread_count': unread_count})
+    except Exception as e:
+        return JsonResponse({'unread_count': 0})
 
 def register_view(request):
     if request.method == 'POST':
@@ -1519,3 +1753,19 @@ def register_view(request):
             return redirect('register')
 
     return render(request, 'layout/Register.html')
+
+def edit_student_partial(request, id):
+    """Return edit student form partial for modal"""
+    try:
+        studentObj = Student.objects.get(pk=id)
+        sections = Section.objects.all()
+        data = {
+            'student': studentObj,
+            'sections': sections,
+        }
+        
+        return render(request, 'teacher/edit_student_partial.html', data)
+    except Student.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Student not found.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'An error occurred: {str(e)}'})

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="icon" type="images/png" href="{% static 'images/IconTab.png' %}">
+    <link rel="icon" type="images/png" href="{% static 'images/web.png' %}">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <title>{% block 'title' %}{% endblock 'title' %}</title>
     <!-- Add Inter font -->
@@ -64,6 +64,33 @@
         .bg-main-gradient {
             background: linear-gradient(135deg, #0F0C29 0%, #1E5E98 100%);
             min-height: 100vh;
+        }
+        
+        /* Modal transparency styles */
+        .modal-transparent {
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+        }
+        
+        .form-section-transparent {
+            background: rgba(255, 255, 255, 0.7) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+        }
+        
+        .input-transparent {
+            background: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        /* Ensure backdrop filter works in all browsers */
+        @supports not (backdrop-filter: blur(12px)) {
+            .modal-transparent {
+                background: rgba(255, 255, 255, 0.95) !important;
+            }
+            .form-section-transparent {
+                background: rgba(255, 255, 255, 0.85) !important;
+            }
         }
     </style>
 </head>

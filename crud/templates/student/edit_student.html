@@ -1,13 +1,13 @@
 {% extends "layout/base.html" %}
-{% block 'title' %}Classroom Discussions{% endblock 'title' %}
+{% block 'title' %}Edit Student Profile{% endblock 'title' %}
 {% block 'content' %}
 
-    <div class="min-h-screen flex">
+    <div class="min-h-screen flex" style="background: linear-gradient(135deg, #000000 0%, #2563eb 100%);">
         <!-- Sidebar placeholder -->
         {% include "include/student_sidebar.html" %}
         <main class="flex-1 p-6">
             <!-- Page Header -->
-            <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <div class="form-section-transparent rounded-lg shadow-sm border border-white/20 p-6 mb-6">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                         <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
@@ -18,15 +18,15 @@
                             <p class="text-gray-600">Update your personal and contact information</p>
                         </div>
                     </div>
-                    <a href="#" class="text-blue-600 hover:text-blue-800 font-medium">← Back to Profile</a>
+                    <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">← Back to Profile</a>
                 </div>
             </div>
 
             {% if error %}
-            <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4">
+            <div class="mb-6 bg-red-500/10 border-l-4 border-red-500 p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                         </svg>
                     </div>
@@ -49,15 +49,15 @@
             <form class="space-y-6" action="/student/edit_student/{{ student.student_id}}/" method="post">
                 <!-- Personal Information Section -->
                  {% csrf_token %}  
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="form-section-transparent rounded-lg shadow-sm border border-white/30 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200/50">
                         Personal Information
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username <span class="text-red-500">*</span></label>
+                            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username <span class="text-red-400">*</span></label>
                             <input type="text" id="username" name="username" 
-                                   class="w-full px-3 py-2 border {% if error.username %}border-red-500 focus:ring-red-500{% else %}border-gray-300 focus:ring-blue-500{% endif %} rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-transparent"
                                    value="{{ student.username }}" required>
                             {% if error.username %}
                             <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -69,9 +69,9 @@
                             {% endif %}
                         </div>
                         <div>
-                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-red-500">*</span></label>
+                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-red-400">*</span></label>
                             <input type="text" id="first_name" name="first_name" 
-                                   class="w-full px-3 py-2 border {% if error.first_name %}border-red-500 focus:ring-red-500{% else %}border-gray-300 focus:ring-blue-500{% endif %} rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-transparent"
                                    value="{{student.first_name }}" required>
                             {% if error.first_name %}
                             <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -85,13 +85,13 @@
                         <div>
                             <label for="middle_name" class="block text-sm font-medium text-gray-700 mb-1">Middle Name (Optional)</label>
                             <input type="text" id="middle_name" name="middle_name" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-transparent"
                                    value="{{ student.middle_name }}">
                         </div>
                         <div>
-                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name <span class="text-red-500">*</span></label>
+                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name <span class="text-red-400">*</span></label>
                             <input type="text" id="last_name" name="last_name" 
-                                   class="w-full px-3 py-2 border {% if error.last_name %}border-red-500 focus:ring-red-500{% else %}border-gray-300 focus:ring-blue-500{% endif %} rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-transparent"
                                    value="{{ student.last_name }}" required>
                             {% if error.last_name %}
                             <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -105,17 +105,17 @@
                         <div>
                             <label for="suffix" class="block text-sm font-medium text-gray-700 mb-1">Suffix (Optional)</label>
                             <input type="text" id="suffix" name="suffix" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-transparent"
                                    value="{{ student.suffix }}">
                         </div>
                         <div>
-                            <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender <span class="text-red-500">*</span></label>
+                            <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender <span class="text-red-400">*</span></label>
                             <select id="gender" name="gender" 
-                                    class="w-full px-3 py-2 border {% if error.gender %}border-red-500 focus:ring-red-500{% else %}border-gray-300 focus:ring-blue-500{% endif %} rounded-md focus:outline-none focus:ring-2 focus:border-transparent" required>
-                                <option value="">Select Gender</option>
-                                <option value="male" {% if student.gender == "male" %}selected{% endif %}>Male</option>
-                                <option value="female" {% if student.gender == "female" %}selected{% endif %}>Female</option>
-                                <option value="other" {% if student.gender == "other" %}selected{% endif %}>Other</option>
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-transparent" required>
+                                <option value="" class="text-gray-700">Select Gender</option>
+                                <option value="male" {% if student.gender == "male" %}selected{% endif %} class="text-gray-700">Male</option>
+                                <option value="female" {% if student.gender == "female" %}selected{% endif %} class="text-gray-700">Female</option>
+                                <option value="other" {% if student.gender == "other" %}selected{% endif %} class="text-gray-700">Other</option>
                             </select>
                             {% if error.gender %}
                             <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -127,10 +127,10 @@
                             {% endif %}
                         </div>
                         <div>
-                            <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date <span class="text-red-500">*</span></label>
+                            <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date <span class="text-red-400">*</span></label>
                             <input type="date" id="birth_date" name="birth_date" 
-                                   class="w-full px-3 py-2 border {% if error.birth_date %}border-red-500 focus:ring-red-500{% else %}border-gray-300 focus:ring-blue-500{% endif %} rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
-                                   value="{{ student.birth_date|date:"Y-m-d" }}" required>
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-transparent"
+                                   value="{{ student.birth_date|date:'Y-m-d' }}" required>
                             {% if error.birth_date %}
                             <p class="mt-1 text-sm text-red-600 flex items-center">
                                 <svg class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -144,15 +144,15 @@
                 </div>
 
                 <!-- Contact Information Section -->
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="form-section-transparent rounded-lg shadow-sm border border-white/30 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200/50">
                         Contact Information
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span class="text-red-500">*</span></label>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span class="text-red-400">*</span></label>
                             <input type="email" id="email" name="email" 
-                                   class="w-full px-3 py-2 border {% if error.email %}border-red-500 focus:ring-red-500{% else %}border-gray-300 focus:ring-blue-500{% endif %} rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-transparent"
                                    value="{{ student.email }}" required>
                             {% if error.email %}
                             <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -164,9 +164,9 @@
                             {% endif %}
                         </div>
                         <div>
-                            <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-1">Contact Number <span class="text-red-500">*</span></label>
+                            <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-1">Contact Number <span class="text-red-400">*</span></label>
                             <input type="tel" id="contact_number" name="contact_number" 
-                                   class="w-full px-3 py-2 border {% if error.contact_number %}border-red-500 focus:ring-red-500{% else %}border-gray-300 focus:ring-blue-500{% endif %} rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-transparent"
                                    value="{{ student.contact_number }}" required>
                             {% if error.contact_number %}
                             <p class="mt-1 text-sm text-red-600 flex items-center">
@@ -181,28 +181,28 @@
                 </div>
 
                 <!-- Academic Information Section -->
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="form-section-transparent rounded-lg shadow-sm border border-white/30 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200/50">
                         Academic Information
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="section" class="block text-sm font-medium text-gray-700 mb-1">Section</label>
                             <select id="section" name="section" 
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                                <option value="">Select Section</option>
-                                <option value="1" {% if student.section.name == "A" %}selected{% endif %}>Section A</option>
-                                <option value="2" {% if student.section.name == "B" %}selected{% endif %}>Section B</option>
-                                <option value="3" {% if student.section.name == "C" %}selected{% endif %}>Section C</option>
-                                <option value="4" {% if student.section.name == "D" %}selected{% endif %}>Section D</option>
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-transparent" required>
+                                <option value="" class="text-gray-700">Select Section</option>
+                                <option value="1" {% if student.section.name == "A" %}selected{% endif %} class="text-gray-700">Section A</option>
+                                <option value="2" {% if student.section.name == "B" %}selected{% endif %} class="text-gray-700">Section B</option>
+                                <option value="3" {% if student.section.name == "C" %}selected{% endif %} class="text-gray-700">Section C</option>
+                                <option value="4" {% if student.section.name == "D" %}selected{% endif %} class="text-gray-700">Section D</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
                 <!-- Form Actions -->
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="form-section-transparent rounded-lg shadow-sm border border-white/30 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200/50">
                         Save Changes
                     </h2>
                     <div class="flex flex-col sm:flex-row gap-4">

@@ -2,169 +2,182 @@
 {% block 'title' %}Teacher Dashboard{% endblock 'title' %}
 
 {% block 'content' %}
-<div class="flex min-h-screen bg-gray-50">
+<div class="flex min-h-screen" style="background: linear-gradient(135deg, #000000 0%, #2563eb 100%);">
     {% include "include/teacher_sidebar.html" %}
-    <div class="flex-1 p-8">
+    <div class="flex-1 p-4 md:p-8 overflow-hidden">
         <!-- Welcome Section -->
-        <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-800">Welcome back, Teacher!</h1>
-            <p class="text-gray-600 mt-1">Here's an overview of your class performance</p>
+        <div class="mb-6 md:mb-8">
+            <h1 class="text-xl md:text-2xl font-bold text-white">Welcome back, Teacher!</h1>
+            <p class="text-gray-200 mt-1 text-sm md:text-base">Here's an overview of your class performance</p>
         </div>
 
         <!-- Search and Filter Section -->
-        <div class="mb-8">
-            <form action="/teacher/dashboard/" class="flex gap-2" method="GET">
+        <div class="mb-6 md:mb-8">
+            <form action="/teacher/dashboard/" class="flex flex-col sm:flex-row gap-2" method="GET">
                 <div class="relative flex-1">
                     <input type="text" name="search" value="{{ search_query }}" 
                            placeholder="Search by Student ID, Name, or Task Title" 
-                           class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
                 </div>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                    Search
-                </button>
-                {% if search_query %}
-                    <a href="/teacher/dashboard/" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                        Clear
-                    </a>
-                {% endif %}
+                <div class="flex gap-2">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 whitespace-nowrap">
+                        Search
+                    </button>
+                    {% if search_query %}
+                        <a href="/teacher/dashboard/" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 whitespace-nowrap">
+                            Clear
+                        </a>
+                    {% endif %}
+                </div>
             </form>
         </div>
 
         <!-- Statistics Cards -->
-        <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- On Time Submissions Card -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">On Time Submissions</h3>
-                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {{ on_time_passed }} students
-                    </span>
+        <div class="mb-6 md:mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Submission Status Pie Chart -->
+            <div class="bg-white/10 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-sm border border-white/20 min-h-[350px] flex flex-col items-center justify-center">
+                <h3 class="text-base md:text-lg font-semibold text-white mb-4">Submission Status</h3>
+                <div class="h-64 w-full flex items-center justify-center">
+                    <canvas id="submissionStatusPie"></canvas>
                 </div>
-                <div class="h-64">
-                    <canvas id="onTimeChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Late Submissions Card -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Late Submissions</h3>
-                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {{ late_passed }} students
-                    </span>
-                </div>
-                <div class="h-64">
-                    <canvas id="lateChart"></canvas>
+                <div class="flex flex-col items-center mt-4 space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-4 h-4 inline-block rounded-full" style="background:green"></span>
+                        <span class="font-bold text-white">On Time Submissions</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-4 h-4 inline-block rounded-full" style="background:red"></span>
+                        <span class="font-bold text-white">Late Submissions</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-4 h-4 inline-block rounded-full" style="background:orange"></span>
+                        <span class="font-bold text-white">Pending Tasks</span>
+                    </div>
                 </div>
             </div>
-
-            <!-- Pending Tasks Card -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Pending Tasks</h3>
-                    <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {{ pending_tasks }} students
-                    </span>
+            <!-- Graded Status Pie Chart -->
+            <div class="bg-white/10 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-sm border border-white/20 min-h-[350px] flex flex-col items-center justify-center">
+                <h3 class="text-base md:text-lg font-semibold text-white mb-4">Graded Status</h3>
+                <div class="h-64 w-full flex items-center justify-center">
+                    <canvas id="gradedStatusPie"></canvas>
                 </div>
-                <div class="h-64">
-                    <canvas id="pendingChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Graded On Time Card -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Graded (On Time)</h3>
-                    <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {{ graded_on_time }} students
-                    </span>
-                </div>
-                <div class="h-64">
-                    <canvas id="gradedOnTimeChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Graded Late Card -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Graded (Late)</h3>
-                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {{ graded_late }} students
-                    </span>
-                </div>
-                <div class="h-64">
-                    <canvas id="gradedLateChart"></canvas>
+                <div class="flex flex-col items-center mt-4 space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-4 h-4 inline-block rounded-full" style="background:green"></span>
+                        <span class="font-bold text-white">Graded (On Time)</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-4 h-4 inline-block rounded-full" style="background:red"></span>
+                        <span class="font-bold text-white">Graded (Late)</span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Lessons Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div class="p-6 border-b border-gray-100">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-semibold text-gray-800">Lessons Overview</h3>
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 overflow-hidden">
+            <div class="p-4 md:p-6 border-b border-white/20">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <h3 class="text-lg font-semibold text-white">Lessons Overview</h3>
                     <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-500">Total Students: {{ total_students }}</span>
+                        <span class="text-sm text-white/80 bg-white/10 px-3 py-1 rounded-full">Total Students: {{ total_students }}</span>
                     </div>
                 </div>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-white/20">
+                    <thead class="bg-white/10">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Starting</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-4 md:px-6 py-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Task</th>
+                            <th class="px-4 md:px-6 py-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Student ID</th>
+                            <th class="px-4 md:px-6 py-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Student Name</th>
+                            <th class="px-4 md:px-6 py-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Starting</th>
+                            <th class="px-4 md:px-6 py-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Due Date</th>
+                            <th class="px-4 md:px-6 py-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Status</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white/5 divide-y divide-white/10">
                         {% for assigned_task in assigned_tasks %}
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {{ assigned_task.task.title }}
+                            <tr class="hover:bg-white/10 transition-colors duration-150">
+                                <td class="px-4 md:px-6 py-4 text-sm font-medium text-white">
+                                    <div class="min-w-[200px] md:min-w-[300px]">
+                                        <div class="break-words" title="{{ assigned_task.task.title }}">{{ assigned_task.task.title }}</div>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
-                                    {{ assigned_task.student.student_id }}
+                                <td class="px-4 md:px-6 py-4 text-sm font-mono text-white/80 bg-white/10 rounded">
+                                    <span class="px-2 py-1 bg-white/20 rounded text-xs">{{ assigned_task.student.student_id }}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ assigned_task.student.last_name }}, {{ assigned_task.student.first_name }} {{ assigned_task.student.middle_name }} {{ assigned_task.student.suffix }}
+                                <td class="px-4 md:px-6 py-4 text-sm text-white">
+                                    <div class="max-w-[180px] md:max-w-[250px]">
+                                        <div class="truncate font-medium" title="{{ assigned_task.student.last_name }}, {{ assigned_task.student.first_name }} {{ assigned_task.student.middle_name }} {{ assigned_task.student.suffix }}">
+                                            {{ assigned_task.student.last_name }}, {{ assigned_task.student.first_name }}
+                                        </div>
+                                        {% if assigned_task.student.middle_name or assigned_task.student.suffix %}
+                                            <div class="text-xs text-white/70 truncate">
+                                                {{ assigned_task.student.middle_name }} {{ assigned_task.student.suffix }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ assigned_task.assigned_at|date:"M d, Y h:i A" }}
+                                <td class="px-4 md:px-6 py-4 text-sm text-white/80">
+                                    <div class="space-y-1">
+                                        <div class="hidden md:block font-medium">{{ assigned_task.assigned_at|date:"M d, Y" }}</div>
+                                        <div class="hidden md:block text-xs text-white/60">{{ assigned_task.assigned_at|date:"h:i A" }}</div>
+                                        <div class="md:hidden text-xs">{{ assigned_task.assigned_at|date:"M d, Y" }}</div>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ assigned_task.task.deadline|date:"M d, Y h:i A" }}
+                                <td class="px-4 md:px-6 py-4 text-sm text-white/80">
+                                    <div class="space-y-1">
+                                        <div class="hidden md:block font-medium">{{ assigned_task.task.deadline|date:"M d, Y" }}</div>
+                                        <div class="hidden md:block text-xs text-white/60">{{ assigned_task.task.deadline|date:"h:i A" }}</div>
+                                        <div class="md:hidden text-xs">{{ assigned_task.task.deadline|date:"M d, Y" }}</div>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 md:px-6 py-4">
                                     {% if assigned_task.submission_status == 'On Time' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-200 border border-green-500/30">
+                                            <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
                                             On Time
                                         </span>
                                     {% elif assigned_task.submission_status == 'Late' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-200 border border-red-500/30">
+                                            <span class="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
                                             Late
                                         </span>
                                     {% elif assigned_task.submission_status == 'Pending' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-200 border border-yellow-500/30">
+                                            <span class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></span>
                                             Pending
                                         </span>
                                     {% elif assigned_task.submission_status == 'Graded (On Time)' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                            Graded (On Time)
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-500/30">
+                                            <span class="w-2 h-2 bg-emerald-400 rounded-full mr-2"></span>
+                                            <span class="hidden sm:inline">Graded (On Time)</span>
+                                            <span class="sm:hidden">Graded OT</span>
                                         </span>
                                     {% elif assigned_task.submission_status == 'Graded (Late)' %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                            Graded (Late)
+                                        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-200 border border-red-500/30">
+                                            <span class="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
+                                            <span class="hidden sm:inline">Graded (Late)</span>
+                                            <span class="sm:hidden">Graded L</span>
                                         </span>
                                     {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="px-4 md:px-6 py-8 text-center text-white/60">
+                                    <div class="flex flex-col items-center space-y-2">
+                                        <svg class="w-8 h-8 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        <p class="text-sm">No lessons found</p>
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -175,11 +188,11 @@
 
         <!-- Pagination -->
         <nav class="mt-6">
-            <ul class="inline-flex -space-x-px text-sm w-full justify-center">
+            <ul class="flex flex-wrap justify-center gap-1 text-sm">
                 {% if page_obj.has_previous %}
                 <li>
                     <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" 
-                       class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 transition-colors duration-200">
+                       class="flex items-center justify-center px-3 md:px-4 h-10 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 transition-colors duration-200">
                         Previous
                     </a>
                 </li>
@@ -189,14 +202,14 @@
                     {% if page_obj.number == num %}
                     <li>
                         <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}" 
-                           class="flex items-center justify-center px-4 h-10 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-200">
+                           class="flex items-center justify-center px-3 md:px-4 h-10 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 transition-colors duration-200 rounded-lg">
                             {{ num }}
                         </a>
                     </li>
                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                     <li>
                         <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}" 
-                           class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 transition-colors duration-200">
+                           class="flex items-center justify-center px-3 md:px-4 h-10 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 transition-colors duration-200 rounded-lg">
                             {{ num }}
                         </a>
                     </li>
@@ -206,7 +219,7 @@
                 {% if page_obj.has_next %}
                 <li>
                     <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" 
-                       class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 transition-colors duration-200">
+                       class="flex items-center justify-center px-3 md:px-4 h-10 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 transition-colors duration-200">
                         Next
                     </a>
                 </li>
@@ -217,33 +230,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
-// Custom plugin to draw percentage in the center
-const centerTextPlugin = {
-    id: 'centerText',
-    afterDraw: function(chart) {
-        if (chart.config.options.centerText) {
-            const ctx = chart.ctx;
-            const centerConfig = chart.config.options.centerText;
-            const txt = centerConfig.text;
-            const fontSize = centerConfig.fontSize || '2rem';
-            const fontColor = centerConfig.color || '#111827';
-            const fontFamily = centerConfig.fontFamily || 'Inter, Arial, sans-serif';
-            ctx.save();
-            ctx.font = `${fontSize} ${fontFamily}`;
-            ctx.fillStyle = fontColor;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            const x = chart.getDatasetMeta(0).data[0].x;
-            const y = chart.getDatasetMeta(0).data[0].y;
-            ctx.fillText(txt, x, y);
-            ctx.restore();
-        }
-    }
-};
-
-Chart.register(centerTextPlugin);
-
 document.addEventListener('DOMContentLoaded', function () {
     // Get dynamic values from Django template context
     const onTimePassed = parseInt('{{ on_time_passed|default:0 }}');
@@ -251,228 +239,88 @@ document.addEventListener('DOMContentLoaded', function () {
     const pendingTasks = parseInt('{{ pending_tasks|default:0 }}');
     const gradedOnTime = parseInt('{{ graded_on_time|default:0 }}');
     const gradedLate = parseInt('{{ graded_late|default:0 }}');
-    
-    // Each student is 3%
-    let onTimePercentage = (onTimePassed * 3).toFixed(2);
-    let latePercentage = (latePassed * 3).toFixed(2);
-    let pendingPercentage = (pendingTasks * 3).toFixed(2);
-    let gradedOnTimePercentage = (gradedOnTime * 3).toFixed(2);
-    let gradedLatePercentage = (gradedLate * 3).toFixed(2);
+    const totalSubmissions = onTimePassed + latePassed + pendingTasks;
+    const totalGraded = gradedOnTime + gradedLate;
 
-    // On Time Submissions Chart
-    const onTimeCtx = document.getElementById('onTimeChart').getContext('2d');
-    new Chart(onTimeCtx, {
-        type: 'doughnut',
+    // Pie chart for Submission Status
+    const submissionStatusCtx = document.getElementById('submissionStatusPie').getContext('2d');
+    new Chart(submissionStatusCtx, {
+        type: 'pie',
         data: {
-            labels: ['On Time', 'Others'],
+            labels: ['On Time Submissions', 'Late Submissions', 'Pending Tasks'],
             datasets: [{
-                data: [onTimePercentage, 100 - onTimePercentage],
+                data: [onTimePassed, latePassed, pendingTasks],
                 backgroundColor: [
-                    'rgba(34, 197, 94, 0.8)',  // Green for on time
-                    'rgba(229, 231, 235, 0.8)', // Gray for others
+                    '#22c55e',   // On Time (green)
+                    '#ef4444',   // Late (red)
+                    '#f59e0b'    // Pending (yellow)
                 ],
-                borderColor: [
-                    'rgb(34, 197, 94)',
-                    'rgb(229, 231, 235)',
-                ],
-                borderWidth: 1
+                borderColor: '#fff',
+                borderWidth: 4
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'bottom'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${context.raw}% (${onTimePassed} students)`;
-                        }
-                    }
-                }
+                legend: { display: false },
+                tooltip: { enabled: false },
+                datalabels: { display: false }
             },
-            centerText: {
-                text: `${onTimePercentage}%`,
-                fontSize: '2rem',
-                color: '#22c55e',
-                fontFamily: 'Inter, Arial, sans-serif'
+            elements: {
+                arc: {
+                    borderWidth: totalSubmissions === 0 ? 0 : 4
+                }
             }
         }
     });
 
-    // Late Submissions Chart
-    const lateCtx = document.getElementById('lateChart').getContext('2d');
-    new Chart(lateCtx, {
-        type: 'doughnut',
+    // Pie chart for Graded Status
+    const gradedStatusCtx = document.getElementById('gradedStatusPie').getContext('2d');
+    new Chart(gradedStatusCtx, {
+        type: 'pie',
         data: {
-            labels: ['Late', 'Others'],
+            labels: ['Graded (On Time)', 'Graded (Late)'],
             datasets: [{
-                data: [latePercentage, 100 - latePercentage],
+                data: [gradedOnTime, gradedLate],
                 backgroundColor: [
-                    'rgba(239, 68, 68, 0.8)',  // Red for late
-                    'rgba(229, 231, 235, 0.8)', // Gray for others
+                    '#22c55e',   // Graded On Time (green)
+                    '#ef4444'    // Graded Late (red)
                 ],
-                borderColor: [
-                    'rgb(239, 68, 68)',
-                    'rgb(229, 231, 235)',
-                ],
-                borderWidth: 1
+                borderColor: '#fff',
+                borderWidth: 4
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'bottom'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${context.raw}% (${latePassed} students)`;
-                        }
-                    }
-                }
+                legend: { display: false },
+                tooltip: { enabled: false },
+                datalabels: { display: false }
             },
-            centerText: {
-                text: `${latePercentage}%`,
-                fontSize: '2rem',
-                color: '#ef4444',
-                fontFamily: 'Inter, Arial, sans-serif'
+            elements: {
+                arc: {
+                    borderWidth: totalGraded === 0 ? 0 : 4
+                }
             }
         }
     });
 
-    // Pending Tasks Chart
-    const pendingCtx = document.getElementById('pendingChart').getContext('2d');
-    new Chart(pendingCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Pending', 'Others'],
-            datasets: [{
-                data: [pendingPercentage, 100 - pendingPercentage],
-                backgroundColor: [
-                    'rgba(245, 158, 11, 0.8)', // Yellow for pending
-                    'rgba(229, 231, 235, 0.8)', // Gray for others
-                ],
-                borderColor: [
-                    'rgb(245, 158, 11)',
-                    'rgb(229, 231, 235)',
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${context.raw}% (${pendingTasks} students)`;
-                        }
-                    }
-                }
-            },
-            centerText: {
-                text: `${pendingPercentage}%`,
-                fontSize: '2rem',
-                color: '#f59e0b',
-                fontFamily: 'Inter, Arial, sans-serif'
-            }
-        }
-    });
+    // Add "No Data" text for empty charts
+    if (totalSubmissions === 0) {
+        const submissionCanvas = document.getElementById('submissionStatusPie');
+        const ctx = submissionCanvas.getContext('2d');
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.font = '14px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('No Data', submissionCanvas.width / 2, submissionCanvas.height / 2);
+    }
 
-    // Graded On Time Chart
-    const gradedOnTimeCtx = document.getElementById('gradedOnTimeChart').getContext('2d');
-    new Chart(gradedOnTimeCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Graded On Time', 'Others'],
-            datasets: [{
-                data: [gradedOnTimePercentage, 100 - gradedOnTimePercentage],
-                backgroundColor: [
-                    'rgba(16, 185, 129, 0.8)',  // Emerald green for graded on time
-                    'rgba(229, 231, 235, 0.8)', // Gray for others
-                ],
-                borderColor: [
-                    'rgb(16, 185, 129)',
-                    'rgb(229, 231, 235)',
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${context.raw}% (${gradedOnTime} students)`;
-                        }
-                    }
-                }
-            },
-            centerText: {
-                text: `${gradedOnTimePercentage}%`,
-                fontSize: '2rem',
-                color: '#10b981',
-                fontFamily: 'Inter, Arial, sans-serif'
-            }
-        }
-    });
-
-    // Graded Late Chart
-    const gradedLateCtx = document.getElementById('gradedLateChart').getContext('2d');
-    new Chart(gradedLateCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Graded Late', 'Others'],
-            datasets: [{
-                data: [gradedLatePercentage, 100 - gradedLatePercentage],
-                backgroundColor: [
-                    'rgba(220, 38, 38, 0.8)',  // Dark red for graded late
-                    'rgba(229, 231, 235, 0.8)', // Gray for others
-                ],
-                borderColor: [
-                    'rgb(220, 38, 38)',
-                    'rgb(229, 231, 235)',
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${context.raw}% (${gradedLate} students)`;
-                        }
-                    }
-                }
-            },
-            centerText: {
-                text: `${gradedLatePercentage}%`,
-                fontSize: '2rem',
-                color: '#dc2626',
-                fontFamily: 'Inter, Arial, sans-serif'
-            }
-        }
-    });
+    if (totalGraded === 0) {
+        const gradedCanvas = document.getElementById('gradedStatusPie');
+        const ctx = gradedCanvas.getContext('2d');
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.font = '14px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('No Data', gradedCanvas.width / 2, gradedCanvas.height / 2);
+    }
 });
 </script>
 

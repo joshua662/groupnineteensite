@@ -1,28 +1,21 @@
 {% extends "layout/base.html" %}
-{% block 'title' %}Student Dashboard{% endblock 'title' %}
+{% block 'title' %}Task Description{% endblock 'title' %}
 {% block 'content' %}
-    <div class='flex '> 
+<div class="flex min-h-screen" style="background: linear-gradient(135deg, #000000 0%, #2563eb 100%);">
         {% include "include/student_sidebar.html" %}
-
-        <div class="max-w-sm p-6  border-gray-200 rounded-lg shadow-sm">
-    
-        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">{{ task.title }}</h5>
-
-        <h3 class="mb-2 text-1xl font-bold tracking-tight text-gray-900"class="mb-2 text-2xl font-bold tracking-tight text-gray-900" >By {{ task.teacher.last_name }},{{ task.teacher.first_name }} {{ task.teacher.middle_name }} {{ task.teacher.suffix }}</h3>
-
-        <h2 class="mb-2 text-1xl font-bold tracking-tight text-gray-900">Deadline: {{ task.deadline|date:"M d, Y h:i A" }}</h2>
-
-
-    
-    <p class="mb-3 font-normal text-gray-700">{{ task.description }}</p>
-    <a href="{% url 'student_assignments_exams' %}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
+    <div class="flex-1 flex items-center justify-center">
+        <div class="max-w-sm p-6 bg-white/10 backdrop-blur-sm rounded-xl shadow-sm border border-white/20">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-white">{{ task.title }}</h5>
+            <h3 class="mb-2 text-1xl font-bold tracking-tight text-white">By {{ task.teacher.last_name }},{{ task.teacher.first_name }} {{ task.teacher.middle_name }} {{ task.teacher.suffix }}</h3>
+            <h2 class="mb-2 text-1xl font-bold tracking-tight text-white">Deadline: {{ task.deadline|date:"M d, Y h:i A" }}</h2>
+            <p class="mb-3 font-normal text-white/80">{{ task.description }}</p>
+            <a href="{% url 'student_assignments_exams' %}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors focus:ring-4 focus:outline-none focus:ring-blue-500/30">
         Submit
         <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
         </svg>
     </a>
 </div>
-        
-
-<!-- Add more fields as needed -->
+    </div>
+</div>
 {% endblock 'content' %}

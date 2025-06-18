@@ -2,12 +2,12 @@
 {% block 'title' %}Create New Task{% endblock 'title' %}
 {% block 'content' %}
 
-    <div class="min-h-screen flex">
+    <div class="min-h-screen flex" style="background: linear-gradient(135deg, #000000 0%, #2563eb 100%);">
         <!-- Sidebar placeholder -->
         {% include "include/teacher_sidebar.html" %}
         <main class="flex-1 p-6">
             <!-- Page Header -->
-            <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6 mb-6">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                         <div class="w-20 h-20 bg-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
@@ -16,8 +16,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-2xl font-bold text-gray-900">Create New Task</h1>
-                            <p class="text-gray-600">Add a new task for your students</p>
+                            <h1 class="text-2xl font-bold text-white">Create New Task</h1>
+                            <p class="text-white/80">Add a new task for your students</p>
                         </div>
                     </div>
                 </div>
@@ -27,56 +27,56 @@
                 {% csrf_token %}
                 
                 <!-- Task Information Section -->
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6">
+                    <h2 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/20">
                         Task Information
                     </h2>
                     <div class="space-y-4">
                         <div>
-                            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Task Title *</label>
+                            <label for="title" class="block text-sm font-medium text-white/80 mb-1">Task Title *</label>
                             <input type="text" id="title" name="title" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                   class="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/10 text-white placeholder-white/50"
                                    placeholder="Enter task title" required>
                         </div>
                         <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Task Description *</label>
+                            <label for="description" class="block text-sm font-medium text-white/80 mb-1">Task Description *</label>
                             <textarea id="description" name="description" rows="6"
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                      class="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/10 text-white placeholder-white/50"
                                       placeholder="Enter detailed task description, instructions, and requirements..." required></textarea>
                         </div>
                     </div>
                 </div>
 
-                 <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                 <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6">
+                    <h2 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/20">
                         Assignment & Section
                     </h2>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Assign to Section *</label>
+                            <label class="block text-sm font-medium text-white/80 mb-3">Assign to Section *</label>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center p-4 border border-white/30 rounded-lg hover:bg-white/10 transition-colors">
                                     <input type="radio" id="section_a" name="section" value="1" 
-                                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300" checked>
+                                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-white/30" checked>
                                     <label for="section_a" class="ml-3 flex-1 cursor-pointer">
-                                        <div class="font-medium text-gray-900">Section A</div>
-                                        <div class="text-sm text-gray-500">Default section</div>
+                                        <div class="font-medium text-white">Section A</div>
+                                        <div class="text-sm text-white/70">Default section</div>
                                     </label>
                                 </div>
-                                <div class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center p-4 border border-white/30 rounded-lg hover:bg-white/10 transition-colors">
                                     <input type="radio" id="section_b" name="section" value="2" 
-                                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300">
+                                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-white/30">
                                     <label for="section_b" class="ml-3 flex-1 cursor-pointer">
-                                        <div class="font-medium text-gray-900">Section B</div>
-                                        <div class="text-sm text-gray-500">Second section</div>
+                                        <div class="font-medium text-white">Section B</div>
+                                        <div class="text-sm text-white/70">Second section</div>
                                     </label>
                                 </div>
-                                <div class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center p-4 border border-white/30 rounded-lg hover:bg-white/10 transition-colors">
                                     <input type="radio" id="section_c" name="section" value="3" 
-                                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300">
+                                           class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-white/30">
                                     <label for="section_c" class="ml-3 flex-1 cursor-pointer">
-                                        <div class="font-medium text-gray-900">Section C</div>
-                                        <div class="text-sm text-gray-500">Third section</div>
+                                        <div class="font-medium text-white">Section C</div>
+                                        <div class="text-sm text-white/70">Third section</div>
                                     </label>
                                 </div>
                             </div>
@@ -86,31 +86,31 @@
                 </div>
 
                 <!-- Student Selection Section -->
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6">
+                    <h2 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/20">
                         Student Assignment
                     </h2>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Select Students</label>
+                            <label class="block text-sm font-medium text-white/80 mb-3">Select Students</label>
                             <div class="flex items-center mb-3">
-                                <input type="checkbox" id="select_all_students" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                                <label for="select_all_students" class="ml-2 block text-sm text-gray-700 font-medium">
+                                <input type="checkbox" id="select_all_students" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-white/30 rounded">
+                                <label for="select_all_students" class="ml-2 block text-sm text-white/80 font-medium">
                                     Select All Students in Section
                                 </label>
                             </div>
-                            <div class="border border-gray-300 rounded-lg p-4 max-h-60 overflow-y-auto">
+                            <div class="border border-white/30 rounded-lg p-4 max-h-60 overflow-y-auto bg-white/5">
                                 <div id="students_list" class="space-y-2">
                                     <!-- Students will be loaded here dynamically -->
-                                    <div class="text-gray-500 text-sm">Select a section to view students</div>
+                                    <div class="text-white/60 text-sm">Select a section to view students</div>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-2">Selected students will receive email notifications about this task</p>
+                            <p class="text-xs text-white/60 mt-2">Selected students will receive email notifications about this task</p>
                         </div>
                         
                         <div class="flex items-center">
-                            <input type="checkbox" id="send_email_notification" name="send_email_notification" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded" checked>
-                            <label for="send_email_notification" class="ml-2 block text-sm text-gray-700">
+                            <input type="checkbox" id="send_email_notification" name="send_email_notification" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-white/30 rounded" checked>
+                            <label for="send_email_notification" class="ml-2 block text-sm text-white/80">
                                 Send email notification to selected students
                             </label>
                         </div>
@@ -118,85 +118,85 @@
                 </div>
 
                 <!-- Schedule & Deadline Section -->
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6">
+                    <h2 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/20">
                         Schedule & Deadline
                     </h2>
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Quick Set Deadline</label>
+                        <label class="block text-sm font-medium text-white/80 mb-2">Quick Set Deadline</label>
                         <div class="flex flex-wrap gap-2">
-                            <button type="button" class="quick-deadline-btn bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200" data-days="1">Tomorrow</button>
-                            <button type="button" class="quick-deadline-btn bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200" data-days="3">3 Days</button>
-                            <button type="button" class="quick-deadline-btn bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200" data-days="7">1 Week</button>
-                            <button type="button" class="quick-deadline-btn bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200" data-days="14">2 Weeks</button>
-                            <button type="button" class="quick-deadline-btn bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200" data-days="30">1 Month</button>
+                            <button type="button" class="quick-deadline-btn bg-purple-500/20 text-purple-200 px-3 py-1 rounded-full text-sm hover:bg-purple-500/30" data-days="1">Tomorrow</button>
+                            <button type="button" class="quick-deadline-btn bg-purple-500/20 text-purple-200 px-3 py-1 rounded-full text-sm hover:bg-purple-500/30" data-days="3">3 Days</button>
+                            <button type="button" class="quick-deadline-btn bg-purple-500/20 text-purple-200 px-3 py-1 rounded-full text-sm hover:bg-purple-500/30" data-days="7">1 Week</button>
+                            <button type="button" class="quick-deadline-btn bg-purple-500/20 text-purple-200 px-3 py-1 rounded-full text-sm hover:bg-purple-500/30" data-days="14">2 Weeks</button>
+                            <button type="button" class="quick-deadline-btn bg-purple-500/20 text-purple-200 px-3 py-1 rounded-full text-sm hover:bg-purple-500/30" data-days="30">1 Month</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="deadline_date" class="block text-sm font-medium text-gray-700 mb-1">Deadline Date</label>
+                            <label for="deadline_date" class="block text-sm font-medium text-white/80 mb-1">Deadline Date</label>
                             <div class="relative">
                                 <input type="date" id="deadline_date" name="deadline_date" 
                                        min="{% now 'Y-m-d' %}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                       class="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white/10 text-white"
                                        required>
-                                <button type="button" id="calendar_toggle" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                <button type="button" id="calendar_toggle" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white/80">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                 </button>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">Select a future date</p>
+                            <p class="text-xs text-white/60 mt-1">Select a future date</p>
                         </div>
                        <div>
-                            <label for="deadline_time" class="block text-sm font-medium text-gray-700 mb-1">Deadline Time</label>
-                            <input type="time" name="deadline_time" id="deadline_time" class="bg-white px-3 py-2 border border-gray-300 text-black text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600">
+                            <label for="deadline_time" class="block text-sm font-medium text-white/80 mb-1">Deadline Time</label>
+                            <input type="time" name="deadline_time" id="deadline_time" class="bg-white/10 px-3 py-2 border border-white/30 text-white text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600">
                         </div>
                     </div>
                     <div class="mt-4">
                         <div class="flex items-center">
-                            <input type="checkbox" id="no_deadline" name="no_deadline" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                            <label for="no_deadline" class="ml-2 block text-sm text-gray-700">
+                            <input type="checkbox" id="no_deadline" name="no_deadline" class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-white/30 rounded">
+                            <label for="no_deadline" class="ml-2 block text-sm text-white/80">
                                 No specific deadline
                             </label>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Check this if the task doesn't have a specific deadline</p>
+                        <p class="text-xs text-white/60 mt-1">Check this if the task doesn't have a specific deadline</p>
                     </div>
-                    <div id="deadline_preview" class="mt-4 p-4 bg-gray-50 rounded-lg hidden">
-                        <h3 class="text-sm font-medium text-gray-900 mb-2">Calendar Preview</h3>
+                    <div id="deadline_preview" class="mt-4 p-4 bg-white/5 rounded-lg hidden">
+                        <h3 class="text-sm font-medium text-white mb-2">Calendar Preview</h3>
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-800 flex items-center justify-center text-sm" id="preview_day"></div>
-                            <div class="text-sm text-gray-600">
+                            <div class="text-sm text-white/80">
                                 <span id="preview_date"></span>
                                 <span id="preview_time"></span>
                             </div>
                         </div>
-                        <p class="text-xs text-gray-500 mt-2">This is how the deadline will appear in the student calendar</p>
+                        <p class="text-xs text-white/60 mt-2">This is how the deadline will appear in the student calendar</p>
                     </div>
                 </div>
 
                 <!-- Preview Section -->
-                <div class="bg-gray-50 rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-300">
+                <div class="bg-white/5 rounded-lg shadow-sm border border-white/20 p-6">
+                    <h2 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/20">
                         Task Preview
                     </h2>
-                    <div class="bg-white rounded-md p-4 border">
+                    <div class="bg-white/10 rounded-md p-4 border border-white/20">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 class="text-lg font-medium text-gray-900" id="preview-title">Task Title</h3>
-                            <span class="text-sm text-gray-500" id="preview-deadline">No deadline set</span>
+                            <h3 class="text-lg font-medium text-white" id="preview-title">Task Title</h3>
+                            <span class="text-sm text-white/60" id="preview-deadline">No deadline set</span>
                         </div>
-                        <div class="text-gray-700" id="preview-description">
+                        <div class="text-white/80" id="preview-description">
                             Task description will appear here...
                         </div>
-                        <div class="mt-3 pt-3 border-t border-gray-200">
-                            <span class="text-xs text-gray-500">Created by: {{ request.user.first_name }} {{ request.user.last_name }}</span>
+                        <div class="mt-3 pt-3 border-t border-white/20">
+                            <span class="text-xs text-white/60">Created by: {{ request.user.first_name }} {{ request.user.last_name }}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Form Actions -->
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6">
+                    <h2 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/20">
                         Create Task
                     </h2>
                     <div class="flex flex-col sm:flex-row gap-4">
@@ -205,7 +205,7 @@
                             Save Task
                         </button>
                         <a href="/teacher/task_list" 
-                           class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 text-center">
+                           class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 text-center">
                             Cancel
                         </a>
                     </div>
@@ -483,6 +483,4 @@
             updatePreview();
         });
     </script>
-
-
 {% endblock 'content' %}

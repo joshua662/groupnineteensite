@@ -1,113 +1,167 @@
 {% extends "layout/base.html" %}
 {% block 'title' %}Assignments & Exams{% endblock 'title' %}
 {% block 'content' %}
-<div class="flex min-h-screen bg-gray-100">
+<div class="flex min-h-screen" style="background: linear-gradient(135deg, #000000 0%, #2563eb 100%);">
     {% include "include/student_sidebar.html" %}
-    <main class="flex-1 p-8">
-        <h1 class="text-2xl font-bold mb-4">Assignments & Exams</h1>
-        <p class="text-gray-600 mb-6">Submit work and track deadlines.</p>
+    <main class="flex-1 p-4 md:p-8 overflow-hidden">
+        <div class="mb-6 md:mb-8">
+            <h1 class="text-xl md:text-2xl font-bold text-white">Assignments & Exams</h1>
+            <p class="text-gray-200 mt-1 text-sm md:text-base">Submit work and track deadlines.</p>
+        </div>
         
         <!-- Two Column Layout for Upcoming Deadlines and Submit Assignment -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <!-- Upcoming Assignments/Exams -->
             <div>
-                <h2 class="text-lg font-semibold mb-3">Upcoming Deadlines</h2>
-                <div class="space-y-4">
+                <h2 class="text-lg font-semibold mb-3 text-white">Upcoming Deadlines</h2>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 overflow-hidden">
+                    <table class="min-w-full divide-y divide-white/20">
+                        <thead class="bg-white/10">
+                            <tr>
+                                <th class="py-2 px-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Assignment</th>
+                                <th class="py-2 px-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Due Date</th>
+                                <th class="py-2 px-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Days Left</th>
+                                <th class="py-2 px-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white/5 divide-y divide-white/10">
                     {% for assigned_task in assigned_tasks %}
                         {% if assigned_task.status == 'pending' %}
-                        <div class="bg-white rounded-xl shadow p-4">
-                            <div class="font-medium text-blue-700 mb-1">{{ assigned_task.task.title }}</div>
-                            <div class="text-xs text-gray-500 mb-2">
-                                Due:
+                                <tr class="hover:bg-white/10 transition-colors duration-150">
+                                    <td class="py-2 px-4 text-white font-medium">{{ assigned_task.task.title }}</td>
+                                    <td class="py-2 px-4 text-white/80">
                                 {% if assigned_task.task.deadline %}
                                     {{ assigned_task.task.deadline|date:"M d, Y h:i A" }}
                                 {% else %}
-                                    <span class="text-gray-500 text-center">No deadline</span>
+                                            <span class="text-white/60">No deadline</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-2 px-4">
+                                        {% if assigned_task.task.deadline %}
+                                            {% if assigned_task.task.deadline < now %}
+                                                <span class="text-red-300 font-medium">Overdue</span>
+                                            {% else %}
+                                                {% with days_left=assigned_task.task.deadline|timeuntil|slice:':2'|add:'0' %}
+                                                    {% if days_left <= '3' %}
+                                                        <span class="text-orange-300 font-medium">{{ days_left }} days</span>
+                                                    {% else %}
+                                                        <span class="text-green-300 font-medium">{{ days_left }} days</span>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-white/60">-</span>
                                 {% endif %}
-                            </div>
-                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">{{ assigned_task.status }}</span>
-                        </div>
+                                    </td>
+                                    <td class="py-2 px-4">
+                                        {% if assigned_task.task.deadline and assigned_task.task.deadline < now %}
+                                            <span class="bg-red-500/20 text-red-200 border border-red-500/30 px-2 py-1 rounded-full text-xs">Overdue</span>
+                                        {% elif assigned_task.task.deadline %}
+                                            {% with days_left=assigned_task.task.deadline|timeuntil|slice:':2'|add:'0' %}
+                                                {% if days_left <= '3' %}
+                                                    <span class="bg-orange-500/20 text-orange-200 border border-orange-500/30 px-2 py-1 rounded-full text-xs">Urgent</span>
+                                                {% else %}
+                                                    <span class="bg-yellow-500/20 text-yellow-200 border border-yellow-500/30 px-2 py-1 rounded-full text-xs">Pending</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% else %}
+                                            <span class="bg-yellow-500/20 text-yellow-200 border border-yellow-500/30 px-2 py-1 rounded-full text-xs">{{ assigned_task.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
                         {% endif %}
                     {% endfor %}
+                        </tbody>
+                    </table>
                     {% if not has_pending %}
-                        <div class="text-gray-500 text-center">No upcoming deadline</div>
+                        <div class="p-4 text-center">
+                            <div class="text-white/60">No upcoming deadlines</div>
+                        </div>
                     {% endif %}
                 </div>
             </div>
 
             <!-- Assignment Submission Form -->
             <div>
-                <h2 class="text-lg font-semibold mb-3">Submit Assignment</h2>
-                <form method="post" action="" enctype="multipart/form-data" class="bg-white rounded-xl shadow p-6 flex flex-col gap-4">
+                <h2 class="text-lg font-semibold mb-3 text-white">Submit Assignment</h2>
+                <form method="post" action="" enctype="multipart/form-data" class="bg-white/10 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 p-6 flex flex-col gap-4">
                     {% csrf_token %}
-                    <label class="font-medium">Assignment Title</label>
-                    <select name="assigned_task_id" class="border rounded px-2 py-1" required>
-                        <option value="">Select subject</option>
+                    <label class="font-medium text-white">Assignment Title</label>
+                    <select name="assigned_task_id" class="border border-white/20 bg-white/10 text-white rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <option value="" class="text-gray-700">Select subject</option>
                         {% for assigned_task in assigned_tasks %}
                             {% if assigned_task.status == 'pending' %}
-                            <option value="{{ assigned_task.id }}">{{ assigned_task.task.title }}</option>
+                            <option value="{{ assigned_task.id }}" class="text-gray-700">{{ assigned_task.task.title }}</option>
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <label class="font-medium">Upload File</label>
-                    <input type="file" name="assignment_file" class="border rounded px-2 py-1" required>
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded self-end">Submit</button>
+                    <label class="font-medium text-white">Upload File</label>
+                    <input type="file" name="assignment_file" class="border border-white/20 bg-white/10 text-white rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded self-end transition-colors duration-200">Submit</button>
                 </form>
             </div>
         </div>
 
         <!-- Submission Tracker -->
         <div>
-            <h2 class="text-lg font-semibold mb-3">Your Submissions</h2>
+            <h2 class="text-lg font-semibold mb-3 text-white">Your Submissions</h2>
             <div class="overflow-x-auto">
-                <table class="min-w-full bg-white rounded-xl shadow">
-                    <thead>
-                        <tr class="text-left text-gray-600 text-sm">
-                            <th class="py-2 px-4">Assignment</th>
-                            <th class="py-2 px-4">Submitted On</th>
-                            <th class="py-2 px-4">Status</th>
-                            <th class="py-2 px-4">Rating</th>
-                            <th class="py-2 px-4">File</th>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 overflow-hidden">
+                    <table class="min-w-full divide-y divide-white/20">
+                        <thead class="bg-white/10">
+                            <tr>
+                                <th class="py-2 px-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Assignment</th>
+                                <th class="py-2 px-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Submitted On</th>
+                                <th class="py-2 px-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Status</th>
+                                <th class="py-2 px-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">Rating</th>
+                                <th class="py-2 px-4 text-left text-xs font-semibold text-white/80 uppercase tracking-wider border-b border-white/20">File</th>
                         </tr>
                     </thead>
-                    <tbody>
+                        <tbody class="bg-white/5 divide-y divide-white/10">
                         {% for assigned_task in assigned_tasks %}
-                            <tr>
-                                <td class="py-2 px-4">{{ assigned_task.task.title }}</td>
-                                <td class="py-2 px-4">{{ assigned_task.submitted_at|date:"M d, Y h:i A" }}</td>
+                                <tr class="hover:bg-white/10 transition-colors duration-150">
+                                    <td class="py-2 px-4 text-white">{{ assigned_task.task.title }}</td>
+                                    <td class="py-2 px-4 text-white/80">
+                                        {% if assigned_task.submitted_at %}
+                                            {{ assigned_task.submitted_at|date:"M d, Y h:i A" }}
+                                        {% else %}
+                                            <span class="text-white/40">Not submitted</span>
+                                        {% endif %}
+                                    </td>
                                 <td class="py-2 px-4">
                                     {% if assigned_task.submission_status == 'On Time' %}
-                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">On Time</span>
+                                            <span class="bg-green-500/20 text-green-200 border border-green-500/30 px-2 py-1 rounded-full text-xs">On Time</span>
                                     {% elif assigned_task.submission_status == 'Late' %}
-                                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">Late</span>
+                                            <span class="bg-red-500/20 text-red-200 border border-red-500/30 px-2 py-1 rounded-full text-xs">Late</span>
                                     {% elif assigned_task.submission_status == 'Pending' %}
-                                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>
+                                            <span class="bg-yellow-500/20 text-yellow-200 border border-yellow-500/30 px-2 py-1 rounded-full text-xs">Pending</span>
                                     {% elif assigned_task.submission_status == 'Graded (On Time)' %}
-                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Graded (On Time)</span>
+                                            <span class="bg-green-500/20 text-green-200 border border-green-500/30 px-2 py-1 rounded-full text-xs">Graded (On Time)</span>
                                     {% elif assigned_task.submission_status == 'Graded (Late)' %}
-                                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">Graded (Late)</span>
+                                            <span class="bg-red-500/20 text-red-200 border border-red-500/30 px-2 py-1 rounded-full text-xs">Graded (Late)</span>
                                     {% else %}
-                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">{{ assigned_task.submission_status }}</span>
+                                            <span class="bg-gray-500/20 text-gray-200 border border-gray-500/30 px-2 py-1 rounded-full text-xs">{{ assigned_task.submission_status }}</span>
                                     {% endif %}
                                 </td>
-                                <td class="py-2 px-4">{{ assigned_task.rating|default:"N/A" }}</td>
+                                    <td class="py-2 px-4 text-white/80">{{ assigned_task.rating|default:"N/A" }}</td>
                                 <td class="py-2 px-4">
                                     {% if assigned_task.submission_file %}
                                         <a href="/student/download_submission/{{ assigned_task.id }}/" 
-                                           class="inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline text-sm">
+                                               class="inline-flex items-center text-blue-300 hover:text-blue-200 hover:underline text-sm">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                             </svg>
                                             Download
                                         </a>
                                     {% else %}
-                                        <span class="text-gray-400 text-sm">No file</span>
+                                            <span class="text-white/40 text-sm">No file</span>
                                     {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </main>

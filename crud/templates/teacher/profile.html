@@ -1,106 +1,112 @@
 {% extends "layout/base.html" %}
 {% block 'title' %}Profile Settings{% endblock 'title' %}
 {% block 'content' %}
-<div class="flex min-h-screen bg-gray-100">
+<div class="flex min-h-screen" style="background: linear-gradient(135deg, #000000 0%, #2563eb 100%);">
     {% include "include/teacher_sidebar.html" %}
-    <main class="flex-1 p-6">
+    <main class="flex-1 p-4 md:p-6 overflow-hidden">
+        <!-- Header -->
+        <div class="mb-6 md:mb-8">
+            <h1 class="text-xl md:text-2xl font-bold text-white mb-2">Profile Settings</h1>
+            <p class="text-gray-200 text-sm md:text-base">Manage your account information</p>
+        </div>
+
         <!-- Profile Header -->
-        <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6 mb-6">
             <div class="flex items-center space-x-4">
-                <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                    JD
+                <div class="w-16 h-16 md:w-20 md:h-20 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl md:text-2xl font-bold">
+                    {{ teacher.first_name|first }}{{ teacher.last_name|first }}
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">
+                    <h2 class="text-xl md:text-2xl font-bold text-white mb-1">
                         {{ teacher }}
-                    </h1>
-                    <p class="text-gray-600">{{ teacher.teacher_id }}</p>
+                    </h2>
+                    <p class="text-white/80 text-sm md:text-base">{{ teacher.teacher_id }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Profile Information -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <!-- Left Column -->
             <div class="space-y-6">
                 <!-- Personal Information -->
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6">
+                    <h2 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/20">
                         Personal Information
                     </h2>
                     <div class="space-y-3">
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Username</span>
-                            <span class="font-medium">{{ teacher.username }}</span>
-                        </div>  
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">First Name</span>
-                            <span class="font-medium">{{ teacher.first_name }}</span>
+                            <span class="text-white/80">Username</span>
+                            <span class="font-medium text-white">{{ teacher.username }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Middle Name</span>
-                            <span class="font-medium">{{ teacher.middle_name }}</span>
+                            <span class="text-white/80">First Name</span>
+                            <span class="font-medium text-white">{{ teacher.first_name }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Last Name</span>
-                            <span class="font-medium">{{ teacher.last_name }}</span>
+                            <span class="text-white/80">Middle Name</span>
+                            <span class="font-medium text-white">{{ teacher.middle_name }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Suffix</span>
-                            <span class="font-medium">{{ teacher.suffix }}</span>
+                            <span class="text-white/80">Last Name</span>
+                            <span class="font-medium text-white">{{ teacher.last_name }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Gender</span>
-                            <span class="font-medium">{{ teacher.gender }}</span>
+                            <span class="text-white/80">Suffix</span>
+                            <span class="font-medium text-white">{{ teacher.suffix }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Birth Date</span>
-                            <span class="font-medium">{{ teacher.birth_date|date:"M d, Y" }}</span>
+                            <span class="text-white/80">Gender</span>
+                            <span class="font-medium text-white">{{ teacher.gender }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Age</span>
-                            <span class="font-medium">{{ teacher.calculate_current_age }}</span>
+                            <span class="text-white/80">Birth Date</span>
+                            <span class="font-medium text-white">{{ teacher.birth_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-white/80">Age</span>
+                            <span class="font-medium text-white">{{ teacher.calculate_current_age }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Right Column -->
-            <div class="space-y-6">
+        <div class="space-y-6">
                 <!-- Contact Information -->
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6">
+                    <h2 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/20">
                         Contact Information
                     </h2>
                     <div class="space-y-3">
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Email</span>
-                            <span class="font-medium break-all">{{ teacher.email }}</span>
+                            <span class="text-white/80">Email</span>
+                            <span class="font-medium break-all text-white">{{ teacher.email }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Contact Number</span>
-                            <span class="font-medium">{{ teacher.contact_number }}</span>
+                            <span class="text-white/80">Contact Number</span>
+                            <span class="font-medium text-white">{{ teacher.contact_number }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Address</span>
-                            <span class="font-medium">{{ teacher.address }}</span>
+                            <span class="text-white/80">Address</span>
+                            <span class="font-medium text-white">{{ teacher.address }}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Account Information -->
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6">
+                    <h2 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/20">
                         Account Information
                     </h2>
                     <div class="space-y-3">
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Account Created</span>
-                            <span class="font-medium">{{ teacher.created_at }}</span>
+                            <span class="text-white/80">Account Created</span>
+                            <span class="font-medium text-white">{{ teacher.created_at }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Last Updated</span>
-                            <span class="font-medium">{{ teacher.updated_at }}</span>
+                            <span class="text-white/80">Last Updated</span>
+                            <span class="font-medium text-white">{{ teacher.updated_at }}</span>
                         </div>
                     </div>
                 </div>
@@ -108,20 +114,23 @@
         </div>
 
         <!-- Actions -->
-        <div class="bg-white rounded-lg shadow-sm border p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">
+        <div class="bg-white/10 backdrop-blur-sm rounded-lg shadow-sm border border-white/20 p-6">
+            <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b border-white/20">
                 Account Actions
-            </h2>
-            <div class="flex flex-col sm:flex-row gap-4">
-                <a href="/teacher/edit_teacher/{{ teacher.teacher_id }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center transition-colors">
+            </h3>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <a href="/teacher/edit_teacher/{{ teacher.teacher_id }}" 
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center transition-colors duration-200 font-medium text-sm">
                     Edit Profile
                 </a>
-                <a href="/teacher/teacher_changepass/{{ teacher.teacher_id }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-center transition-colors">
+                <a href="/teacher/teacher_changepass/{{ teacher.teacher_id }}" 
+                   class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-center transition-colors duration-200 font-medium text-sm">
                     Change Password
                 </a>
                 <form method="post" action="{% url 'teacher_logout' %}" class="flex-1">
                     {% csrf_token %}
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded w-full transition-colors">
+                    <button type="submit" 
+                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded w-full transition-colors duration-200 font-medium text-sm">
                         Logout
                     </button>
                 </form>

@@ -127,5 +127,48 @@ class AssignedTask(models.Model):
 
     def __str__(self):
         return f"{self.task.title} - {self.student.first_name} {self.student.last_name}"
-    
 
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('task_assigned', 'Task Assigned'),
+        ('task_graded', 'Task Graded'),
+        ('deadline_reminder', 'Deadline Reminder'),
+        ('general', 'General'),
+    ]
+    
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='general')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    related_task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, blank=True)
+    related_assigned_task = models.ForeignKey(AssignedTask, on_delete=models.CASCADE, null=True, blank=True)
+    
+    class Meta:
+        db_table = 'tbl_notification'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.title} - {self.student.first_name} {self.student.last_name}"
+    
+    @property
+    def time_ago(self):
+        """Return human-readable time ago"""
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        now = timezone.now()
+        diff = now - self.created_at
+        
+        if diff.days > 0:
+            return f"{diff.days} day{'s' if diff.days != 1 else ''} ago"
+        elif diff.seconds >= 3600:
+            hours = diff.seconds // 3600
+            return f"{hours} hour{'s' if hours != 1 else ''} ago"
+        elif diff.seconds >= 60:
+            minutes = diff.seconds // 60
+            return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+        else:
+            return "Just now"
+    
