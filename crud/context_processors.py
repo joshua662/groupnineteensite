@@ -11,4 +11,5 @@ def notification_count(request):
             return {'unread_notifications_count': unread_count}
         except:
             return {'unread_notifications_count': 0}
+    return {'unread_notifications_count': 0}
  
