@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
     <link rel="stylesheet" href="{% static 'css/teacher_sidebar.css' %}">
-    <link rel="stylesheet" href="{% static 'css/student_sidebar.css' %}"> <!-- Add this line to include student sidebar CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" type="images/png" href="{% static 'images/web.png' %}">
     <meta name="csrf-token" content="{{ csrf_token }}">
@@ -98,6 +97,19 @@
 </head>
 <body class="bg-main-gradient h-full font-sans text-gray-900">
     {% include "include/ToastMessage.html" %}
+    {% if request.resolver_match.url_name != 'landing_page' %}
+        {% if request.session.is_teacher_authenticated %}
+            {% include "include/teacher_sidebar.html" %}
+            <style>body { margin-left: 18rem !important; }</style>
+        {% elif request.session.is_student_authenticated %}
+            {% include "include/student_sidebar.html" %}
+            <style>body { margin-left: 18rem !important; }</style>
+        {% else %}
+            <style>body { margin-left: 0 !important; }</style>
+        {% endif %}
+    {% else %}
+        <style>body { margin-left: 0 !important; }</style>
+    {% endif %}
     {% block 'content' %}{% endblock 'content' %}
     <script src="{% static 'js/toast.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
